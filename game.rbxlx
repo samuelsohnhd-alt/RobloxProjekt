@@ -19,6 +19,9 @@ end</string>
         <Properties>
           <string name="Name">Readme</string>
           <string name="Source"><![CDATA[return "Hallo aus ReplicatedStorage/src/shared"
+-- ping Do 21 Aug 2025 00:11:08 CEST
+-- autosave check 2025-08-21 00:13:39
+-- autosave check 2025-08-21 00:14:35
 ]]></string>
         </Properties>
       </Item>
@@ -78,6 +81,13 @@ end)
           <string name="Name">src/client</string>
           <string name="Source">print("Hello world, from client!")</string>
         </Properties>
+        <Item class="LocalScript" referent="12">
+          <Properties>
+            <string name="Name">RB7_ClientBoot</string>
+            <string name="Source"><![CDATA[print("[RB7] ClientBoot aus src/client geladen")
+]]></string>
+          </Properties>
+        </Item>
       </Item>
     </Item>
   </Item>
