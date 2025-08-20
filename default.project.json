@@ -1,12 +1,27 @@
 {
-  "name": "MeinProjekt",
+  "name": "RobloxProjekt",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
-      "$path": "src/server"
+      "$className": "ServerScriptService",
+      "src/server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "src/client": {
+          "$path": "src/client"
+        }
+      }
     },
     "ReplicatedStorage": {
-      "$path": "src/shared"
+      "$className": "ReplicatedStorage",
+      "src/shared": {
+        "$path": "src/shared"
+      }
     }
   }
 }
