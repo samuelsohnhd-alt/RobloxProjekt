@@ -1,0 +1,20 @@
+.
+├── default.project.json
+├── game.rbxlx
+├── game.rbxlx.lock
+├── project_structure.txt
+├── README.md
+└── src
+    ├── client
+    │   └── init.client.luau
+    ├── Hello.server.lua
+    ├── server
+    │   ├── Hello.server.lua
+    │   ├── init.server.luau
+    │   ├── RojoTest.server.lua
+    │   └── test.server.lua
+    └── shared
+        ├── Hello.luau
+        └── Readme.lua
+
+5 directories, 13 files
