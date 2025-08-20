@@ -1,0 +1,49 @@
+<roblox version="4">
+  <Item class="ReplicatedStorage" referent="0">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="ModuleScript" referent="1">
+      <Properties>
+        <string name="Name">Hello</string>
+        <string name="Source">return function()
+	print("Hello, world!")
+end</string>
+      </Properties>
+    </Item>
+    <Item class="ModuleScript" referent="2">
+      <Properties>
+        <string name="Name">Readme</string>
+        <string name="Source"><![CDATA[return "Hallo aus ReplicatedStorage/src/shared"
+]]></string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="Script" referent="3">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+      <token name="RunContext">0</token>
+      <string name="Source">print("Hello world, from server!")</string>
+    </Properties>
+    <Item class="Script" referent="4">
+      <Properties>
+        <string name="Name">Hello</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[print("✅ Rojo Build Test: ServerScript wurde geladen.")
+
+game:GetService("Players").PlayerAdded:Connect(function(p)
+    print("👋 Spieler beigetreten:", p.Name)
+end)
+]]></string>
+      </Properties>
+    </Item>
+    <Item class="Script" referent="5">
+      <Properties>
+        <string name="Name">test</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[print("Hallo von Rojo! (kommt aus src/server/test.server.lua)")
+]]></string>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>
