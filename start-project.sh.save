@@ -1,0 +1,20 @@
+#!/bin/bash
+# Start-Skript für RB7 Projekt
+# 1. Rojo-Server starten (nimmt freien Port)
+# 2. Spiel-Datei bauen
+# 3. Spiel in Roblox Studio öffnen
+
+cd ~/RobloxProjekt || exit 1
+
+# 1. Rojo-Server im Hintergrund starten
+./serve.sh &
+
+# 2. Build-Datei erzeugen
+rojo build -o game.rbxlx
+
+# 3. Datei mit Studio öffnen
+open game.rbxlx
+
+echo "✅ RB7 Projekt gestartet! Änderungen syncen jetzt zwischen Studio ↔ src/ ↔ GitHub"
+
+
