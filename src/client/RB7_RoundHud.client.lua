@@ -32,7 +32,8 @@ local function styleLabel(lb: TextLabel, w: number, y: number)
 	lb.BackgroundColor3 = Theme.Color.PanelBg
 	lb.BackgroundTransparency = 0.3
 	lb.BorderSizePixel = 0
-	lb.FontFace = Font.new(Theme.Font.Family, Enum.FontWeight.SemiBold)
+	lb.Font = Theme.Font         -- <— Enum.Font direkt setzen
+	lb.TextSize = 16
 	lb.TextColor3 = Theme.Color.Text
 end
 
@@ -68,7 +69,7 @@ E_RoundStart.OnClientEvent:Connect(function(payload)
 		timerLabel.Text = "⏳ " .. fmt(payload.duration)
 	end
 end)
-E_RoundEnded.OnClientEvent:Connect(function(payload)
+E_RoundEnded.OnClientEvent:Connect(function(_)
 	statusLabel.Text = "⏹ Runde beendet"
 end)
 E_TimerTick.OnClientEvent:Connect(function(payload)

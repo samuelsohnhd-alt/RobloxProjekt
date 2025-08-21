@@ -4,7 +4,8 @@ local Players = game:GetService("Players")
 
 local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
 local ProfileTypes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("PlayerProfile"))
-local ProfileStore = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("ProfileStore"))
+-- Stores liegt unter ServerScriptService/Server/Stores → vom Skript aus: script.Parent:WaitForChild("Stores")
+local ProfileStore = require(script.Parent:WaitForChild("Stores"):WaitForChild("ProfileStore"))
 
 local function ensureFolder(parent: Instance, name: string): Folder
 	local f = parent:FindFirstChild(name)
@@ -36,7 +37,6 @@ RF_GetProfile.OnServerInvoke = function(player)
 	return prof
 end
 
--- Beispiel: bei Join direkt senden (optional)
 Players.PlayerAdded:Connect(function(plr)
 	local prof = ProfileStore.get(plr.UserId, plr.Name)
 	RE_ProfileUpdated:FireClient(plr, prof)
