@@ -3,20 +3,14 @@
   "servePort": 34872,
   "tree": {
     "$className": "DataModel",
-
     "ServerScriptService": { "$path": "src/server" },
-
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": { "$path": "src/client" }
     },
-
     "StarterGui": { "$path": "src/ui" },
-
     "ServerStorage": { "$path": "src/sec" },
-
     "ReplicatedFirst": { "$path": "src/first" },
-
     "ReplicatedStorage": { "$path": "src/shared" }
   }
 }
