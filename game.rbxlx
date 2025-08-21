@@ -2469,46 +2469,6 @@ end
 							<BinaryString name="Tags"></BinaryString>
 							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000840</UniqueId>
 						</Properties>
-						<Item class="LocalScript" referent="RBXda1e6b103f1d463992b546788a5ed41f">
-							<Properties>
-								<BinaryString name="AttributesSerialize"></BinaryString>
-								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-								<bool name="DefinesCapabilities">false</bool>
-								<bool name="Disabled">false</bool>
-								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-								<Content name="LinkedSource"><null></null></Content>
-								<string name="Name">RB7_UI</string>
-								<token name="RunContext">0</token>
-								<string name="ScriptGuid">{3eb583c0-0bec-4822-857b-9af06f1299f5}</string>
-								<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
-local player  = Players.LocalPlayer
-
--- Doppelstart-Schutz (gemeinsamer Guard für alle UI-Entrypoints)
-if _G.RB7_UI_BOOTED then
-    warn("[RB7_UI Stub] bereits geladen – überspringe.")
-    return
-end
-_G.RB7_UI_BOOTED = true
-
-print("[RB7_UI Stub] delegiere auf UI/screens …")
-
--- Unabhängig vom Ort: greife immer auf PlayerScripts/UI/screens zu
-local ps = player:WaitForChild("PlayerScripts")
-local ui = ps:WaitForChild("UI")
-local screensMod = ui:WaitForChild("screens")
-local Screens = require(screensMod)
-
-Screens.boot({
-    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
-})
-
-print("[RB7_UI Stub] done.")
-]]></ProtectedString>
-								<int64 name="SourceAssetId">-1</int64>
-								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000841</UniqueId>
-							</Properties>
-						</Item>
 					</Item>
 					<Item class="Folder" referent="RBXac0a09ce021544a7bd8c58499f579eea">
 						<Properties>
@@ -2521,70 +2481,6 @@ print("[RB7_UI Stub] done.")
 							<BinaryString name="Tags"></BinaryString>
 							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000842</UniqueId>
 						</Properties>
-						<Item class="LocalScript" referent="RBX63a519a49d9f45019d6cb1f60f45ed7b">
-							<Properties>
-								<BinaryString name="AttributesSerialize"></BinaryString>
-								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-								<bool name="DefinesCapabilities">false</bool>
-								<bool name="Disabled">false</bool>
-								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-								<Content name="LinkedSource"><null></null></Content>
-								<string name="Name">RB7_UIMonitor</string>
-								<token name="RunContext">0</token>
-								<string name="ScriptGuid">{d644e68b-6574-4cb1-b3b1-5b44784056d0}</string>
-								<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local plr = Players.LocalPlayer
-
-local function full(n)
-    local ok, path = pcall(function() return n:GetFullName() end)
-    return ok and path or (n.Name .. " (?)")
-end
-
-local function onFound(node, origin)
-    local msg = ("[RB7_UIMonitor] RB7_UI entdeckt (%s): %s"):format(origin, full(node))
-    print(msg)
-    -- Doppelstart-Schutz erzwingen
-    if _G.RB7_UI_BOOTED then
-        -- Falls jemand noch eine Kopie startet, sofort deaktivieren
-        local ok = pcall(function()
-            if node:IsA("LocalScript") then
-                if node:FindFirstChild("screens") then
-                    -- sehr wahrscheinlich legacy
-                    print("[RB7_UIMonitor] deaktiviere vermutetes Legacy-Script.")
-                end
-                -- LocalScript hat die Eigenschaft Enabled
-                node.Enabled = false
-            end
-        end)
-        if not ok then
-            warn("[RB7_UIMonitor] Konnte Legacy nicht deaktivieren (lief evtl. bereits).")
-        end
-    end
-end
-
--- Frühe Überwachung: PlayerScripts + StarterPlayerScripts
-task.defer(function()
-    -- Bereits vorhandene
-    local ps = plr:WaitForChild("PlayerScripts")
-    for _,d in ipairs(ps:GetDescendants()) do
-        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
-            onFound(d, "vorhanden")
-        end
-    end
-    -- Live-Spawn
-    ps.DescendantAdded:Connect(function(d)
-        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
-            onFound(d, "spawn")
-        end
-    end)
-end)
-]]></ProtectedString>
-								<int64 name="SourceAssetId">-1</int64>
-								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000843</UniqueId>
-							</Properties>
-						</Item>
 					</Item>
 					<Item class="LocalScript" referent="RBX98c4c1346c624cb1aaf0d33d64e5b1d8">
 						<Properties>
@@ -3329,52 +3225,6 @@ return Theme
 							</Item>
 						</Item>
 					</Item>
-					<Item class="LocalScript" referent="RBX3767c8350a2e49f184e08abdaf97d96f">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<bool name="Disabled">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<Content name="LinkedSource"><null></null></Content>
-							<string name="Name">RB7_UI</string>
-							<token name="RunContext">0</token>
-							<string name="ScriptGuid">{e374a6f1-e7f7-4790-9e66-e887c41aae0b}</string>
-							<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
-local player  = Players.LocalPlayer
-
-if _G.RB7_UI_BOOTED then
-    warn("[RB7_UI] bereits geladen – überspringe.")
-    return
-end
-_G.RB7_UI_BOOTED = true
-
-print("[RB7_UI] Init starting…")
-
--- Robust: Finde UI/screens, egal wo das Script hängt
-local ps = player:WaitForChild("PlayerScripts")
-local root = script.Parent
-if root.Name ~= "Client" then
-    root = ps:FindFirstChild("Client") or ps
-end
-
-local uiFolder = root:FindFirstChild("UI") or ps:FindFirstChild("UI") or script.Parent:FindFirstChild("UI")
-assert(uiFolder, "[RB7_UI] UI folder not found")
-local screensMod = uiFolder:FindFirstChild("screens")
-assert(screensMod, "[RB7_UI] 'screens' Module not found under UI")
-local Screens = require(screensMod)
-
-Screens.boot({
-    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
-})
-
-print("[RB7_UI] Init done.")
-]]></ProtectedString>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000085a</UniqueId>
-						</Properties>
-					</Item>
 					<Item class="LocalScript" referent="RBX6dcc3e19754945ce8e38ba05cbd1e2e5">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
@@ -3646,6 +3496,146 @@ return M
 									<int64 name="SourceAssetId">-1</int64>
 									<BinaryString name="Tags"></BinaryString>
 									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000863</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX14f928abe155482b83d1c97990ef9c0d">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">StatusBar</string>
+									<string name="ScriptGuid">{39726471-bf44-44fb-97b7-945582e9f106}</string>
+									<ProtectedString name="Source"><![CDATA[local Theme = require(script.Parent.Parent.Styles.Theme)
+local Store = require(script.Parent.Parent.State.Store)
+local RunService = game:GetService("RunService"); local Stats = game:GetService("Stats")
+return function()
+  local frame=Instance.new("Frame"); frame.Name="RB7_StatusBar"; frame.Size=UDim2.new(1,0,0,28); frame.BackgroundTransparency=1; frame.ZIndex=Theme.Z.HUD
+  local c=Instance.new("Frame"); c.Name="Container"; c.Parent=frame; c.Size=UDim2.fromScale(1,1); c.BackgroundColor3=Theme.Colors.Panel; c.BackgroundTransparency=0.2
+  Instance.new("UICorner", c).CornerRadius=UDim.new(0,Theme.Corner)
+  local pad=Instance.new("UIPadding", c); pad.PaddingLeft=UDim.new(0,Theme.Padding); pad.PaddingRight=UDim.new(0,Theme.Padding)
+  local list=Instance.new("UIListLayout", c); list.FillDirection=Enum.FillDirection.Horizontal; list.HorizontalAlignment=Enum.HorizontalAlignment.Right; list.VerticalAlignment=Enum.VerticalAlignment.Center; list.Padding=UDim.new(0,12)
+  local function mk(name) local l=Instance.new("TextLabel"); l.Name=name; l.BackgroundTransparency=1; l.Size=UDim2.fromOffset(100,28); l.Font=Theme.Fonts.Mono; l.TextSize=Theme.Sizes.Small; l.TextColor3=Theme.Colors.Subtle; l.TextXAlignment=Enum.TextXAlignment.Right; l.ZIndex=Theme.Z.HUD; return l end
+  local fpsL=mk("FPS"); fpsL.Parent=c; local pingL=mk("Ping"); pingL.Parent=c
+  local frames, last = 0, os.clock()
+  RunService.Heartbeat:Connect(function()
+    frames += 1; local now=os.clock()
+    if now-last>=1 then fpsL.Visible=Store.get("showFPS",true); if fpsL.Visible then fpsL.Text=string.format("FPS %3d",frames) end; frames=0; last=now end
+  end)
+  task.spawn(function()
+    while task.wait(0.5) do
+      local it = Stats and Stats.Network and Stats.Network.ServerStatsItem and Stats.Network.ServerStatsItem["Data Ping"]
+      local ping = it and tonumber(it:GetValueString():gsub(" ms","")) or nil
+      pingL.Visible = Store.get("showPing",true) and ping~=nil; if pingL.Visible then pingL.Text = string.format("PING %3d ms", ping) end
+    end
+  end)
+  return frame
+end
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">46c6c9bae1e5036208b8a70000000851</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX5dccf6d21a33497aab6f0af6f7a55c5d">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Button</string>
+									<string name="ScriptGuid">{ebc0fae1-d3a9-44cc-856a-ec70c668b8af}</string>
+									<ProtectedString name="Source"><![CDATA[local Theme = require(script.Parent.Parent.Styles.Theme)
+return function(props)
+  props = props or {}
+  local btn = Instance.new("TextButton")
+  btn.Name="RB7_Button"; btn.AutoButtonColor=false
+  btn.Text = props.text or "Button"; btn.Size = props.size or UDim2.fromOffset(160,36)
+  btn.BackgroundColor3 = Theme.Colors.Accent; btn.TextColor3 = Theme.Colors.Bg
+  btn.Font = Theme.Fonts.Body; btn.TextSize = Theme.Sizes.Base
+  Instance.new("UICorner", btn).CornerRadius = UDim.new(0, Theme.Corner)
+  local pad=Instance.new("UIPadding", btn); pad.PaddingLeft=UDim.new(0,Theme.Padding); pad.PaddingRight=UDim.new(0,Theme.Padding)
+  btn.MouseButton1Click:Connect(function() if typeof(props.onClick)=="function" then task.spawn(props.onClick) end end)
+  btn.MouseEnter:Connect(function() btn.BackgroundColor3 = Theme.Colors.Accent2 end)
+  btn.MouseLeave:Connect(function() btn.BackgroundColor3 = Theme.Colors.Accent end)
+  return btn
+end
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">46c6c9bae1e5036208b8a70000000853</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX26238c4317a0438d8889eddcc9a104f6">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Menu</string>
+									<string name="ScriptGuid">{30e696d9-2a19-45da-8912-1321559fec48}</string>
+									<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Events = ReplicatedStorage
+    :WaitForChild("Shared")
+    :WaitForChild("Events")
+    :WaitForChild("v1")
+
+local M = {}
+
+function M.init()
+    local OpenMenu = Events:FindFirstChild("OpenMenu")
+    if OpenMenu and OpenMenu:IsA("RemoteEvent") then
+        print("[RB7_UI] OpenMenu RemoteEvent ✅ vorhanden")
+    else
+        warn("[RB7_UI] OpenMenu RemoteEvent fehlt")
+    end
+end
+
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">46c6c9bae1e5036208b8a70000000858</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX6321d8b0278b40bf9804cb61d5aadbef">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">HUDTimer</string>
+									<string name="ScriptGuid">{fe05a480-ab50-414e-a98d-a832a8b9acf5}</string>
+									<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Events = ReplicatedStorage
+    :WaitForChild("Shared")
+    :WaitForChild("Events")
+    :WaitForChild("v1")
+
+local M = {}
+
+function M.mount(player)
+    local RoundTimerTick = Events:FindFirstChild("RoundTimerTick")
+    if not RoundTimerTick or not RoundTimerTick:IsA("RemoteEvent") then
+        warn("[RB7_HUD Timer] RoundTimerTick nicht gefunden")
+        return
+    end
+    RoundTimerTick.OnClientEvent:Connect(function(t)
+        -- hier könnte UI aktualisiert werden
+        -- print(("[RB7_HUD Timer] t=%s"):format(t))
+    end)
+    print("[RB7_HUD Timer] ✅ aktiv (RoundTimerTick)")
+end
+
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">46c6c9bae1e5036208b8a7000000085a</UniqueId>
 								</Properties>
 							</Item>
 						</Item>
@@ -3940,6 +3930,119 @@ return M
 								</Properties>
 							</Item>
 						</Item>
+						<Item class="Folder" referent="RBXcef29a2983d84e2b8d46bcab5e4145bf">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">State</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">46c6c9bae1e5036208b8a7000000084d</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBX03298734879c407296aaa708556e8c5b">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Store</string>
+									<string name="ScriptGuid">{b8d94038-4855-4a3c-8d6a-baa84e868c41}</string>
+									<ProtectedString name="Source"><![CDATA[local Store, Http = {}, game:GetService("HttpService")
+local _s, _e = {}, Instance.new("BindableEvent")
+function Store.get(k,d) return _s[k]==nil and d or _s[k] end
+function Store.set(k,v) local o=_s[k]; _s[k]=v; _e:Fire(k,o,v) end
+function Store.toggle(k,a,b) local c=Store.get(k,a); Store.set(k, c==a and b or a) end
+function Store.changed(cb) return _e.Event:Connect(cb) end
+function Store.snapshot() return Http:JSONDecode(Http:JSONEncode(_s)) end
+if _s._init~=true then _s._init=true; _s.showFPS=true; _s.showPing=true end
+return Store
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">46c6c9bae1e5036208b8a7000000084e</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+						<Item class="Folder" referent="RBXd37f3b858a0d4bf7a3b5367ff8b93ab6">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">Styles</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">46c6c9bae1e5036208b8a70000000855</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBXdb69e3f993454576a560371882d7162c">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Theme</string>
+									<string name="ScriptGuid">{89964c1a-95e4-4b7d-ae35-b54bb8218a9c}</string>
+									<ProtectedString name="Source"><![CDATA[local Theme = {
+  Colors={Bg=Color3.fromRGB(15,17,22),Panel=Color3.fromRGB(24,27,34),Accent=Color3.fromRGB(84,160,255),Accent2=Color3.fromRGB(255,160,84),Text=Color3.fromRGB(235,238,245),Subtle=Color3.fromRGB(170,178,191)},
+  Fonts={Header=Enum.Font.GothamBold,Body=Enum.Font.Gotham,Mono=Enum.Font.Code},
+  Sizes={Base=14,Small=12,Large=18,Title=24},Padding=12,Corner=12,Z={HUD=1,Overlay=10,Modal=20,Debug=1000}
+}
+return Theme
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">46c6c9bae1e5036208b8a70000000856</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+						<Item class="LocalScript" referent="RBX3caabd3fa7104e748e52963817f6330b">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<bool name="Disabled">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">App</string>
+								<token name="RunContext">0</token>
+								<string name="ScriptGuid">{c5bb04e5-b0a2-4c15-ad46-a3d221fc498c}</string>
+								<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local Theme = require(script.Parent.Styles.Theme)
+local Store = require(script.Parent.State.Store)
+local StatusBar = require(script.Parent.Components.StatusBar)
+local MakeButton = require(script.Parent.Components.Button)
+
+local function ensureScreenGui(pg)
+  local ex = pg:FindFirstChild("RB7_UI"); if ex and ex:IsA("ScreenGui") then return ex end
+  local gui = Instance.new("ScreenGui"); gui.Name="RB7_UI"; gui.ResetOnSpawn=false; gui.DisplayOrder=10; gui.IgnoreGuiInset=true; gui.Parent=pg; return gui
+end
+
+local function mount()
+  local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
+  local gui = ensureScreenGui(pg)
+  local hud = Instance.new("Frame"); hud.Name="HUD"; hud.Size=UDim2.fromScale(1,0); hud.AutomaticSize=Enum.AutomaticSize.Y; hud.BackgroundTransparency=1; hud.Parent=gui
+  local top = StatusBar(); top.Parent = hud
+  local overlay = Instance.new("Frame"); overlay.Name="Overlay"; overlay.AnchorPoint=Vector2.new(1,1); overlay.Position=UDim2.new(1,-16,1,-16); overlay.Size=UDim2.fromOffset(180,40); overlay.BackgroundTransparency=1; overlay.Parent=gui
+  local toggleBtn = MakeButton({ text="HUD: FPS/Ping", onClick=function() Store.toggle("showFPS",true,false); Store.toggle("showPing",true,false) end, size=UDim2.fromOffset(180,40) })
+  toggleBtn.Parent = overlay
+  local panel=Instance.new("Frame"); panel.Name="Panel"; panel.Size=UDim2.new(0,360,0,220); panel.Position=UDim2.fromOffset(16,60); panel.BackgroundColor3=Theme.Colors.Panel; panel.BackgroundTransparency=0.05; panel.Parent=gui
+  Instance.new("UICorner", panel).CornerRadius=UDim.new(0,Theme.Corner)
+  local pad=Instance.new("UIPadding", panel); pad.PaddingLeft=UDim.new(0,Theme.Padding); pad.PaddingTop=UDim.new(0,Theme.Padding); pad.PaddingRight=UDim.new(0,Theme.Padding); pad.PaddingBottom=UDim.new(0,Theme.Padding)
+  local title=Instance.new("TextLabel"); title.Name="Title"; title.BackgroundTransparency=1; title.Size=UDim2.new(1,-Theme.Padding*2,0,28); title.Font=Theme.Fonts.Header; title.TextSize=Theme.Sizes.Title; title.TextColor3=Theme.Colors.Text; title.TextXAlignment=Enum.TextXAlignment.Left; title.Text="RB7 — UI Panel"; title.Parent=panel
+  print("[RB7_UI] ✅ App mounted (HUD + Panel).")
+end
+
+task.defer(mount)
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">46c6c9bae1e5036208b8a7000000085c</UniqueId>
+							</Properties>
+						</Item>
 					</Item>
 					<Item class="Folder" referent="RBXcc88b2a287724aee93a034b083e2e626">
 						<Properties>
@@ -4031,14 +4134,41 @@ print("[RB7_HUD Timer] ✅ aktiv (RoundTimerTick)")
 							<string name="Name">UnlocksDebug</string>
 							<token name="RunContext">0</token>
 							<string name="ScriptGuid">{13e728a8-31cb-4871-8e0f-e963b16f366a}</string>
-							<ProtectedString name="Source"><![CDATA[--!strict
+							<ProtectedString name="Source"><![CDATA[-- RB7 UnlocksDebug – robust gegen Pfadabweichungen
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Events = ReplicatedStorage:WaitForChild("Events")
-local v1     = Events:WaitForChild("v1")
-local UnlocksChanged = v1:WaitForChild("UnlocksChanged")
+local function waitPath(root, names, timeout)
+  local node = root; local t0 = os.clock(); timeout = timeout or 10
+  for _,name in ipairs(names) do
+    local child = node:FindFirstChild(name)
+    while not child do
+      if os.clock() - t0 > timeout then
+        warn(("[UnlocksDebug] timeout on path: %s"):format(table.concat(names, "/")))
+        return nil
+      end
+      child = node:FindFirstChild(name) or node:WaitForChild(name, 0.25)
+    end
+    node = child
+  end
+  return node
+end
 
-UnlocksChanged.OnClientEvent:Connect(function(key, value)
-	print(("[UnlocksDebug] %s = %s"):format(tostring(key), tostring(value)))
+-- Offizieller Pfad laut Server: ReplicatedStorage/Shared/Events/v1
+local events = waitPath(ReplicatedStorage, {"Shared","Events","v1"}, 8)
+if not events then
+  warn("[UnlocksDebug] Events/v1 nicht gefunden – Debug deaktiviert.")
+  return
+end
+
+local RoundTimerTick = events:FindFirstChild("RoundTimerTick")
+if not RoundTimerTick or not RoundTimerTick:IsA("RemoteEvent") then
+  warn("[UnlocksDebug] RoundTimerTick RemoteEvent fehlt."); return
+end
+
+print("[UnlocksDebug] ✅ verbunden mit Events/v1.RoundTimerTick")
+-- Beispiel: Lauschen ohne Spam
+RoundTimerTick.OnClientEvent:Connect(function(data)
+  -- data kann nil/irgendwas sein – nur minimal loggen
+  -- print("[UnlocksDebug] Tick", data)
 end)
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
