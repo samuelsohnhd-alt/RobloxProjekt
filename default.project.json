@@ -5,30 +5,18 @@
     "$className": "DataModel",
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "Server": {
-        "$path": "src/server"
-      }
+      "src/server": { "$path": "src/server" }
     },
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "Client": {
-          "$path": "src/client"
-        }
+        "src/client": { "$path": "src/client" }
       }
     },
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
-      "Shared": {
-        "$path": "src/shared"
-      }
-    },
-    "ServerStorage": {
-      "$className": "ServerStorage",
-      "RB7_Private": {
-        "$path": "src/sec"
-      }
+      "src/shared": { "$path": "src/shared" }
     }
   }
 }
