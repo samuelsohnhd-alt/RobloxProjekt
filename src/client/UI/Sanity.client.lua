@@ -1,6 +1,9 @@
-local uiFolder = script.Parent
-if uiFolder:FindFirstChild("Components") then
-    print("[RB7_UI] ✅ Components vorhanden")
+--!strict
+-- Prüft, ob Components-Ordner und ein ModuleScript (z. B. init) existieren
+local folder = script.Parent:FindFirstChild("Components")
+local mod = folder and folder:FindFirstChildWhichIsA("ModuleScript")
+if folder and mod then
+	print("[RB7_UI] ✅ Components vorhanden (", mod.Name, ")")
 else
-    warn("[RB7_UI] ⚠️ Components fehlen – werden von App/screens bei Bedarf erzeugt")
+	warn("[RB7_UI] ❌ Components fehlen oder kein ModuleScript gefunden")
 end
