@@ -1,13 +1,67 @@
 <roblox version="4">
-<game>
-  <name>My Roblox Game</name>
-  <description>A fun game created in Roblox.</description>
-  <creator>RobloxUser</creator>
-  <version>1.0.0</version>
-  <created>2023-10-01T12:00:00Z</created>
-  <updated>2023-10-15T12:00:00Z</updated>
-  <settings>
-	<allowCopy>true</allowCopy>
-	<allowComments>true</allowComments>
-	<allowChat>true</allowChat>
-  </settings>
+  <Item class="ReplicatedFirst" referent="0">
+    <Properties>
+      <string name="Name">ReplicatedFirst</string>
+    </Properties>
+  </Item>
+  <Item class="ReplicatedStorage" referent="1">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="2">
+      <Properties>
+        <string name="Name">Shared</string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="3">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Folder" referent="4">
+      <Properties>
+        <string name="Name">Server</string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="ServerStorage" referent="5">
+    <Properties>
+      <string name="Name">ServerStorage</string>
+    </Properties>
+    <Item class="Folder" referent="6">
+      <Properties>
+        <string name="Name">RB7_Private</string>
+      </Properties>
+      <Item class="Folder" referent="7">
+        <Properties>
+          <string name="Name">Sec</string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="StarterGui" referent="8">
+    <Properties>
+      <string name="Name">StarterGui</string>
+    </Properties>
+    <Item class="Folder" referent="9">
+      <Properties>
+       
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="10">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="11">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="Folder" referent="12">
+        <Properties>
+          <string name="Name">Client</string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>
