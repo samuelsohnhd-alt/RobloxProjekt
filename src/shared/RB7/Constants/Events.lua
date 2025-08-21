@@ -1,28 +1,34 @@
 --!strict
 -- RB7: zentrale Event-Konstanten
 local Events = {
-	ROOT        = "Events",
-	VERSION     = "v1",
+	ROOT            = "Events",
+	VERSION         = "v1",
 
 	-- Core
 	PING            = "Ping",
 
 	-- Runden/Match
-	ROUND_START     = "RoundStart",     -- RemoteEvent (S->C)
-	ROUND_ENDED     = "RoundEnded",     -- RemoteEvent (S->C)
-	TIMER_TICK      = "TimerTick",      -- RemoteEvent (S->C) payload: { t = number }
+	ROUND_START     = "RoundStart",       -- RemoteEvent (S->C)
+	ROUND_ENDED     = "RoundEnded",       -- RemoteEvent (S->C)
+	TIMER_TICK      = "TimerTick",        -- RemoteEvent (S->C) payload: { t:number }
 
 	-- Profile
-	GET_PROFILE     = "GetProfile",     -- RemoteFunction (C->S) -> Profile
-	PROFILE_UPDATED = "ProfileUpdated", -- RemoteEvent (S->C)
+	GET_PROFILE     = "GetProfile",       -- RemoteFunction (C->S) -> Profile
+	PROFILE_UPDATED = "ProfileUpdated",   -- RemoteEvent (S->C)
 
 	-- Inputs (Client -> Server)
-	SET_ADS         = "SetADS",         -- RemoteEvent payload: { on:boolean }
-	SET_CROUCH      = "SetCrouchState", -- RemoteEvent payload: { on:boolean }
-	RELOAD          = "ReloadEvent",    -- RemoteEvent payload: { }
+	SET_ADS         = "SetADS",           -- RemoteEvent payload: { on:boolean }
+	SET_CROUCH      = "SetCrouchState",   -- RemoteEvent payload: { on:boolean }
+	RELOAD          = "ReloadEvent",      -- RemoteEvent payload: { }
 
 	-- PlayerState
-	GET_STATE       = "GetState",       -- RemoteFunction (C->S) -> PlayerState
+	GET_STATE       = "GetState",         -- RemoteFunction (C->S) -> PlayerState
 	STATE_CHANGED   = "PlayerStateChanged", -- RemoteEvent (S->C) payload: { userId:number, state:table }
+
+	-- Weapons (Client -> Server unless noted)
+	EQUIP_WEAPON    = "EquipWeapon",      -- RE payload: { name:string }   (C->S)
+	SHOOT           = "ShootEvent",       -- RE payload: { name:string }   (C->S)
+	AMMO_UPDATE     = "AmmoUpdated",      -- RE payload: { name, mag, reserve } (S->C)
+	GET_LOADOUT     = "GetLoadout",       -- RF returns { Primary=..., Secondary=... } (C->S)
 }
 return Events
