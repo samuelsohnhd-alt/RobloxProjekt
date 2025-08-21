@@ -1,6 +1,6 @@
 --!strict
--- Läuft so früh wie möglich: Entfernt alte/fehlplatzierte UI-Skripte,
--- die unter PlayerScripts/Client/UI liegen und unsere neue Struktur stören.
+-- Sicherer Preboot: entfernt NUR echte Legacy-Knoten.
+-- WICHTIG: "Client/UI" und alles darunter wird NIE gelöscht.
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -8,55 +8,34 @@ local plr = Players.LocalPlayer
 local ps  = plr:WaitForChild("PlayerScripts")
 local client = ps:FindFirstChild("Client")
 
-local function isSrcUI(inst: Instance): boolean
-	-- Unsere gewünschte Struktur: Client/src/client/UI/...
-	-- Also darf nur dieser Pfad bleiben.
-	if not client then return false end
-	local src = client:FindFirstChild("src/client")
-	if not src then return false end
-	local ui = src:FindFirstChild("UI")
-	return ui ~= nil and inst:IsDescendantOf(ui)
+local function isOurUI(inst: Instance): boolean
+	-- Bewahre den offiziellen UI-Pfad
+	return client ~= nil and inst:IsDescendantOf(client:FindFirstChild("UI") or client)
 end
 
-local function shouldNuke(inst: Instance): boolean
-	-- Falsch einsortierte UI-Knoten: direkt unter Client: UI, RB7_UI, screens, App, components etc.
-	if not client then return false end
-	if isSrcUI(inst) then return false end
-	local badNames = {
-		UI = true, RB7_UI = true, screens = true, App = true, components = true,
-		["RB7_UI.stub"] = true, ["UI.stub"] = true
-	}
-	return badNames[inst.Name] == true
-end
+local LEGACY_NAMES = {
+	["RB7_UI"] = true,    -- alte UI-Struktur
+	["Client"] = false,   -- nur wenn es ein verschachteltes Duplikat wäre (selten)
+}
 
-local function nuke(inst: Instance)
-	if shouldNuke(inst) then
-		inst:Destroy()
-		print(("[RB7_Preboot] entfernt: %s"):format(inst.Name))
-	end
+local function shouldNukeTop(child: Instance): boolean
+	if child.Name == "RB7_UI" then return true end
+	-- NIEMALS den UI-Ordner selbst löschen
+	if child.Name == "UI" then return false end
+	-- Keine aggressiven Matches mehr
+	return false
 end
 
 local function sweep()
 	if not client then return end
 	for _,child in ipairs(client:GetChildren()) do
-		nuke(child)
-		-- auch tiefer schauen: falls es doch Unterordner UI gibt
-		for _,g in ipairs(child:GetChildren()) do
-			nuke(g)
+		if shouldNukeTop(child) and not isOurUI(child) then
+			child:Destroy()
+			print(("[RB7_Preboot] entfernt: %s"):format(child.Name))
 		end
 	end
 end
 
--- Früher Mehrfachlauf, um Rennbedingungen zu vermeiden
-for i = 1, 30 do
-	sweep()
-	RunService.Heartbeat:Wait()
-end
-
--- Wachhund für spätes Nachladen
-if client then
-	client.ChildAdded:Connect(function(c) nuke(c) end)
-	client.DescendantAdded:Connect(function(d) nuke(d) end)
-end
-
-print("[RB7_Preboot] ✅ Legacy-UI gesäubert")
+-- Einmal sauber laufen reicht
+sweep()
+print("[RB7_Preboot] ✅ Safe-Clean (UI bleibt unangetastet).")

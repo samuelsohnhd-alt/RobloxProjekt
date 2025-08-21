@@ -1,16 +1,26 @@
 --!strict
+-- Robuste App: lädt Components/init.lua sicher und mountet HUD
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local plr = Players.LocalPlayer
-local pg = plr:WaitForChild("PlayerGui")
+local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local componentsFolder = script.Parent:FindFirstChild("Components")
-assert(componentsFolder ~= nil, "[UI/App] Components Ordner fehlt")
-local compModule: ModuleScript? =
-	componentsFolder:FindFirstChild("init") :: ModuleScript?
-	or componentsFolder:FindFirstChildWhichIsA("ModuleScript") :: ModuleScript?
-assert(compModule ~= nil, "[UI/App] Components ModuleScript fehlt (erwarte init.lua)")
-local Components = require(compModule)
+local function getComponentsModule(): ModuleScript?
+	local uiFolder = script.Parent
+	local compFolder = uiFolder:FindFirstChild("Components") or uiFolder:WaitForChild("Components", 5)
+	if not compFolder then
+		warn("[UI/App] ❌ Components-Ordner nicht gefunden.")
+		return nil
+	end
+	local mod = compFolder:FindFirstChild("init") or compFolder:FindFirstChildWhichIsA("ModuleScript")
+	if not mod then
+		warn("[UI/App] ❌ Components ModuleScript (init.lua) fehlt.")
+		return nil
+	end
+	return mod :: ModuleScript
+end
+
+local ComponentsModule = getComponentsModule()
+local Components = ComponentsModule and require(ComponentsModule) or nil
 
 local v1 = ReplicatedStorage:WaitForChild("Events"):WaitForChild("v1")
 local RoundTimeUpdated = v1:WaitForChild("RoundTimeUpdated")
@@ -23,6 +33,11 @@ local stateLabel: TextLabel? = nil
 
 function App.mount()
 	if gui then return gui end
+	if not Components then
+		warn("[UI/App] ⚠️ Components nicht geladen – HUD wird nicht gemountet.")
+		return nil
+	end
+
 	gui = Instance.new("ScreenGui")
 	gui.IgnoreGuiInset = true
 	gui.Name = "RB7_HUD"
