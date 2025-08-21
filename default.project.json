@@ -1,5 +1,6 @@
 {
-  "name": "clean-project",
+  "name": "RobloxProjekt",
+  "servePort": 34872,
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
@@ -29,6 +30,5 @@
         "$path": "src/sec"
       }
     }
-  },
-  "servePort": 34872
+  }
 }
