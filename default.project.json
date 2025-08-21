@@ -5,41 +5,43 @@
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
-      "$path": "src/server",
       "$className": "ServerScriptService",
       "Server": {
         "$path": "src/server"
       }
     },
-    "StarterPlayer": {
-      "StarterPlayerScripts": {
-        "$path": "src/client",
-        "$className": "StarterPlayerScripts",
-        "Client": {
-          "$path": "src/client"
-        }
-      },
-      "$className": "StarterPlayer"
-    },
-    "StarterGui": {
-      "$path": "src/ui"
-    },
-    "ServerStorage": {
-      "$path": "src/sec",
-      "$className": "ServerStorage",
-      "RB7_Private": {
-        "$path": "src/sec"
-      }
-    },
-    "ReplicatedFirst": {
-      "$path": "src/first"
-    },
     "ReplicatedStorage": {
-      "$path": "src/shared",
       "$className": "ReplicatedStorage",
       "Shared": {
         "$path": "src/shared"
       }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "RB7_Private": {
+        "$className": "Folder",
+        "Sec": {
+          "$path": "src/sec"
+        }
+      }
+    },
+    "StarterGui": {
+      "$className": "StarterGui",
+      "RB7_UI": {
+        "$path": "src/ui"
+      }
+    },
+    "ReplicatedFirst": {
+      "$path": "src/first"
     }
   }
 }
