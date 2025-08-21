@@ -1,6 +1,7 @@
 {
   "name": "RobloxProjekt",
   "servePort": 34872,
+  "notes": "Mac Terminal-Befehle:\\n1) Start (Hintergrund): rojo serve --host 127.0.0.1 --port 34872 &> /tmp/rojo.log & disown\\n2) Status prüfen: lsof -iTCP:34872 -sTCP:LISTEN || ps aux | grep 'rojo serve'\\n3) Stoppen: pkill -f \"rojo serve --port 34872\"\\nHinweis: Stelle sicher, dass 'rojo' installiert ist (z.B. brew install rojo).",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
