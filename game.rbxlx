@@ -1330,22 +1330,10 @@ end)
 						<string name="Name">RB7_UI</string>
 						<token name="RunContext">0</token>
 						<string name="ScriptGuid">{15165421-f360-438f-a741-340995824f03}</string>
-						<ProtectedString name="Source"><![CDATA[--!strict
-print("[RB7_UI] Init starting…")
-local LobbyScreen = require(script.Parent.screens.LobbyScreen)
-local Loadout = require(script.Parent.screens.LoadoutScreen)
-local lobby = LobbyScreen(); lobby.Enabled = true
-print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
-local loadoutGui = (select(1, Loadout())); loadoutGui.Enabled = false
-print("[RB7_UI] LoadoutScreen created")
-for _,d in ipairs(lobby:GetDescendants()) do
-  if d:IsA("TextButton") and d.Text=="LOADOUT" then
-    d.MouseButton1Click:Connect(function()
-      lobby.Enabled=false; loadoutGui.Enabled=true
-    end)
-  end
-end
-print("[RB7_UI] Init done.")
+						<ProtectedString name="Source"><![CDATA[-- RB7 UI Stub: sorgt dafür, dass ein definierter Einstieg existiert, ohne Legacy-Abhängigkeiten
+if _G.__RB7_UI_INIT then return end
+_G.__RB7_UI_INIT = true
+print("[RB7_UI Stub] geladen.")
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
@@ -1362,22 +1350,10 @@ print("[RB7_UI] Init done.")
 							<string name="Name">Init</string>
 							<token name="RunContext">0</token>
 							<string name="ScriptGuid">{ead4bb98-e819-4ef2-bf5a-94645867dbea}</string>
-							<ProtectedString name="Source"><![CDATA[--!strict
-print("[RB7_UI] Init starting…")
-local LobbyScreen = require(script.Parent.screens.LobbyScreen)
-local Loadout = require(script.Parent.screens.LoadoutScreen)
-local lobby = LobbyScreen(); lobby.Enabled = true
-print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
-local loadoutGui = (select(1, Loadout())); loadoutGui.Enabled = false
-print("[RB7_UI] LoadoutScreen created")
-for _,d in ipairs(lobby:GetDescendants()) do
-  if d:IsA("TextButton") and d.Text=="LOADOUT" then
-    d.MouseButton1Click:Connect(function()
-      lobby.Enabled=false; loadoutGui.Enabled=true
-    end)
-  end
-end
-print("[RB7_UI] Init done.")
+							<ProtectedString name="Source"><![CDATA[-- RB7 UI Stub: sorgt dafür, dass ein definierter Einstieg existiert, ohne Legacy-Abhängigkeiten
+if _G.__RB7_UI_INIT then return end
+_G.__RB7_UI_INIT = true
+print("[RB7_UI Stub] geladen.")
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
@@ -2219,39 +2195,42 @@ print("[RB7_UI] Hotkey 'L' zum Öffnen des Loadouts aktiv.")
 						<string name="Name">Preboot_CleanUI</string>
 						<token name="RunContext">0</token>
 						<string name="ScriptGuid">{57d1345b-1861-424e-ac8f-2cbd7a664cb1}</string>
-						<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+						<ProtectedString name="Source"><![CDATA[-- RB7 Preboot-CleanUI (client): Entfernt Legacy-LocalScripts "RB7_UI" aggressiv
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local plr = Players.LocalPlayer
 
-local function nukeLegacy()
-    local ps = plr:FindFirstChild("PlayerScripts")
-    if not ps then return end
-    local client = ps:FindFirstChild("Client")
-    if not client then return end
-    local legacy = client:FindFirstChild("RB7_UI")
-    if legacy then
-        legacy:Destroy()
-        print("[RB7_Preboot] entfernt: Client.RB7_UI (legacy)")
+local function nukeRB7UI(root)
+    if not root then return end
+    for _,d in ipairs(root:GetDescendants()) do
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            d.Disabled = true
+            d:Destroy()
+            warn("[RB7_Preboot] entfernt: " .. d:GetFullName())
+        end
     end
 end
 
--- Früh und wiederholt prüfen
-for i=1,30 do
-    nukeLegacy()
+local function sweep()
+    local ps = plr:FindFirstChild("PlayerScripts")
+    if ps then
+        nukeRB7UI(ps)
+        for _,c in ipairs(ps:GetChildren()) do nukeRB7UI(c) end
+    end
+end
+
+-- früh mehrfach scannen
+for i=1,60 do
+    sweep()
     RunService.Heartbeat:Wait()
 end
--- Und auf spätere Hinzufügungen horchen
+-- danach auf Änderungen horchen
 local ps = plr:WaitForChild("PlayerScripts")
-ps.DescendantAdded:Connect(function(d)
-    if d.Name == "RB7_UI" and d.Parent and d.Parent.Name == "Client" then
-        task.defer(function()
-            if d.Parent and d.Parent.Name == "Client" then
-                d:Destroy()
-                print("[RB7_Preboot] nachträglich entfernt: Client.RB7_UI")
-            end
-        end)
-    end
-end)
+ps.DescendantAdded:Connect(function(d) if d:IsA("LocalScript") and d.Name=="RB7_UI" then d:Destroy() end end)
+ps.ChildAdded:Connect(function(d) if d:IsA("LocalScript") and d.Name=="RB7_UI" then d:Destroy() end end)
+
+-- Fallback nachgeladen
+task.defer(sweep)
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
@@ -4631,18 +4610,9 @@ return Logger
 					<string name="Name">R6V_TimerPublisher</string>
 					<token name="RunContext">0</token>
 					<string name="ScriptGuid">{a7d1e7de-1116-449a-8f09-abd7c842fa18}</string>
-					<ProtectedString name="Source"><![CDATA[--[[
-  RB7: R6V_TimerPublisher (server)
-  Fix: saubere Variablen, 1s Tick, RemoteEvent "RoundTimerTick" unter ReplicatedStorage/Events/v1.
-  Idempotent: Mehrfaches Starten erzeugt keine Duplikate.
-]]
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+					<ProtectedString name="Source"><![CDATA[-- RB7: R6V_TimerPublisher (server) – sendet RoundTimerTick über Shared/Events/v1
+local RS = game:GetService("ReplicatedStorage")
 
--- Konfiguration
-local RoundTimeSeconds  = 300
-local PublishEverySecs  = 1
-
--- Helpers
 local function ensureFolder(parent, name)
     local f = parent:FindFirstChild(name)
     if not f then
@@ -4663,18 +4633,20 @@ local function ensureRemoteEvent(parent, name)
     return ev
 end
 
--- Events/v1
-local EventsRoot = ensureFolder(ReplicatedStorage, "Events")
-local V1         = ensureFolder(EventsRoot, "v1")
-local TickEvent  = ensureRemoteEvent(V1, "RoundTimerTick")
+local Shared = ensureFolder(RS, "Shared")
+local Events = ensureFolder(Shared, "Events")
+local V1     = ensureFolder(Events, "v1")
+local TickEvent = ensureRemoteEvent(V1, "RoundTimerTick")
 
--- Einmaliger Loop per Flag
-local Flag = ReplicatedStorage:FindFirstChild("_RB7_TimerPublisher_Running")
+local RoundTimeSeconds = 300
+local PublishEverySecs = 1
+
+local Flag = RS:FindFirstChild("_RB7_TimerPublisher_Running")
 if not Flag then
     Flag = Instance.new("BoolValue")
     Flag.Name = "_RB7_TimerPublisher_Running"
+    Flag.Parent = RS
     Flag.Value = false
-    Flag.Parent = ReplicatedStorage
 end
 
 if not Flag.Value then
@@ -4693,7 +4665,7 @@ else
     warn("[R6V_TimerPublisher] Läuft bereits – kein zweiter Loop gestartet.")
 end
 
-print("[R6V_TimerPublisher] ✅ aktiv – RoundTimeSeconds =", RoundTimeSeconds)
+print("[R6V_TimerPublisher] ✅ aktiv – RoundTimerTick unter Shared/Events/v1")
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -4790,6 +4762,88 @@ _G.RB7_UnlocksManager = UnlocksManager
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 					<UniqueId name="UniqueId">4d82c8a0b9b0644408b8a0ef0000080f</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="Script" referent="RBXcb99bd2d97a8461aa2c360c0c2d5e8b6">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">RB7_EventsEnsure</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{f22e9e10-ec64-494b-a96b-058a522c68fa}</string>
+					<ProtectedString name="Source"><![CDATA[-- RB7_EventsEnsure: vereinheitlicht Remotes unter ReplicatedStorage/Shared/Events/v1
+local RS = game:GetService("ReplicatedStorage")
+
+local function ensureFolder(parent, name)
+    local f = parent:FindFirstChild(name)
+    if not f then
+        f = Instance.new("Folder")
+        f.Name = name
+        f.Parent = parent
+    end
+    return f
+end
+
+local Shared  = ensureFolder(RS, "Shared")
+local Events  = ensureFolder(Shared, "Events")
+local V1      = ensureFolder(Events, "v1")
+
+local function ensureRemoteEvent(parent, name)
+    local ev = parent:FindFirstChild(name)
+    if not ev then
+        ev = Instance.new("RemoteEvent")
+        ev.Name = name
+        ev.Parent = parent
+    end
+    return ev
+end
+
+local function ensureRemoteFunction(parent, name)
+    local rf = parent:FindFirstChild(name)
+    if not rf then
+        rf = Instance.new("RemoteFunction")
+        rf.Name = name
+        rf.Parent = parent
+    end
+    return rf
+end
+
+-- Kern-Remotes, die UI/Services erwarten
+local neededEvents = {
+    "OpenMenu",
+    "RoundTimerTick",
+    "ReloadEvent",
+    "EquipWeapon",
+    "ShootEvent",
+}
+for _,n in ipairs(neededEvents) do
+    ensureRemoteEvent(V1, n)
+end
+
+-- Migration: falls noch altes 'ReplicatedStorage/Events/v1' existiert → Kinder nach Shared/Events/v1 verschieben
+do
+    local oldRoot = RS:FindFirstChild("Events")
+    if oldRoot and oldRoot:FindFirstChild("v1") then
+        local oldV1 = oldRoot.v1
+        for _,child in ipairs(oldV1:GetChildren()) do
+            if not V1:FindFirstChild(child.Name) then
+                child.Parent = V1
+            end
+        end
+        -- optional: alten Knoten bereinigen
+        oldRoot:Destroy()
+    end
+end
+
+print("[RB7_EventsEnsure] ✅ Remotes unter ReplicatedStorage/Shared/Events/v1 vereinheitlicht")
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">4d82c8a0b9b0644408b8a0ef00000918</UniqueId>
 				</Properties>
 			</Item>
 		</Item>
