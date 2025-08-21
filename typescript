@@ -1,2 +1,24 @@
 Script started on Thu Aug 21 12:30:27 2025
-[1m[7m%[27m[1m[0m                                                                                ]7;file://MacBookPro/Users/a./RobloxProjekt[0m[27m[24m[Ja.@MacBookPro RobloxProjekt % [K[?2004h
+[1m[7m%[27m[1m[0m                                                                                ]7;file://MacBookPro/Users/a./RobloxProjekt[0m[27m[24m[Ja.@MacBookPro RobloxProjekt % [K[?2004h>....                                             
+[7mcat > src/client/RB7_UI/Init.client.lua <<'EOF'[27m[K
+[7m--!strict[27m[K
+[7mlocal LobbyScreen = require(script.Parent.screens.LobbyScreen)[27m[K
+[7mlocal Loadout = require(script.Parent.screens.LoadoutScreen)[27m[K
+[K
+[7mlocal lobby = LobbyScreen()[27m[K
+[7mlocal loadoutGui = (select(1, Loadout()))[27m[K
+[K
+[7mfor _,desc in ipairs(lobby:GetDescendants()) do[27m[K
+[7m    if desc:IsA("TextButton") and desc.Text == "LOADOUT" then[27m[K
+[7m        desc.MouseButton1Click:Connect(function()[27m[K
+[7m            lobby.Enabled = false[27m[K
+[7m            loadoutGui.Enabled = true[27m[K
+[7m        end)[27m[K
+[7m    end[27m[K
+[7mend[27m[K
+[7mEOF[27m[K
+[K
+[7mecho "✅ RB7_UI aktiv (keine Kollision mehr), LoadoutScreen gefixt & Navigation [7md[7mrin."[27m[K
+[7mSCRIPT[27m[K
+[7mbash /tmp/rb7_ui_ren_fix.sh[27m[K
+[K[22A[27mc[27ma[27mt[27m [27m>[27m [27ms[27mr[27mc[27m/[27mc[27ml[27mi[27me[27mn[27mt[27m/[27mR[27mB[27m7[27m_[27mU[27mI[27m/[27mI[27mn[27mi[27mt[27m.[27mc[27ml[27mi[27me[27mn[27mt[27m.[27ml[27mu[27ma[27m [27m<[27m<[27m'[27mE[27mO[27mF[27m'[1B[27m-[27m-[27m![27ms[27mt[27mr[27mi[27mc[27mt[1B[27ml[27mo[27mc[27ma[27ml[27m [27mL[27mo[27mb[27mb[27my[27mS[27mc[27mr[27me[27me[27mn[27m [27m=[27m [27mr[27me[27mq[27mu[27mi[27mr[27me[27m([27ms[27mc[27mr[27mi[27mp[27mt[27m.[27mP[27ma[27mr[27me[27mn[27mt[27m.[27ms[27mc[27mr[27me[27me[27mn[27ms[27m.[27mL[27mo[27mb[27mb[27my[27mS[27mc[27mr[27me[27me[27mn[27m)[1B[27ml[27mo[27mc[27ma[27ml[27m [27mL[27mo[27ma[27md[27mo[27mu[27mt[27m [27m=[27m [27mr[27me[27mq[27mu[27mi[27mr[27me[27m([27ms[27mc[27mr[27mi[27mp[27mt[27m.[27mP[27ma[27mr[27me[27mn[27mt[27m.[27ms[27mc[27mr[27me[27me[27mn[27ms[27m.[27mL[27mo[27ma[27md[27mo[27mu[27mt[27mS[27mc[27mr[27me[27me[27mn[27m)[2B[27ml[27mo[27mc[27ma[27ml[27m [27ml[27mo[27mb[27mb[27my[27m [27m=[27m [27mL[27mo[27mb[27mb[27my[27mS[27mc[27mr[27me[27me[27mn[27m([27m)[1B[27ml[27mo[27mc[27ma[27ml[27m [27ml[27mo[27ma[27md[27mo[27mu[27mt[27mG[27mu[27mi[27m [27m=[27m [27m([27ms[27me[27ml[27me[27mc[27mt[27m([27m1[27m,[27m [27mL[27mo[27ma[27md[27mo[27mu[27mt[27m([27m)[27m)[27m)[2B[27mf[27mo[27mr[27m [27m_[27m,[27md[27me[27ms[27mc[27m [27mi[27mn[27m [27mi[27mp[27ma[27mi[27mr[27ms[27m([27ml[27mo[27mb[27mb[27my[27m:[27mG[27me[27mt[27mD[27me[27ms[27mc[27me[27mn[27md[27ma[27mn[27mt[27ms[27m([27m)[27m)[27m [27md[27mo[1B[27m [27m [27m [27m [27mi[27mf[27m [27md[27me[27ms[27mc[27m:[27mI[27ms[27mA[27m([27m"[27mT[27me[27mx[27mt[27mB[27mu[27mt[27mt[27mo[27mn[27m"[27m)[27m [27ma[27mn[27md[27m [27md[27me[27ms[27mc[27m.[27mT[27me[27mx[27mt[27m [27m=[27m=[27m [27m"[27mL[27mO[27mA[27mD[27mO[27mU[27mT[27m"[27m [27mt[27mh[27me[27mn[1B[27m [27m [27m [27m [27m [27m [27m [27m [27md[27me[27ms[27mc[27m.[27mM[27mo[27mu[27ms[27me[27mB[27mu[27mt[27mt[27mo[27mn[27m1[27mC[27ml[27mi[27mc[27mk[27m:[27mC[27mo[27mn[27mn[27me[27mc[27mt[27m([27mf[27mu[27mn[27mc[27mt[27mi[27mo[27mn[27m([27m)[1B[33P[12Clobby.Enabled = false[14C[K[1B[37P[12CloadoutGui.Enabled = true[6C[K[1B[27m [27m [27m [27m [27m [27m [27m [27m [27me[27mn[27md[27m)[1B[27m [27m [27m [27m [27me[27mn[27md[1B[27me[27mn[27md[1B[27mE[27mO[27mF[2B[27me[27mc[27mh[27mo[27m [27m"[27m✅[27m[27m [27mR[27mB[27m7[27m_[27mU[27mI[27m [27ma[27mk[27mt[27mi[27mv[27m [27m([27mk[27me[27mi[27mn[27me[27m [27mK[27mo[27ml[27ml[27mi[27ms[27mi[27mo[27mn[27m [27mm[27me[27mh[27mr[27m)[27m,[27m [27mL[27mo[27ma[27md[27mo[27mu[27mt[27mS[27mc[27mr[27me[27me[27mn[27m [27mg[27me[27mf[27mi[27mx[27mt
