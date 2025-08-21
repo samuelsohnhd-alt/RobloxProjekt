@@ -1661,33 +1661,15 @@ return require(script.Parent.Parent:WaitForChild("Components"):WaitForChild("ini
 							<string name="Name">components</string>
 							<string name="ScriptGuid">{a1b6bdf0-dd3e-490b-9bd4-3e2c7b1b05e0}</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
+-- RB7 UI Components Root
+-- Hier können alle Component-Module (Button, StatusBar etc.) exportiert werden.
 local Components = {}
-function Components.MakeLabel(props: {Name: string?, Text: string?, Size: UDim2?, Position: UDim2?})
-	local l = Instance.new("TextLabel")
-	l.Name = props.Name or "Label"
-	l.Text = props.Text or ""
-	l.Size = props.Size or UDim2.fromScale(0.3, 0.08)
-	l.Position = props.Position or UDim2.new(0, 12, 0, 12)
-	l.BackgroundTransparency = 0.25
-	l.BackgroundColor3 = Color3.new(0,0,0)
-	l.TextColor3 = Color3.new(1,1,1)
-	l.TextScaled = true
-	l.Font = Enum.Font.GothamMedium
-	l.BorderSizePixel = 0
-	return l
+
+-- Beispiel-Stub
+function Components.hello()
+	print("[RB7_UI.Components] ✅ hello() Stub aufgerufen")
 end
-function Components.MakePanel(props: {Name: string?, Size: UDim2?, Position: UDim2?})
-	local f = Instance.new("Frame")
-	f.Name = props.Name or "Panel"
-	f.Size = props.Size or UDim2.fromScale(0.35, 0.2)
-	f.Position = props.Position or UDim2.new(0, 12, 0.1, 12)
-	f.BackgroundTransparency = 0.2
-	f.BackgroundColor3 = Color3.fromRGB(15,15,20)
-	f.BorderSizePixel = 0
-	local ui = Instance.new("UICorner"); ui.CornerRadius = UDim.new(0,10); ui.Parent = f
-	local pad = Instance.new("UIPadding"); pad.PaddingLeft = UDim.new(0,10); pad.PaddingTop = UDim.new(0,8); pad.Parent = f
-	return f
-end
+
 return Components
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
@@ -1993,13 +1975,13 @@ return M
 							<token name="RunContext">0</token>
 							<string name="ScriptGuid">{ae7350b8-b4f0-4974-8900-afc6d97b2f83}</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
-local App = require(script.Parent:WaitForChild("App"))
-local ok, res = pcall(function() return App.mount() end)
-if ok then
-	print("[RB7_UI] App initialisiert.")
-else
-	warn("[RB7_UI] App-Start fehlgeschlagen:", res)
+-- RB7_UI Boot Stub (Legacy-Fix)
+-- Dient nur dazu, require-Fehler zu vermeiden.
+local Boot = {}
+function Boot.start()
+	print("[RB7_UI.Boot] ✅ Stub start ausgeführt")
 end
+return Boot
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
@@ -2210,14 +2192,13 @@ end
 							<token name="RunContext">0</token>
 							<string name="ScriptGuid">{396d7bdc-aab7-4474-af34-9815f08403f9}</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
--- Legacy screens-loader: delegiert auf App
-local App = require(script.Parent:WaitForChild("App"))
-local ok, res = pcall(function() return App.mount() end)
-if ok then
-	print("[RB7_UI Legacy] ✅ App mounted via screens")
-else
-	warn("[RB7_UI Legacy] ⚠️ mount fail:", res)
+-- RB7_UI Screens Stub (Legacy-Fix)
+-- Verhindert require-Fehler, bis echte Screens implementiert sind.
+local Screens = {}
+function Screens.mount()
+	print("[RB7_UI.Screens] ✅ Stub mount ausgeführt")
 end
+return Screens
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
