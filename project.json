@@ -3,34 +3,26 @@
   "tree": {
     "$className": "DataModel",
 
-    "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "Events": { "$path": "src/ReplicatedStorage/Events" },
-      "Modules": { "$path": "src/ReplicatedStorage/Modules" },
-      "RB7_Meta.lua": { "$path": "src/ReplicatedStorage/RB7_Meta.lua" }
-    },
-
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "$path": "src/ServerScriptService"
+      "src/server": { "$path": "src/server" }
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "src/shared": { "$path": "src/shared" },
+      "sec": {
+        "$className": "Folder",
+        "src/sec": { "$path": "src/sec" }
+      }
     },
 
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "$path": "src/client"
+        "src/client": { "$path": "src/client" }
       }
-    },
-
-    "StarterGui": {
-      "$className": "StarterGui",
-      "$path": "src/StarterGui"
-    },
-
-    "ServerStorage": {
-      "$className": "ServerStorage",
-      "RB7_Private": { "$path": "src/ServerStorage/RB7_Private" }
     }
   }
 }
