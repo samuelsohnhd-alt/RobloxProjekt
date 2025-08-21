@@ -1,19 +1,34 @@
 {
-  "name": "RobloxProjekt",
+  "$schema": "https://rojo.space/schema/project-0.6.0.json",
+  "name": "RB7",
   "servePort": 34872,
   "tree": {
-    "\$className": "DataModel",
+    "$className": "DataModel",
+
     "ServerScriptService": {
-      "\$path": "src/server"
+      "$path": "src/server"
     },
+
     "StarterPlayer": {
-      "\$className": "StarterPlayer",
       "StarterPlayerScripts": {
-        "\$path": "src/client"
+        "$path": "src/client"
       }
     },
+
+    "StarterGui": {
+      "$path": "src/ui"
+    },
+
+    "ServerStorage": {
+      "$path": "src/sec"
+    },
+
+    "ReplicatedFirst": {
+      "$path": "src/first"
+    },
+
     "ReplicatedStorage": {
-      "\$path": "src/shared"
+      "$path": "src/shared"
     }
   }
 }
