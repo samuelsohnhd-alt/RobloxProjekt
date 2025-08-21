@@ -1,5 +1,5 @@
 {
-  "name": "RobloxProjekt",
+  "name": "RB7Project",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
@@ -30,12 +30,6 @@
       "$className": "ReplicatedStorage",
       "Shared": {
         "$path": "src/shared"
-      },
-      "First": {
-        "$className": "Folder",
-        "first": {
-          "$path": "src/first"
-        }
       }
     },
     "StarterPlayer": {
