@@ -12,7 +12,7 @@ local function LobbyScreen()
 
     local bg = Instance.new("Frame"); bg.Size = UDim2.new(1,0,1,0); bg.BackgroundColor3 = Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent = gui
 
-    local left = LeftMenu.new(bg, {"NOT READY","CHANGE TEAM","OUTFITTING","MATCH SETTINGS","PLAYERS","OPTIONS","A.C.E.S.","STATISTICS"}).Frame
+    local left = LeftMenu.new(bg, {"NOT READY","CHANGE TEAM","LOADOUT","MATCH SETTINGS","PLAYERS","OPTIONS","STATISTICS"}).Frame
 
     local preview = MapPreview(bg); preview.Position = UDim2.new(0,10,1,-180)
 
