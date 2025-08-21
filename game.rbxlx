@@ -3712,94 +3712,30 @@ return Theme
 								<string name="Name">App</string>
 								<token name="RunContext">0</token>
 								<string name="ScriptGuid">{c5bb04e5-b0a2-4c15-ad46-a3d221fc498c}</string>
-								<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
-
-local UI      = script.Parent
-local Styles  = UI:WaitForChild("Styles")
-local State   = UI:WaitForChild("State")
-local Comps   = UI:WaitForChild("Components")
-
-local Theme      = require(Styles:WaitForChild("Theme"))
-local Store      = require(State:WaitForChild("Store"))
-local StatusBar  = require(Comps:WaitForChild("StatusBar"))
-local MakeButton = require(Comps:WaitForChild("Button"))
-
-local function ensureScreenGui(pg)
-  local ex = pg:FindFirstChild("RB7_UI")
-  if ex and ex:IsA("ScreenGui") then return ex end
-  local gui = Instance.new("ScreenGui")
-  gui.Name = "RB7_UI"
-  gui.ResetOnSpawn = false
-  gui.DisplayOrder = 10
-  gui.IgnoreGuiInset = true
-  gui.Parent = pg
-  return gui
+								<ProtectedString name="Source"><![CDATA[-- RB7 UI App (safe)
+local uiFolder = script.Parent
+local components = uiFolder:FindFirstChild("Components")
+if not components then
+    warn("[UI/App] Components Ordner fehlte – wird erstellt")
+    components = Instance.new("Folder")
+    components.Name = "Components"
+    components.Parent = uiFolder
 end
 
-local function mount()
-  local pg  = Players.LocalPlayer:WaitForChild("PlayerGui")
-  local gui = ensureScreenGui(pg)
-
-  local hud = Instance.new("Frame")
-  hud.Name = "HUD"
-  hud.Size = UDim2.fromScale(1, 0)
-  hud.AutomaticSize = Enum.AutomaticSize.Y
-  hud.BackgroundTransparency = 1
-  hud.Parent = gui
-
-  local top = StatusBar()
-  top.Parent = hud
-
-  local overlay = Instance.new("Frame")
-  overlay.Name = "Overlay"
-  overlay.AnchorPoint = Vector2.new(1,1)
-  overlay.Position = UDim2.new(1, -16, 1, -16)
-  overlay.Size = UDim2.fromOffset(180, 40)
-  overlay.BackgroundTransparency = 1
-  overlay.Parent = gui
-
-  local toggleBtn = MakeButton({
-    text = "HUD: FPS/Ping",
-    onClick = function()
-      Store.toggle("showFPS", true, false)
-      Store.toggle("showPing", true, false)
-    end,
-    size = UDim2.fromOffset(180, 40)
-  })
-  toggleBtn.Parent = overlay
-
-  local panel = Instance.new("Frame")
-  panel.Name = "Panel"
-  panel.Size = UDim2.new(0, 360, 0, 220)
-  panel.Position = UDim2.fromOffset(16, 60)
-  panel.BackgroundColor3 = Theme.Colors.Panel
-  panel.BackgroundTransparency = 0.05
-  panel.Parent = gui
-
-  local corner = Instance.new("UICorner", panel)
-  corner.CornerRadius = UDim.new(0, Theme.Corner)
-
-  local pad = Instance.new("UIPadding", panel)
-  pad.PaddingLeft = UDim.new(0, Theme.Padding)
-  pad.PaddingTop = UDim.new(0, Theme.Padding)
-  pad.PaddingRight = UDim.new(0, Theme.Padding)
-  pad.PaddingBottom = UDim.new(0, Theme.Padding)
-
-  local title = Instance.new("TextLabel")
-  title.Name = "Title"
-  title.BackgroundTransparency = 1
-  title.Size = UDim2.new(1, -Theme.Padding*2, 0, 28)
-  title.Font = Theme.Fonts.Header
-  title.TextSize = Theme.Sizes.Title
-  title.TextColor3 = Theme.Colors.Text
-  title.TextXAlignment = Enum.TextXAlignment.Left
-  title.Text = "RB7 — UI Panel"
-  title.Parent = panel
-
-  print("[RB7_UI] ✅ App mounted (HUD + Panel)")
+local function req(name)
+    local m = components:FindFirstChild(name)
+    if not m then return end
+    local ok, mod = pcall(function() return require(m) end)
+    return ok and mod or nil
 end
 
-task.defer(mount)
+local HUDTimer = req("HUDTimer")
+if HUDTimer and HUDTimer.mount then HUDTimer.mount(game:GetService("Players").LocalPlayer) end
+
+local Menu = req("Menu")
+if Menu and Menu.init then Menu.init() end
+
+print("[RB7_UI] App initialisiert.")
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
@@ -4217,13 +4153,11 @@ return App
 								<string name="Name">Sanity</string>
 								<token name="RunContext">0</token>
 								<string name="ScriptGuid">{3b576248-3ed8-4767-b11e-df680ebf8e8a}</string>
-								<ProtectedString name="Source"><![CDATA[--!strict
--- Prüft, ob Components vorhanden sind (hilfreich für Logs)
-local ok = script.Parent:FindFirstChild("Components") ~= nil
-if ok then
-	print("[RB7_UI] ✅ Components vorhanden")
+								<ProtectedString name="Source"><![CDATA[local uiFolder = script.Parent
+if uiFolder:FindFirstChild("Components") then
+    print("[RB7_UI] ✅ Components vorhanden")
 else
-	warn("[RB7_UI] ❌ Components fehlen")
+    warn("[RB7_UI] ⚠️ Components fehlen – werden von App/screens bei Bedarf erzeugt")
 end
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
@@ -4254,6 +4188,48 @@ App.mount()
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
 								<UniqueId name="UniqueId">26d8c7147be8a72908b8a79b00000874</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="LocalScript" referent="RBX6593589802284dcd853ce492a7929e40">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<bool name="Disabled">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">screens</string>
+								<token name="RunContext">0</token>
+								<string name="ScriptGuid">{47ae1e96-df38-4572-b146-555257c6a7ae}</string>
+								<ProtectedString name="Source"><![CDATA[-- RB7 UI screens (idempotent)
+local uiFolder = script.Parent
+local components = uiFolder:FindFirstChild("Components")
+if not components then
+    warn("[RB7_UI] Components fehlen – lege Ordner an")
+    components = Instance.new("Folder")
+    components.Name = "Components"
+    components.Parent = uiFolder
+end
+
+local function tryRequire(name)
+    local m = components:FindFirstChild(name)
+    if not m then return end
+    local ok, mod = pcall(function() return require(m) end)
+    if ok then return mod end
+    warn(("[RB7_UI] require(%s) fehlgeschlagen"):format(name))
+end
+
+local HUDTimer = tryRequire("HUDTimer")
+if HUDTimer and HUDTimer.mount then HUDTimer.mount(game:GetService("Players").LocalPlayer) end
+
+local Menu = tryRequire("Menu")
+if Menu and Menu.init then Menu.init() end
+
+print("[RB7_UI] screens initialisiert.")
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">26d8c7147be8a72908b8a79b00000923</UniqueId>
 							</Properties>
 						</Item>
 					</Item>
