@@ -12,3 +12,7 @@ local Events = {
 	TIMER_TICK  = "TimerTick",    -- RemoteEvent (Server -> Client) payload: { t=SekundenRest }
 }
 return Events
+
+	-- Profile
+	GET_PROFILE  = "GetProfile",    -- RemoteFunction (Client -> Server) returns Profile
+	PROFILE_UPDATED = "ProfileUpdated", -- RemoteEvent (Server -> Client)
