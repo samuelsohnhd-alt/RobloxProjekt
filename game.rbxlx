@@ -872,7 +872,16 @@ print("[RB7_UiLegacyBridge] ✅ aktiv (falls Legacy-Events vorhanden).")
 						<string name="Name">RB7_Boot</string>
 						<token name="RunContext">0</token>
 						<string name="ScriptGuid">{c43e451c-1e0c-4a3b-875b-aa63a14e982d}</string>
-						<ProtectedString name="Source"><![CDATA[print("RB7: Client boot ok")
+						<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+print("RB7: Client boot ok")
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
@@ -1767,7 +1776,16 @@ end
 							<string name="Name">App</string>
 							<token name="RunContext">0</token>
 							<string name="ScriptGuid">{81d0ecd6-aac4-4ae7-a5d2-2ed84e4cc09b}</string>
-							<ProtectedString name="Source"><![CDATA[-- RB7 UI App (safe)
+							<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+-- RB7 UI App (safe)
 local uiFolder = script.Parent
 local components = uiFolder:FindFirstChild("Components")
 if not components then
@@ -1888,7 +1906,16 @@ end
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">App</string>
 							<string name="ScriptGuid">{b8d5858e-1cf7-42b2-8401-39fef0df0bcc}</string>
-							<ProtectedString name="Source"><![CDATA[--!strict
+							<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+--!strict
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -2246,6 +2273,34 @@ return M
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
 								<UniqueId name="UniqueId">49aa1118cec1786208b8c1eb00000865</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX25a35afced074682be264deb4c4adad6">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">__stub</string>
+								<string name="ScriptGuid">{3e5e8fe5-200a-4927-ae21-fd8a4bc54425}</string>
+								<ProtectedString name="Source"><![CDATA[-- filepath: (auto) multiple possible UI stub paths
+-- Minimal stub, verhindert Fehler wenn Components/init.lua fehlt.
+local Components = {}
+
+function Components.Register(name, module)
+    Components[name] = module
+end
+
+function Components.Get(name)
+    return Components[name]
+end
+
+return Components
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">11ee15e9f54b9d9408b8c2780000085d</UniqueId>
 							</Properties>
 						</Item>
 					</Item>
@@ -5893,7 +5948,16 @@ end)
 					<string name="Name">RB7_Boot</string>
 					<token name="RunContext">0</token>
 					<string name="ScriptGuid">{1bfe1570-b632-4aa6-ac19-04148b46ff27}</string>
-					<ProtectedString name="Source"><![CDATA[print("RB7: Server boot ok")
+					<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+print("RB7: Server boot ok")
 ]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
@@ -6132,7 +6196,16 @@ print("[RB7_RoundController] ✅ bereit (Config-gestützt)")
 					<string name="Name">RB7_ServerMain</string>
 					<token name="RunContext">0</token>
 					<string name="ScriptGuid">{dd134a19-55ce-4a4c-8dc0-baf244ddd3ef}</string>
-					<ProtectedString name="Source"><![CDATA[--!strict
+					<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+--!strict
 -- RB7_ServerMain: Stellt Remotes bereit und validiert eingehende Payloads
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players           = game:GetService("Players")
@@ -6898,7 +6971,16 @@ return Logger
 					<string name="Name">R6V_TimerPublisher</string>
 					<token name="RunContext">0</token>
 					<string name="ScriptGuid">{a7d1e7de-1116-449a-8f09-abd7c842fa18}</string>
-					<ProtectedString name="Source"><![CDATA[--!strict
+					<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+--!strict
 -- R6V_TimerPublisher.server.lua
 -- Robuster Runden-Timer Publisher (ersetzt fehlerhafte Zuweisungen wie "RoundTime: 300")
 
@@ -7223,7 +7305,16 @@ print("[RB7_EventsEnsure] ✅ Remotes unter ReplicatedStorage/Shared/Events/v1 v
 					<string name="Name">R6V_RoundController</string>
 					<token name="RunContext">0</token>
 					<string name="ScriptGuid">{a39b8447-80c2-4161-9a07-c64ca4037d8a}</string>
-					<ProtectedString name="Source"><![CDATA[--!strict
+					<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+--!strict
 -- R6V_RoundController.server.lua
 -- Zustandsmaschine für Lobby/Countdown/In-Round/Post-Round
 -- Stellt fehlende Funktionen setState / markPlayerReady bereit und sichert Events.
@@ -7443,7 +7534,16 @@ setState("LOBBY")
 					<Content name="LinkedSource"><null></null></Content>
 					<string name="Name">RB7_Telemetry</string>
 					<string name="ScriptGuid">{ca391806-5d9b-4b03-b9f2-38b6105107a6}</string>
-					<ProtectedString name="Source"><![CDATA[-- filepath: src/server/RB7_Telemetry.lua
+					<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+-- filepath: src/server/RB7_Telemetry.lua
 -- ...existing code...
 local Telemetry = {}
 local _hooked = {}
@@ -7497,7 +7597,16 @@ return Telemetry
 					<Content name="LinkedSource"><null></null></Content>
 					<string name="Name">RB7_Boot</string>
 					<string name="ScriptGuid">{8ac02d58-247a-4410-abb7-3d57a8e1cba9}</string>
-					<ProtectedString name="Source"><![CDATA[-- filepath: src/server/RB7_Boot.lua
+					<ProtectedString name="Source"><![CDATA[-- INIT-GUARD (automatically added) - verhindert doppelte Initialisierung
+do
+    if _G.RB7_InitGuard == nil then _G.RB7_InitGuard = {} end
+    local ok,name = pcall(function() return (script and (pcall(function() return script:GetFullName() end) and script:GetFullName())) end)
+    local id = "RB7_GUARD_" .. tostring((ok and name) or (script and script.Name) or tostring(debug.getinfo(1).source))
+    if _G.RB7_InitGuard[id] then return end
+    _G.RB7_InitGuard[id] = true
+end
+
+-- filepath: src/server/RB7_Boot.lua
 -- ...existing code...
 local Boot = {}
 local _started = false
