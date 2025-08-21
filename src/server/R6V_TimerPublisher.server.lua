@@ -1,56 +1,73 @@
--- RB7: R6V_TimerPublisher (server) – sendet RoundTimerTick über Shared/Events/v1
-local RS = game:GetService("ReplicatedStorage")
+--!strict
+-- R6V_TimerPublisher.server.lua
+-- Robuster Runden-Timer Publisher (ersetzt fehlerhafte Zuweisungen wie "RoundTime: 300")
 
-local function ensureFolder(parent, name)
-    local f = parent:FindFirstChild(name)
-    if not f then
-        f = Instance.new("Folder")
-        f.Name = name
-        f.Parent = parent
-    end
-    return f
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService        = game:GetService("RunService")
+
+-- Fallback-Konfiguration
+local ROUND_TIME_SECONDS: number = 300
+
+-- Optional: GameConfig laden, falls vorhanden
+do
+	local Modules = ReplicatedStorage:FindFirstChild("Modules")
+	if Modules and Modules:FindFirstChild("Shared") then
+		local Config = Modules.Shared:FindFirstChild("Config")
+		if Config and Config:FindFirstChild("GameConfig") and Config.GameConfig:IsA("ModuleScript") then
+			local ok, cfg = pcall(require, Config.GameConfig)
+			if ok and type(cfg) == "table" and tonumber(cfg.RoundTime) then
+				ROUND_TIME_SECONDS = tonumber(cfg.RoundTime) :: number
+			end
+		end
+	end
 end
 
-local function ensureRemoteEvent(parent, name)
-    local ev = parent:FindFirstChild(name)
-    if not ev then
-        ev = Instance.new("RemoteEvent")
-        ev.Name = name
-        ev.Parent = parent
-    end
-    return ev
+-- Events/v1 Pfad sicherstellen
+local Events = ReplicatedStorage:FindFirstChild("Events")
+if not Events then
+	Events = Instance.new("Folder")
+	Events.Name = "Events"
+	Events.Parent = ReplicatedStorage
 end
 
-local Shared = ensureFolder(RS, "Shared")
-local Events = ensureFolder(Shared, "Events")
-local V1     = ensureFolder(Events, "v1")
-local TickEvent = ensureRemoteEvent(V1, "RoundTimerTick")
-
-local RoundTimeSeconds = 300
-local PublishEverySecs = 1
-
-local Flag = RS:FindFirstChild("_RB7_TimerPublisher_Running")
-if not Flag then
-    Flag = Instance.new("BoolValue")
-    Flag.Name = "_RB7_TimerPublisher_Running"
-    Flag.Parent = RS
-    Flag.Value = false
+local v1 = Events:FindFirstChild("v1")
+if not v1 then
+	v1 = Instance.new("Folder")
+	v1.Name = "v1"
+	v1.Parent = Events
 end
 
-if not Flag.Value then
-    Flag.Value = true
-    task.spawn(function()
-        local remaining = RoundTimeSeconds
-        while remaining >= 0 do
-            pcall(function() TickEvent:FireAllClients(remaining) end)
-            task.wait(PublishEverySecs)
-            remaining -= PublishEverySecs
-        end
-        pcall(function() TickEvent:FireAllClients(-1) end)
-        Flag.Value = false
-    end)
-else
-    warn("[R6V_TimerPublisher] Läuft bereits – kein zweiter Loop gestartet.")
+local RoundTimeUpdated = v1:FindFirstChild("RoundTimeUpdated")
+if not RoundTimeUpdated then
+	RoundTimeUpdated = Instance.new("RemoteEvent")
+	RoundTimeUpdated.Name = "RoundTimeUpdated"
+	RoundTimeUpdated.Parent = v1
 end
 
-print("[R6V_TimerPublisher] ✅ aktiv – RoundTimerTick unter Shared/Events/v1")
+-- Timer-Logik
+local startClock = os.clock()
+local lastSent = -1
+
+local function getRemainingSeconds(): number
+	local elapsed = os.clock() - startClock
+	local remaining = ROUND_TIME_SECONDS - math.floor(elapsed)
+	if remaining < 0 then remaining = 0 end
+	return remaining
+end
+
+-- Initial push
+RoundTimeUpdated:FireAllClients(getRemainingSeconds())
+
+-- Herzschlag: nur senden, wenn sich der Sekundenwert ändert
+RunService.Heartbeat:Connect(function()
+	local remaining = getRemainingSeconds()
+	if remaining ~= lastSent then
+		lastSent = remaining
+		RoundTimeUpdated:FireAllClients(remaining)
+		if remaining == 0 then
+			-- Hier könnte man eine neue Runde triggern o. Ä.
+		end
+	end
+end)
+
+print(("[R6V_TimerPublisher] ✅ läuft. RoundTime=%d s"):format(ROUND_TIME_SECONDS))
