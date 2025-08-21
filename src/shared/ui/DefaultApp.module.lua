@@ -28,7 +28,7 @@ function Components.mount(parent)
 	return screenGui
 end
 
--- Versuche den ModuleScript-Namen zur Laufzeit anzupassen (wenn möglich),
+return Components
 -- so dass Code, der explizit nach "Components" sucht, besser funktioniert.
 pcall(function()
 	if typeof(script) == "Instance" and script.Name ~= "Components" then
