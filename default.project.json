@@ -2,21 +2,18 @@
   "name": "RobloxProjekt",
   "servePort": 34872,
   "tree": {
-    "$className": "DataModel",
+    "\$className": "DataModel",
     "ServerScriptService": {
-      "$className": "ServerScriptService",
-      "src/server": { "$path": "src/server" }
+      "\$path": "src/server"
     },
     "StarterPlayer": {
-      "$className": "StarterPlayer",
+      "\$className": "StarterPlayer",
       "StarterPlayerScripts": {
-        "$className": "StarterPlayerScripts",
-        "src/client": { "$path": "src/client" }
+        "\$path": "src/client"
       }
     },
     "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "src/shared": { "$path": "src/shared" }
+      "\$path": "src/shared"
     }
   }
 }
