@@ -1,13 +1,14 @@
 {
-  "$schema": "https://raw.githubusercontent.com/rojo-rbx/rojo/master/default.project.json",
   "name": "RB7_Project",
-  "servePort": 34872,
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Shared": {
         "$path": "src/shared"
+      },
+      "Extra": {
+        "$className": "Folder"
       },
       "First": {
         "$path": "src/first"
