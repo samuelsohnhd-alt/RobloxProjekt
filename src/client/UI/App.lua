@@ -1,5 +1,4 @@
 --!strict
--- UI/App.lua – kleines HUD + Event-Wireup (robust: sucht Components-Module im Ordner)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local plr = Players.LocalPlayer
@@ -7,13 +6,10 @@ local pg = plr:WaitForChild("PlayerGui")
 
 local componentsFolder = script.Parent:FindFirstChild("Components")
 assert(componentsFolder ~= nil, "[UI/App] Components Ordner fehlt")
-
 local compModule: ModuleScript? =
 	componentsFolder:FindFirstChild("init") :: ModuleScript?
-	or componentsFolder:FindFirstChild("Components") :: ModuleScript?
 	or componentsFolder:FindFirstChildWhichIsA("ModuleScript") :: ModuleScript?
 assert(compModule ~= nil, "[UI/App] Components ModuleScript fehlt (erwarte init.lua)")
-
 local Components = require(compModule)
 
 local v1 = ReplicatedStorage:WaitForChild("Events"):WaitForChild("v1")
