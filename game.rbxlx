@@ -1673,6 +1673,20 @@ end)
 			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc60000036a</UniqueId>
 		</Properties>
 	</Item>
+	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ServiceVisibilityService</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
+			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
+		</Properties>
+	</Item>
 	<Item class="LuaWebService" referent="RBX0bd9fb073d5a4c3fbd338cd9ba9f8a31">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
@@ -3354,20 +3368,6 @@ return Store
 				</Item>
 			</Item>
 		</Item>
-	</Item>
-	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
-		<Properties>
-			<BinaryString name="AttributesSerialize"></BinaryString>
-			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-			<bool name="DefinesCapabilities">false</bool>
-			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
-			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-			<string name="Name">ServiceVisibilityService</string>
-			<int64 name="SourceAssetId">-1</int64>
-			<BinaryString name="Tags"></BinaryString>
-			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
-			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
-		</Properties>
 	</Item>
 	<Item class="HttpService" referent="RBX72b3f63027f74575baffedc240a79583">
 		<Properties>
