@@ -1,13 +1,13 @@
--- Minimaler Fallback-App-Module für UI-Mount (Client-seitig).
+-- Minimaler Components-Fallback (keine Spiel-Logik)
 local Components = {}
 
--- Erwartetes Interface:
--- Components.mount(parent: PlayerGui | GuiObject) -> ScreenGui
+-- Erwartetes API: Components.mount(parent) — hier No-Op / sicherer Rückgabewert.
 function Components.mount(parent)
-	assert(parent, "parent required")
-	-- Erstelle ein minimales ScreenGui
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "RB7_DefaultApp"
+	-- No operation in minimal project state.
+	return nil
+end
+
+return Components
 	screenGui.ResetOnSpawn = false
 
 	local frame = Instance.new("Frame")

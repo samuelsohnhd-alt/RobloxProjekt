@@ -1,31 +1,7 @@
 {
-  "name": "RB7Project",
+  "name": "RB7Project-minimal",
   "tree": {
     "$className": "DataModel",
-    "ServerScriptService": {
-      "$className": "ServerScriptService",
-      "Server": {
-        "$path": "src/server"
-      }
-    },
-    "ServerStorage": {
-      "$className": "ServerStorage",
-      "RB7_Private": {
-        "$className": "Folder",
-        "Sec": {
-          "$className": "Folder",
-          "sec": {
-            "$path": "src/sec"
-          }
-        }
-      },
-      "Storage": {
-        "$className": "Folder",
-        "storage": {
-          "$path": "src/storage"
-        }
-      }
-    },
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Shared": {
@@ -35,19 +11,23 @@
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
+        "$path": "src/client",
         "$className": "StarterPlayerScripts",
         "Client": {
           "$path": "src/client"
         }
       }
     },
-    "StarterGui": {
-      "$className": "StarterGui",
-      "RB7_UI": {
-        "$className": "Folder",
-        "ui": {
-          "$path": "src/ui"
-        }
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "RB7_Private": {
+        "$path": "src/sec"
       }
     }
   },

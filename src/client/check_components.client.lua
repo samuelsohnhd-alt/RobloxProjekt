@@ -1,11 +1,11 @@
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
-
-local function log(level, msg)
-	print(string.format("[%s] %s", level, msg))
+-- Minimaler Client-Stub nach Cleanup
+local function info(msg)
+	print("[PROJECT-MINIMAL] " .. tostring(msg))
 end
 
+info("Client stub active. Spiel-Code entfernt. Verwende Git/Rojo/Launch-Agent für weiteren Aufbau.")
+
+return nil
 local function inspectComponents(container)
 	if not container then
 		return nil, "not found"
