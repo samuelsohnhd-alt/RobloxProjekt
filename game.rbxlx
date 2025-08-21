@@ -3770,9 +3770,7 @@ print("[RB7_UI] App initialisiert.")
 								<string name="Name">components</string>
 								<string name="ScriptGuid">{8f495ad3-9a7f-46e1-ab81-b5bd257e372a}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
--- UI/Components/init.lua – kleines Komponenten-Bundle
 local Components = {}
-
 function Components.MakeLabel(props: {Name: string?, Text: string?, Size: UDim2?, Position: UDim2?})
 	local l = Instance.new("TextLabel")
 	l.Name = props.Name or "Label"
@@ -3787,7 +3785,6 @@ function Components.MakeLabel(props: {Name: string?, Text: string?, Size: UDim2?
 	l.BorderSizePixel = 0
 	return l
 end
-
 function Components.MakePanel(props: {Name: string?, Size: UDim2?, Position: UDim2?})
 	local f = Instance.new("Frame")
 	f.Name = props.Name or "Panel"
@@ -3800,7 +3797,6 @@ function Components.MakePanel(props: {Name: string?, Size: UDim2?, Position: UDi
 	local pad = Instance.new("UIPadding"); pad.PaddingLeft = UDim.new(0,10); pad.PaddingTop = UDim.new(0,8); pad.Parent = f
 	return f
 end
-
 return Components
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
@@ -4104,7 +4100,6 @@ return M
 								<string name="Name">App</string>
 								<string name="ScriptGuid">{034070ca-523d-403e-848a-dc01c918fc06}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
--- UI/App.lua – kleines HUD + Event-Wireup (robust: sucht Components-Module im Ordner)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local plr = Players.LocalPlayer
@@ -4112,13 +4107,10 @@ local pg = plr:WaitForChild("PlayerGui")
 
 local componentsFolder = script.Parent:FindFirstChild("Components")
 assert(componentsFolder ~= nil, "[UI/App] Components Ordner fehlt")
-
 local compModule: ModuleScript? =
 	componentsFolder:FindFirstChild("init") :: ModuleScript?
-	or componentsFolder:FindFirstChild("Components") :: ModuleScript?
 	or componentsFolder:FindFirstChildWhichIsA("ModuleScript") :: ModuleScript?
 assert(compModule ~= nil, "[UI/App] Components ModuleScript fehlt (erwarte init.lua)")
-
 local Components = require(compModule)
 
 local v1 = ReplicatedStorage:WaitForChild("Events"):WaitForChild("v1")
@@ -4202,7 +4194,6 @@ end
 								<token name="RunContext">0</token>
 								<string name="ScriptGuid">{bfe797bc-2c5c-4158-a3fe-117f40e01327}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
--- UI/Boot.client.lua – lädt App und mountet (mit sauberem Fehlerlog)
 local App = require(script.Parent:WaitForChild("App"))
 local ok, res = pcall(function() return App.mount() end)
 if ok then
@@ -4420,6 +4411,85 @@ if ok then print("[RoundState] initial:", state) end
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 							<UniqueId name="UniqueId">19c3eeea2cbb0cde08b8a63500000909</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX1e35a1bde7cd408480920611bc9d5a8f">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">000_Preboot_CleanUI</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{d54895c4-d1fb-4b21-bb39-6a78e1e42c5e}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+-- Läuft so früh wie möglich: Entfernt alte/fehlplatzierte UI-Skripte,
+-- die unter PlayerScripts/Client/UI liegen und unsere neue Struktur stören.
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local plr = Players.LocalPlayer
+local ps  = plr:WaitForChild("PlayerScripts")
+local client = ps:FindFirstChild("Client")
+
+local function isSrcUI(inst: Instance): boolean
+	-- Unsere gewünschte Struktur: Client/src/client/UI/...
+	-- Also darf nur dieser Pfad bleiben.
+	if not client then return false end
+	local src = client:FindFirstChild("src/client")
+	if not src then return false end
+	local ui = src:FindFirstChild("UI")
+	return ui ~= nil and inst:IsDescendantOf(ui)
+end
+
+local function shouldNuke(inst: Instance): boolean
+	-- Falsch einsortierte UI-Knoten: direkt unter Client: UI, RB7_UI, screens, App, components etc.
+	if not client then return false end
+	if isSrcUI(inst) then return false end
+	local badNames = {
+		UI = true, RB7_UI = true, screens = true, App = true, components = true,
+		["RB7_UI.stub"] = true, ["UI.stub"] = true
+	}
+	return badNames[inst.Name] == true
+end
+
+local function nuke(inst: Instance)
+	if shouldNuke(inst) then
+		inst:Destroy()
+		print(("[RB7_Preboot] entfernt: %s"):format(inst.Name))
+	end
+end
+
+local function sweep()
+	if not client then return end
+	for _,child in ipairs(client:GetChildren()) do
+		nuke(child)
+		-- auch tiefer schauen: falls es doch Unterordner UI gibt
+		for _,g in ipairs(child:GetChildren()) do
+			nuke(g)
+		end
+	end
+end
+
+-- Früher Mehrfachlauf, um Rennbedingungen zu vermeiden
+for i = 1, 30 do
+	sweep()
+	RunService.Heartbeat:Wait()
+end
+
+-- Wachhund für spätes Nachladen
+if client then
+	client.ChildAdded:Connect(function(c) nuke(c) end)
+	client.DescendantAdded:Connect(function(d) nuke(d) end)
+end
+
+print("[RB7_Preboot] ✅ Legacy-UI gesäubert")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">3ad1f6bdd057363808b8a9c500000864</UniqueId>
 						</Properties>
 					</Item>
 				</Item>
@@ -4787,20 +4857,6 @@ if ok then print("[RoundState] initial:", state) end
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc60000036a</UniqueId>
-		</Properties>
-	</Item>
-	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
-		<Properties>
-			<BinaryString name="AttributesSerialize"></BinaryString>
-			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-			<bool name="DefinesCapabilities">false</bool>
-			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
-			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-			<string name="Name">ServiceVisibilityService</string>
-			<int64 name="SourceAssetId">-1</int64>
-			<BinaryString name="Tags"></BinaryString>
-			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
-			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
 		</Properties>
 	</Item>
 	<Item class="LuaWebService" referent="RBX0bd9fb073d5a4c3fbd338cd9ba9f8a31">
@@ -9438,6 +9494,20 @@ setState("LOBBY")
 				</Item>
 			</Item>
 		</Item>
+	</Item>
+	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ServiceVisibilityService</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
+			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
+		</Properties>
 	</Item>
 	<Item class="HttpService" referent="RBX72b3f63027f74575baffedc240a79583">
 		<Properties>
