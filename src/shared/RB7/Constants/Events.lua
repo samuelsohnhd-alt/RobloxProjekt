@@ -8,12 +8,17 @@ local Events = {
 	PING        = "Ping",
 
 	-- Runden/Match
-	ROUND_START = "RoundStart",    -- RemoteEvent (Server -> Client)
-	ROUND_ENDED = "RoundEnded",    -- RemoteEvent (Server -> Client)
-	TIMER_TICK  = "TimerTick",     -- RemoteEvent (Server -> Client), payload: { t = number }
+	ROUND_START = "RoundStart",    -- RemoteEvent (S->C)
+	ROUND_ENDED = "RoundEnded",    -- RemoteEvent (S->C)
+	TIMER_TICK  = "TimerTick",     -- RemoteEvent (S->C) payload: { t = number }
 
 	-- Profile
-	GET_PROFILE     = "GetProfile",     -- RemoteFunction (Client -> Server), returns Profile
-	PROFILE_UPDATED = "ProfileUpdated", -- RemoteEvent (Server -> Client)
+	GET_PROFILE     = "GetProfile",     -- RemoteFunction (C->S) -> Profile
+	PROFILE_UPDATED = "ProfileUpdated", -- RemoteEvent (S->C)
+
+	-- Inputs (Client -> Server)
+	SET_ADS         = "SetADS",         -- RemoteEvent payload: { on:boolean }
+	SET_CROUCH      = "SetCrouchState", -- RemoteEvent payload: { on:boolean }
+	RELOAD          = "ReloadEvent",    -- RemoteEvent payload: { }
 }
 return Events
