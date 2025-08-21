@@ -748,7 +748,43 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 				<BinaryString name="Tags"></BinaryString>
 				<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae00000390</UniqueId>
 			</Properties>
-			<Item class="Folder" referent="RBXe447ac8604ef488186ea023827085f63">
+			<Item class="LocalScript" referent="RBXa9341a79693547a3974aa20c28f79040">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">___RojoRefreshTest</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{3cb954f9-be6f-4967-a5d0-62a721b36780}</string>
+					<ProtectedString name="Source"><![CDATA[print("✅ Client-TEST lebt")
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000820</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="LocalScript" referent="RBXf635588bad694e2fb0259f16588646ea">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Hello</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{0a47f10b-9bc1-43fd-a780-9237379a5a5a}</string>
+					<ProtectedString name="Source"><![CDATA[print("✅ Rojo Client-Test: Hello.client.lua wurde geladen.")
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000822</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXfe3ada8858c6483c97623f4ee54c4260">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -757,8 +793,75 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					<string name="Name">Client</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae000007a6</UniqueId>
+					<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d5b</UniqueId>
 				</Properties>
+				<Item class="LocalScript" referent="RBX7bf4f8ba9ae54c1bbc977385cdffef1f">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Hello</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{6e11de76-0d6c-4708-89f5-5796bf8a3f9e}</string>
+						<ProtectedString name="Source"><![CDATA[print("✅ Rojo Client-Test: Hello.client.lua wurde geladen.")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d5c</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="LocalScript" referent="RBX9b4ba2d65fe747b59e0687e30adbd1f4">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">___RojoRefreshTest</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{d5b8b464-5110-4dbe-88bd-f99cb604d42c}</string>
+						<ProtectedString name="Source"><![CDATA[print("✅ Client-TEST lebt")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d5d</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX1e7ba4814d5d4592b21f01e163b6a2b3">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">testa</string>
+						<string name="ScriptGuid">{47e7dbe7-029d-4e6e-bdb8-a8eaca2c0c5f}</string>
+						<ProtectedString name="Source"></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800001a97</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX8a29932715a447fabe1f868f29c30a6b">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">tol</string>
+						<string name="ScriptGuid">{d1cc9771-b813-4330-8909-d2b09a5a270c}</string>
+						<ProtectedString name="Source"><![CDATA[test
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800001a99</UniqueId>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 		<Item class="StarterCharacterScripts" referent="RBXef6167b180fc44ad9454ba1578369c49">
@@ -804,6 +907,36 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae0000034c</UniqueId>
 			<token name="VirtualCursorMode">0</token>
 		</Properties>
+		<Item class="Folder" referent="RBX301b156e99c24762912066d14621765c">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">RB7_UI</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d66</UniqueId>
+			</Properties>
+			<Item class="LocalScript" referent="RBXb4c62bf2f6424f1c8c499f7e4951a7fd">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">UiTest</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{555ec958-fd55-43d9-a3b9-e3513b82149f}</string>
+					<ProtectedString name="Source"><![CDATA[print("🟢 UI lebt")
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">663799bd85ab4f0e08b8f798000014f0</UniqueId>
+				</Properties>
+			</Item>
+		</Item>
 	</Item>
 	<Item class="LocalizationService" referent="RBX95b0545487b440369f322c28e23bbd8c">
 		<Properties>
@@ -1042,7 +1175,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae00000374</UniqueId>
 		</Properties>
-		<Item class="Folder" referent="RBX7bc50abc4c2f482b840d1d04684f8d81">
+		<Item class="Folder" referent="RBXafa01c0ea26544e4b60de0e9e6a6b3eb">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1051,8 +1184,24 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 				<string name="Name">Shared</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
-				<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae000007a9</UniqueId>
+				<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d65</UniqueId>
 			</Properties>
+			<Item class="ModuleScript" referent="RBX268d5d0b4d2a4cc499b3e2b7d6c8375e">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">SharedTest</string>
+					<string name="ScriptGuid">{2f355156-1b9b-4eb5-ae3a-40335e68c516}</string>
+					<ProtectedString name="Source"><![CDATA[return {msg="🟢 Shared lebt"}
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">663799bd85ab4f0e08b8f798000014f2</UniqueId>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="ServerScriptService" referent="2">
@@ -1067,7 +1216,25 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae00000375</UniqueId>
 		</Properties>
-		<Item class="Folder" referent="RBX0219ba97de444c3181fff501c95633c1">
+		<Item class="Script" referent="RBXab946d7583f141b3863eb46a69785d51">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<bool name="Disabled">false</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">Hello</string>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{32472983-9f27-42fe-803c-361e2182f1ca}</string>
+				<ProtectedString name="Source"><![CDATA[print("✅ Rojo Server-Test: Hello.server.lua wurde geladen.")
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">663799bd85ab4f0e08b8f7980000081c</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="Folder" referent="RBX55ce7269150b400eab9dc252835d8303">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1076,8 +1243,26 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 				<string name="Name">Server</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
-				<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae000007a8</UniqueId>
+				<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d62</UniqueId>
 			</Properties>
+			<Item class="Script" referent="RBX9df3c3098e3a4cb8bceb5515edcd88c1">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">Hello</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{2da80cea-0d42-49d5-bfb8-4395b446c69b}</string>
+					<ProtectedString name="Source"><![CDATA[print("✅ Rojo Server-Test: Hello.server.lua wurde geladen.")
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d63</UniqueId>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="ServerStorage" referent="3">
@@ -1091,7 +1276,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae00000376</UniqueId>
 		</Properties>
-		<Item class="Folder" referent="RBX68b19a9e5d1c4a7ca707730f5f7155e4">
+		<Item class="Folder" referent="RBX3c61ecd9a1a543ac9026edde6c847f19">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -1100,8 +1285,34 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 				<string name="Name">RB7_Private</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
-				<UniqueId name="UniqueId">42f30f387bbd227708b8d6ae000007a7</UniqueId>
+				<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d60</UniqueId>
 			</Properties>
+			<Item class="Folder" referent="RBX76716148f79d4f46b446edad2c0e28eb">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Sec</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800000d61</UniqueId>
+				</Properties>
+				<Item class="StringValue" referent="RBX493872dcaffd4111809ad5533cbab007">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">README</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">663799bd85ab4f0e08b8f79800001502</UniqueId>
+						<string name="Value"><![CDATA[-- geheim
+]]></string>
+					</Properties>
+				</Item>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="ServiceVisibilityService" referent="RBXb8c79c75582e492bbc9886f1ea22865d">
@@ -1171,7 +1382,8 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 				<G>0.5</G>
 				<B>0.5</B>
 			</Color3>
-			<BinaryString name="AttributesSerialize">AQAAACYAAABSQlhfTGlnaHRpbmdUZWNobm9sb2d5VW5pZmllZE1pZ3JhdGlvbgMB</BinaryString>
+			<BinaryString name="AttributesSerialize"><![CDATA[AgAAACYAAABSQlhfTGlnaHRpbmdUZWNobm9sb2d5VW5pZmllZE1pZ3JhdGlvbgMBIAAAAFJC
+WF9PcmlnaW5hbFRlY2hub2xvZ3lPbkZpbGVMb2FkBAEAAAA=]]></BinaryString>
 			<float name="Brightness">1</float>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 			<Color3 name="ColorShift_Bottom">
