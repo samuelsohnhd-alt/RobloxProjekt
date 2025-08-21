@@ -3,14 +3,33 @@
   "servePort": 34872,
   "tree": {
     "$className": "DataModel",
-    "ServerScriptService": { "$path": "src/server" },
+
+    "ServerScriptService": {
+      "Server": { "$path": "src/server" }
+    },
+
     "StarterPlayer": {
       "$className": "StarterPlayer",
-      "StarterPlayerScripts": { "$path": "src/client" }
+      "StarterPlayerScripts": {
+        "Client": { "$path": "src/client" }
+      }
     },
-    "StarterGui": { "$path": "src/ui" },
-    "ServerStorage": { "$path": "src/sec" },
+
+    "StarterGui": {
+      "RB7_UI": { "$path": "src/ui" }
+    },
+
+    "ServerStorage": {
+      "RB7_Private": {
+        "$className": "Folder",
+        "Sec": { "$path": "src/sec" }
+      }
+    },
+
     "ReplicatedFirst": { "$path": "src/first" },
-    "ReplicatedStorage": { "$path": "src/shared" }
+
+    "ReplicatedStorage": {
+      "Shared": { "$path": "src/shared" }
+    }
   }
 }
