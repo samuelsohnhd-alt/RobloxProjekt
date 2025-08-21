@@ -7,7 +7,7 @@ local function mkRow(parent: Instance, idx: number, name: string, kills: number,
     local k=Instance.new("TextLabel"); k.Size=UDim2.new(0,40,1,0); k.Position=UDim2.new(1,-90,0,0); k.BackgroundTransparency=1; k.Font=Theme.Fonts.Mono; k.TextSize=14; k.Text=tostring(kills); k.TextColor3=Theme.Colors.Text; k.Parent=row
     local d=Instance.new("TextLabel"); d.Size=UDim2.new(0,40,1,0); d.Position=UDim2.new(1,-40,0,0); d.BackgroundTransparency=1; d.Font=Theme.Fonts.Mono; d.TextSize=14; d.Text=tostring(deaths); d.TextColor3=Theme.Colors.Text; d.Parent=row
 end
-local function TeamPanel(parent: Instance, title: string, rows: {{string, number, number, boolean?}})
+local function TeamPanel(parent, title, rows)
     local panel=Instance.new("Frame"); panel.Name=title:gsub("%s","").."Panel"; panel.BackgroundColor3=Theme.Colors.Panel; panel.BorderSizePixel=0; panel.Size=UDim2.new(0.49,-6,0,170); panel.Parent=parent
     local header=Instance.new("TextLabel"); header.Name="Header"; header.Size=UDim2.new(1,0,0,28); header.BackgroundColor3=Theme.Colors.Line; header.BorderSizePixel=0; header.Font=Theme.Fonts.Header; header.TextSize=16; header.TextColor3=Theme.Colors.Text; header.Text=title:upper(); header.Parent=panel
     local body=Instance.new("Frame"); body.Name="Body"; body.BackgroundTransparency=1; body.Position=UDim2.new(0,10,0,36); body.Size=UDim2.new(1,-20,1,-46); body.Parent=panel
