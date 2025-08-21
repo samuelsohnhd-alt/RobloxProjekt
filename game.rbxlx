@@ -1732,322 +1732,37 @@ end]]></ProtectedString>
 					<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000392</UniqueId>
 				</Properties>
 			</Item>
-			<Item class="Folder" referent="RBXf07a5cf0b62b4949acb65a141718e0f3">
+			<Item class="ModuleScript" referent="RBX4b0438770cd84c8bbe7b8511285a7b28">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
 					<bool name="DefinesCapabilities">false</bool>
 					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<string name="Name">UI</string>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">56383fe5b466590608b801c00000081b</UniqueId>
-				</Properties>
-				<Item class="Folder" referent="RBX58e60a55ce014136954426c430130548">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-						<bool name="DefinesCapabilities">false</bool>
-						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-						<string name="Name">Modules</string>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">56383fe5b466590608b801c00000080d</UniqueId>
-					</Properties>
-					<Item class="Folder" referent="RBXd2605209a19f437e8f09078df97ce58c">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<string name="Name">Shared</string>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">56383fe5b466590608b801c00000080e</UniqueId>
-						</Properties>
-						<Item class="Folder" referent="RBX84c75ab951064b3a8d038ff58c74b298">
-							<Properties>
-								<BinaryString name="AttributesSerialize"></BinaryString>
-								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-								<bool name="DefinesCapabilities">false</bool>
-								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-								<string name="Name">Types</string>
-								<int64 name="SourceAssetId">-1</int64>
-								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">56383fe5b466590608b801c00000080f</UniqueId>
-							</Properties>
-							<Item class="Folder" referent="RBX8565033687754f3198b89faee9ad942e">
-								<Properties>
-									<BinaryString name="AttributesSerialize"></BinaryString>
-									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-									<bool name="DefinesCapabilities">false</bool>
-									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-									<string name="Name">RemoteSchema</string>
-									<int64 name="SourceAssetId">-1</int64>
-									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">56383fe5b466590608b801c000000810</UniqueId>
-								</Properties>
-								<Item class="ModuleScript" referent="RBX875a53e900ec4ed0983b8c8d7bec64a9">
-									<Properties>
-										<BinaryString name="AttributesSerialize"></BinaryString>
-										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-										<bool name="DefinesCapabilities">false</bool>
-										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-										<Content name="LinkedSource"><null></null></Content>
-										<string name="Name">UI</string>
-										<string name="ScriptGuid">{8744aee8-b766-4897-8b78-29d67d4e71c8}</string>
-										<ProtectedString name="Source"><![CDATA[-- RB7 RemoteSchema: UI (v1)
-local T = {}
-T["UI.HUD.SetAmmo"] = { current="number", reserve="number", weapon="string" }
-T["UI.HUD.SetHP"]   = { hp="number", max="number" }
-T["UI.HUD.SetXP"]   = { xp="number", level="number", progress="number", next="number" }
-T["UI.Killfeed.AnnounceKill"] = { killer="string", victim="string", headshot="boolean|nil", weapon="string|nil" }
-T["UI.Match.WinnerAnnounce"]  = { team="string", reason="string|nil" }
-T["UI.Menu.Open"]             = { menu="string" } -- "Lobby" | "Loadout" | "None"
-return T
-]]></ProtectedString>
-										<int64 name="SourceAssetId">-1</int64>
-										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">56383fe5b466590608b801c000000811</UniqueId>
-									</Properties>
-								</Item>
-							</Item>
-						</Item>
-						<Item class="Folder" referent="RBX8eaf9a3914f2474881d361c4804b5ea9">
-							<Properties>
-								<BinaryString name="AttributesSerialize"></BinaryString>
-								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-								<bool name="DefinesCapabilities">false</bool>
-								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-								<string name="Name">Config</string>
-								<int64 name="SourceAssetId">-1</int64>
-								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">56383fe5b466590608b801c000000814</UniqueId>
-							</Properties>
-							<Item class="ModuleScript" referent="RBX4ff1dbafcedb4113bff68345cc890f5b">
-								<Properties>
-									<BinaryString name="AttributesSerialize"></BinaryString>
-									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-									<bool name="DefinesCapabilities">false</bool>
-									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-									<Content name="LinkedSource"><null></null></Content>
-									<string name="Name">UITheme</string>
-									<string name="ScriptGuid">{fbaf20cf-e600-414e-b292-9e40f97cb21e}</string>
-									<ProtectedString name="Source"><![CDATA[-- RB7 UITheme - zentrale UI-Konfiguration
-local theme = {
-  colors = {
-    bg     = Color3.fromRGB(12,13,16),
-    panel  = Color3.fromRGB(22,24,28),
-    fg     = Color3.fromRGB(235,237,240),
-    textDim= Color3.fromRGB(170,175,185),
-    accent = Color3.fromRGB(0,170,255),
-    success= Color3.fromRGB(60,220,120),
-    danger = Color3.fromRGB(255,80,80),
-    xp     = Color3.fromRGB(255,180,0),
-    hp     = Color3.fromRGB(0,200,120),
-  },
-  font = Enum.Font.GothamBold,
-  spacing = { xs=4, sm=8, md=12, lg=16, xl=24 },
-  hud = { textSize=20, barHeight=10, corner=8, padding=12, feedLine=22, feedMax=5, bannerHeight=100 }
-}
-return theme
-]]></ProtectedString>
-									<int64 name="SourceAssetId">-1</int64>
-									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">56383fe5b466590608b801c000000815</UniqueId>
-								</Properties>
-							</Item>
-						</Item>
-					</Item>
-				</Item>
-				<Item class="Folder" referent="RBXb19fc6b7bd4b4ad68b12647ce131eace">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-						<bool name="DefinesCapabilities">false</bool>
-						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-						<string name="Name">Events</string>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">56383fe5b466590608b801c000000800</UniqueId>
-					</Properties>
-					<Item class="Folder" referent="RBXffcca5a5fdfd46da87d66562be3b8a74">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<string name="Name">v1</string>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">56383fe5b466590608b801c000000801</UniqueId>
-						</Properties>
-						<Item class="Folder" referent="RBX698407bd3c9b486ea229d46d65cc79b6">
-							<Properties>
-								<BinaryString name="AttributesSerialize"></BinaryString>
-								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-								<bool name="DefinesCapabilities">false</bool>
-								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-								<string name="Name">UI</string>
-								<int64 name="SourceAssetId">-1</int64>
-								<BinaryString name="Tags"></BinaryString>
-								<UniqueId name="UniqueId">56383fe5b466590608b801c000000802</UniqueId>
-							</Properties>
-							<Item class="Folder" referent="RBX52fb16d405b043ea94d6c1a75cae7c7b">
-								<Properties>
-									<BinaryString name="AttributesSerialize"></BinaryString>
-									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-									<bool name="DefinesCapabilities">false</bool>
-									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-									<string name="Name">HUD</string>
-									<int64 name="SourceAssetId">-1</int64>
-									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">56383fe5b466590608b801c000000803</UniqueId>
-								</Properties>
-								<Item class="RemoteEvent" referent="RBX1598eb05d11545f8902028eb360f08fc">
-									<Properties>
-										<BinaryString name="AttributesSerialize"></BinaryString>
-										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-										<bool name="DefinesCapabilities">false</bool>
-										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-										<string name="Name">SetAmmo</string>
-										<int64 name="SourceAssetId">-1</int64>
-										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">56383fe5b466590608b801c000000807</UniqueId>
-									</Properties>
-								</Item>
-								<Item class="RemoteEvent" referent="RBX293ee284b1d745bca1857782a2c3c53b">
-									<Properties>
-										<BinaryString name="AttributesSerialize"></BinaryString>
-										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-										<bool name="DefinesCapabilities">false</bool>
-										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-										<string name="Name">SetHP</string>
-										<int64 name="SourceAssetId">-1</int64>
-										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">56383fe5b466590608b801c000000808</UniqueId>
-									</Properties>
-								</Item>
-								<Item class="RemoteEvent" referent="RBX3560ee2cd17e473a8f6f3c7c3d3cac46">
-									<Properties>
-										<BinaryString name="AttributesSerialize"></BinaryString>
-										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-										<bool name="DefinesCapabilities">false</bool>
-										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-										<string name="Name">SetXP</string>
-										<int64 name="SourceAssetId">-1</int64>
-										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">56383fe5b466590608b801c000000809</UniqueId>
-									</Properties>
-								</Item>
-							</Item>
-							<Item class="Folder" referent="RBXcf5cb240171041ba956253665c363fc1">
-								<Properties>
-									<BinaryString name="AttributesSerialize"></BinaryString>
-									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-									<bool name="DefinesCapabilities">false</bool>
-									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-									<string name="Name">Killfeed</string>
-									<int64 name="SourceAssetId">-1</int64>
-									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">56383fe5b466590608b801c000000804</UniqueId>
-								</Properties>
-								<Item class="RemoteEvent" referent="RBX291c599fae3b420bb12d338279540e40">
-									<Properties>
-										<BinaryString name="AttributesSerialize"></BinaryString>
-										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-										<bool name="DefinesCapabilities">false</bool>
-										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-										<string name="Name">AnnounceKill</string>
-										<int64 name="SourceAssetId">-1</int64>
-										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">56383fe5b466590608b801c00000080a</UniqueId>
-									</Properties>
-								</Item>
-							</Item>
-							<Item class="Folder" referent="RBXc2181764832a48019de8e2e020926d22">
-								<Properties>
-									<BinaryString name="AttributesSerialize"></BinaryString>
-									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-									<bool name="DefinesCapabilities">false</bool>
-									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-									<string name="Name">Match</string>
-									<int64 name="SourceAssetId">-1</int64>
-									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">56383fe5b466590608b801c000000805</UniqueId>
-								</Properties>
-								<Item class="RemoteEvent" referent="RBXfde3c7180197446db55ffd79104112c6">
-									<Properties>
-										<BinaryString name="AttributesSerialize"></BinaryString>
-										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-										<bool name="DefinesCapabilities">false</bool>
-										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-										<string name="Name">WinnerAnnounce</string>
-										<int64 name="SourceAssetId">-1</int64>
-										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">56383fe5b466590608b801c00000080b</UniqueId>
-									</Properties>
-								</Item>
-							</Item>
-							<Item class="Folder" referent="RBX0f26ec7bce0e41a08b54faaf9d05afa8">
-								<Properties>
-									<BinaryString name="AttributesSerialize"></BinaryString>
-									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-									<bool name="DefinesCapabilities">false</bool>
-									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-									<string name="Name">Menu</string>
-									<int64 name="SourceAssetId">-1</int64>
-									<BinaryString name="Tags"></BinaryString>
-									<UniqueId name="UniqueId">56383fe5b466590608b801c000000806</UniqueId>
-								</Properties>
-								<Item class="RemoteEvent" referent="RBX11f218295f734f52a53f7682214f8d56">
-									<Properties>
-										<BinaryString name="AttributesSerialize"></BinaryString>
-										<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-										<bool name="DefinesCapabilities">false</bool>
-										<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-										<string name="Name">Open</string>
-										<int64 name="SourceAssetId">-1</int64>
-										<BinaryString name="Tags"></BinaryString>
-										<UniqueId name="UniqueId">56383fe5b466590608b801c00000080c</UniqueId>
-									</Properties>
-								</Item>
-							</Item>
-						</Item>
-					</Item>
-				</Item>
-			</Item>
-		</Item>
-		<Item class="ModuleScript" referent="RBX4b0438770cd84c8bbe7b8511285a7b28">
-			<Properties>
-				<BinaryString name="AttributesSerialize"></BinaryString>
-				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-				<bool name="DefinesCapabilities">false</bool>
-				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-				<Content name="LinkedSource"><null></null></Content>
-				<string name="Name">RB7_Meta</string>
-				<string name="ScriptGuid">{f660eccb-1bd2-45f5-9b18-0380b44b5dc9}</string>
-				<ProtectedString name="Source"><![CDATA[return {
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">RB7_Meta</string>
+					<string name="ScriptGuid">{f660eccb-1bd2-45f5-9b18-0380b44b5dc9}</string>
+					<ProtectedString name="Source"><![CDATA[return {
 	BUILD_VERSION  = "0.1.0",
 	SCHEMA_VERSION = 1,
 	REPO           = "GITHUB_LINK", -- Quelle der Wahrheit (ersetzen, falls gewünscht)
 }]]></ProtectedString>
-				<int64 name="SourceAssetId">-1</int64>
-				<BinaryString name="Tags"></BinaryString>
-				<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000740</UniqueId>
-			</Properties>
-			<Item class="StringValue" referent="RBX4b2b0be299884327bc065cfb9376118a">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-					<bool name="DefinesCapabilities">false</bool>
-					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<string name="Name">UiHudVersion</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">4be5292ec436499a08b80165000007ab</UniqueId>
-					<string name="Value">v1.0.0</string>
+					<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000740</UniqueId>
 				</Properties>
+				<Item class="StringValue" referent="RBX4b2b0be299884327bc065cfb9376118a">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">UiHudVersion</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">4be5292ec436499a08b80165000007ab</UniqueId>
+						<string name="Value">v1.0.0</string>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 	</Item>
