@@ -2,21 +2,22 @@
   "name": "RB7",
   "tree": {
     "$className": "DataModel",
-    "ServerScriptService": {
-      "$className": "ServerScriptService",
-      "server": { "$path": "src/server" }
-    },
     "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "shared": { "$path": "src/shared" },
-      "sec":    { "$path": "src/sec" }
+      "$path": "src/shared"
+    },
+    "ServerScriptService": {
+      "$path": "src/server"
     },
     "StarterPlayer": {
-      "$className": "StarterPlayer",
       "StarterPlayerScripts": {
-        "$className": "StarterPlayerScripts",
-        "client": { "$path": "src/client" }
+        "$path": "src/client"
       }
+    },
+    "StarterGui": {
+      "$path": "src/ui"
+    },
+    "ServerStorage": {
+      "$path": "src/sec"
     }
   }
 }
