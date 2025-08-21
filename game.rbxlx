@@ -1842,36 +1842,53 @@ local LobbyScreen   = require(script:WaitForChild("LobbyScreen"))
 local LoadoutScreen = require(script:WaitForChild("LoadoutScreen"))
 local Hud           = require(script:WaitForChild("Hud"))
 
+local function setVisible(gui, on)
+    if not gui then return end
+    if gui:IsA("ScreenGui") then
+        gui.Enabled = on
+    else
+        gui.Visible = on
+    end
+end
+
 function M.boot(opts)
     opts = opts or {}
     local order = opts.displayOrder or {}
-    local CoreGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 
-    local lobbyGui = LobbyScreen.create()
-    lobbyGui.DisplayOrder = order.Lobby or 50
-    lobbyGui.Parent = CoreGui
-    print(("[RB7_UI] LobbyScreen created; DisplayOrder = %d"):format(lobbyGui.DisplayOrder))
+    local lobby = LobbyScreen.create(); lobby.DisplayOrder = order.Lobby or 50; lobby.Parent = pg
+    print(("[RB7_UI] LobbyScreen created; DisplayOrder = %d"):format(lobby.DisplayOrder))
 
-    local loadoutGui = LoadoutScreen.create()
-    loadoutGui.DisplayOrder = order.Loadout or 55
-    loadoutGui.Enabled = false
-    loadoutGui.Parent = CoreGui
+    local load  = LoadoutScreen.create(); load.DisplayOrder  = order.Loadout or 55; load.Enabled=false; load.Parent=pg
     print("[RB7_UI] LoadoutScreen created")
 
-    local hudGui = Hud.create()
-    hudGui.DisplayOrder = order.HUD or 100
-    hudGui.Parent = CoreGui
+    local hud   = Hud.create(); hud.DisplayOrder = order.HUD or 100; hud.Parent = pg
     print("[RB7_UI] Hud created")
 
+    -- Startzustand: Lobby + HUD sichtbar, Loadout aus
+    setVisible(lobby, true)
+    setVisible(hud,   true)
+    setVisible(load,  false)
+
+    -- Event-Bridge: ReplicatedStorage.Shared.Events[.v1].OpenMenu
     local RS = game:GetService("ReplicatedStorage")
-    local EventsRoot = RS:FindFirstChild("Shared") and RS.Shared:FindFirstChild("Events")
-    if EventsRoot and EventsRoot:FindFirstChild("OpenMenu") then
-        EventsRoot.OpenMenu.OnClientEvent:Connect(function(menu)
-            lobbyGui.Enabled   = (menu == "Lobby")
-            loadoutGui.Enabled = (menu == "Loadout")
-            hudGui.Enabled     = (menu == "HUD")
+    local shared = RS:FindFirstChild("Shared")
+    local events = shared and shared:FindFirstChild("Events")
+    local v1     = events and (events:FindFirstChild("v1") or events)
+    local openMenu = v1 and v1:FindFirstChild("OpenMenu")
+
+    if openMenu and openMenu:IsA("RemoteEvent") then
+        openMenu.OnClientEvent:Connect(function(menu)
+            -- menu: "Lobby" | "Loadout" | "HUD"
+            local t = tostring(menu)
+            setVisible(lobby,   t == "Lobby")
+            setVisible(load,    t == "Loadout")
+            setVisible(hud,     t == "HUD" or t == "Lobby") -- HUD bleibt in Lobby sichtbar
+            print("[RB7_UI] OpenMenu ->", t)
         end)
         print("[RB7_UI] Event bridge active (OpenMenu).")
+    else
+        warn("[RB7_UI] OpenMenu RemoteEvent nicht gefunden (ReplicatedStorage.Shared.Events[.v1].OpenMenu)")
     end
 end
 
@@ -2148,6 +2165,47 @@ return M
 								<UniqueId name="UniqueId">554a495676481a8908b89a910000080d</UniqueId>
 							</Properties>
 						</Item>
+					</Item>
+					<Item class="LocalScript" referent="RBX3727a741c7d249079e845e9c9ce788a9">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">OpenLoadoutHotkey</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{b256b57e-716c-4012-9fb5-f33bc5d06761}</string>
+							<ProtectedString name="Source"><![CDATA[local ContextActionService = game:GetService("ContextActionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local events = ReplicatedStorage:FindFirstChild("Shared")
+events = events and events:FindFirstChild("Events")
+events = events and (events:FindFirstChild("v1") or events)
+
+local OpenMenu = events and events:FindFirstChild("OpenMenu")
+
+local ACTION = "RB7_OpenLoadout"
+
+local function handler(_, state, _)
+    if state ~= Enum.UserInputState.Begin then return end
+    if OpenMenu and OpenMenu:IsA("RemoteEvent") then
+        OpenMenu:FireServer("Loadout")
+        print("[RB7_UI] Hotkey L -> OpenMenu('Loadout')")
+    else
+        warn("[RB7_UI] Hotkey: OpenMenu RemoteEvent nicht gefunden.")
+    end
+end
+
+-- Taste L als Hotkey
+ContextActionService:BindAction(ACTION, handler, false, Enum.KeyCode.L)
+print("[RB7_UI] Hotkey 'L' zum Öffnen des Loadouts aktiv.")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">7653e669c6135c0008b8a0c60000080e</UniqueId>
+						</Properties>
 					</Item>
 				</Item>
 				<Item class="LocalScript" referent="RBX41bf50ca58984097b379635f69ff0c8d">
@@ -2902,6 +2960,30 @@ return Env
 							<UniqueId name="UniqueId">351135725177085308b89db600000805</UniqueId>
 						</Properties>
 					</Item>
+					<Item class="ModuleScript" referent="RBX9b9e5f49abda4817836310c69f70a333">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Admins</string>
+							<string name="ScriptGuid">{cf84a6f4-067c-475a-85d0-d947be14f023}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+-- Trage hier deine UserIds ein, um Admin-RF nutzen zu können.
+-- Beispiel: [123456]=true
+local Admins:{[number]:boolean} = {
+}
+function Admins.isAdmin(userId:number): boolean
+	return Admins[userId] == true
+end
+return Admins
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">7653e669c6135c0008b8a0c600000809</UniqueId>
+						</Properties>
+					</Item>
 				</Item>
 				<Item class="Folder" referent="RBX5ec986587d124425bbe7d37c702b43ef">
 					<Properties>
@@ -2924,7 +3006,7 @@ return Env
 							<string name="Name">Events</string>
 							<string name="ScriptGuid">{e306ac77-710b-4d88-bbbf-0e3ad74dcd51}</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
--- RB7: zentrale Event-Konstanten
+-- RB7: zentrale Event-Konstanten (stabile Schnittstelle)
 local Events = {
 	ROOT            = "Events",
 	VERSION         = "v1",
@@ -2933,28 +3015,31 @@ local Events = {
 	PING            = "Ping",
 
 	-- Runden/Match
-	ROUND_START     = "RoundStart",       -- RemoteEvent (S->C)
-	ROUND_ENDED     = "RoundEnded",       -- RemoteEvent (S->C)
-	TIMER_TICK      = "TimerTick",        -- RemoteEvent (S->C) payload: { t:number }
+	ROUND_START     = "RoundStart",
+	ROUND_ENDED     = "RoundEnded",
+	TIMER_TICK      = "TimerTick",
 
 	-- Profile
-	GET_PROFILE     = "GetProfile",       -- RemoteFunction (C->S) -> Profile
-	PROFILE_UPDATED = "ProfileUpdated",   -- RemoteEvent (S->C)
+	GET_PROFILE     = "GetProfile",
+	PROFILE_UPDATED = "ProfileUpdated",
 
 	-- Inputs (Client -> Server)
-	SET_ADS         = "SetADS",           -- RemoteEvent payload: { on:boolean }
-	SET_CROUCH      = "SetCrouchState",   -- RemoteEvent payload: { on:boolean }
-	RELOAD          = "ReloadEvent",      -- RemoteEvent payload: { }
+	SET_ADS         = "SetADS",
+	SET_CROUCH      = "SetCrouchState",
+	RELOAD          = "ReloadEvent",
 
 	-- PlayerState
-	GET_STATE       = "GetState",         -- RemoteFunction (C->S) -> PlayerState
-	STATE_CHANGED   = "PlayerStateChanged", -- RemoteEvent (S->C) payload: { userId:number, state:table }
+	GET_STATE       = "GetState",
+	STATE_CHANGED   = "PlayerStateChanged",
 
-	-- Weapons (Client -> Server unless noted)
-	EQUIP_WEAPON    = "EquipWeapon",      -- RE payload: { name:string }   (C->S)
-	SHOOT           = "ShootEvent",       -- RE payload: { name:string }   (C->S)
-	AMMO_UPDATE     = "AmmoUpdated",      -- RE payload: { name, mag, reserve } (S->C)
-	GET_LOADOUT     = "GetLoadout",       -- RF returns { Primary=..., Secondary=... } (C->S)
+	-- Weapons
+	EQUIP_WEAPON    = "EquipWeapon",
+	SHOOT           = "ShootEvent",
+	AMMO_UPDATE     = "AmmoUpdated",
+	GET_LOADOUT     = "GetLoadout",
+
+	-- Admin / Diagnostics
+	GET_SERVER_STATS = "GetServerStats", -- RemoteFunction (C->S) -> { ok, data|error }
 }
 return Events
 ]]></ProtectedString>
@@ -3068,7 +3153,21 @@ return Build
 							<string name="ScriptGuid">{27fd4aa3-c17d-4824-b697-6c31f1e4825a}</string>
 							<ProtectedString name="Source"><![CDATA[return {
 	remotes = {
+		AMMO_UPDATE = "AmmoUpdated",
+		EQUIP_WEAPON = "EquipWeapon",
+		GET_LOADOUT = "GetLoadout",
+		GET_PROFILE = "GetProfile",
+		GET_STATE = "GetState",
 		PING = "Ping",
+		PROFILE_UPDATED = "ProfileUpdated",
+		RELOAD = "ReloadEvent",
+		ROUND_ENDED = "RoundEnded",
+		ROUND_START = "RoundStart",
+		SET_ADS = "SetADS",
+		SET_CROUCH = "SetCrouchState",
+		SHOOT = "ShootEvent",
+		STATE_CHANGED = "PlayerStateChanged",
+		TIMER_TICK = "TimerTick",
 	},
 	version = "v1",
 }]]></ProtectedString>
@@ -4217,6 +4316,81 @@ print("[RB7_Telemetry] ✅ aktiv (RemoteEvent-Counter, read-only)")
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 						<UniqueId name="UniqueId">55fe72718ef752e408b8a00a00000806</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX1db7787f77774d6fb8040501fde6dc88">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">AdminService</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{9c397589-284f-4e2a-9411-d745cf7f095f}</string>
+						<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Env    = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("Env"))
+local Build  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Meta"):WaitForChild("Build"))
+local Admins = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("Admins"))
+
+local START = os.clock()
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRF(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+-- Events-Struktur
+local RS     = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RF_GetServerStats = ensureRF(EV, Events.GET_SERVER_STATS)
+
+-- simple per-user Rate-Limit (ein Call / 3s)
+local lastCall:{[number]:number} = {}
+
+local function makeStats()
+	local players = #Players:GetPlayers()
+	local uptime  = math.floor(os.clock() - START)
+	return {
+		env     = Env.NAME,
+		build   = Build.Version,
+		players = players,
+		uptime  = uptime, -- Sekunden seit Serverstart
+	}
+end
+
+RF_GetServerStats.OnServerInvoke = function(player)
+	if not Admins.isAdmin(player.UserId) then
+		return { ok=false, error="forbidden" }
+	end
+	local now = os.clock()
+	local prev = lastCall[player.UserId] or 0
+	if now - prev < 3 then
+		return { ok=false, error="rate_limited" }
+	end
+	lastCall[player.UserId] = now
+	return { ok=true, data=makeStats() }
+end
+
+print("[RB7_AdminService] ✅ GetServerStats aktiv (RBAC + RateLimit)")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">7653e669c6135c0008b8a0c60000080c</UniqueId>
 					</Properties>
 				</Item>
 			</Item>
