@@ -1,15 +1,6 @@
---[[
-  RB7: R6V_TimerPublisher (server)
-  Fix: saubere Variablen, 1s Tick, RemoteEvent "RoundTimerTick" unter ReplicatedStorage/Events/v1.
-  Idempotent: Mehrfaches Starten erzeugt keine Duplikate.
-]]
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- RB7: R6V_TimerPublisher (server) – sendet RoundTimerTick über Shared/Events/v1
+local RS = game:GetService("ReplicatedStorage")
 
--- Konfiguration
-local RoundTimeSeconds  = 300
-local PublishEverySecs  = 1
-
--- Helpers
 local function ensureFolder(parent, name)
     local f = parent:FindFirstChild(name)
     if not f then
@@ -30,18 +21,20 @@ local function ensureRemoteEvent(parent, name)
     return ev
 end
 
--- Events/v1
-local EventsRoot = ensureFolder(ReplicatedStorage, "Events")
-local V1         = ensureFolder(EventsRoot, "v1")
-local TickEvent  = ensureRemoteEvent(V1, "RoundTimerTick")
+local Shared = ensureFolder(RS, "Shared")
+local Events = ensureFolder(Shared, "Events")
+local V1     = ensureFolder(Events, "v1")
+local TickEvent = ensureRemoteEvent(V1, "RoundTimerTick")
 
--- Einmaliger Loop per Flag
-local Flag = ReplicatedStorage:FindFirstChild("_RB7_TimerPublisher_Running")
+local RoundTimeSeconds = 300
+local PublishEverySecs = 1
+
+local Flag = RS:FindFirstChild("_RB7_TimerPublisher_Running")
 if not Flag then
     Flag = Instance.new("BoolValue")
     Flag.Name = "_RB7_TimerPublisher_Running"
+    Flag.Parent = RS
     Flag.Value = false
-    Flag.Parent = ReplicatedStorage
 end
 
 if not Flag.Value then
@@ -60,4 +53,4 @@ else
     warn("[R6V_TimerPublisher] Läuft bereits – kein zweiter Loop gestartet.")
 end
 
-print("[R6V_TimerPublisher] ✅ aktiv – RoundTimeSeconds =", RoundTimeSeconds)
+print("[R6V_TimerPublisher] ✅ aktiv – RoundTimerTick unter Shared/Events/v1")

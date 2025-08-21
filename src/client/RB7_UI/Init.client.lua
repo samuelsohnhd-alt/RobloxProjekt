@@ -1,16 +1,4 @@
---!strict
-print("[RB7_UI] Init starting…")
-local LobbyScreen = require(script.Parent.screens.LobbyScreen)
-local Loadout = require(script.Parent.screens.LoadoutScreen)
-local lobby = LobbyScreen(); lobby.Enabled = true
-print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
-local loadoutGui = (select(1, Loadout())); loadoutGui.Enabled = false
-print("[RB7_UI] LoadoutScreen created")
-for _,d in ipairs(lobby:GetDescendants()) do
-  if d:IsA("TextButton") and d.Text=="LOADOUT" then
-    d.MouseButton1Click:Connect(function()
-      lobby.Enabled=false; loadoutGui.Enabled=true
-    end)
-  end
-end
-print("[RB7_UI] Init done.")
+-- RB7 UI Stub: sorgt dafür, dass ein definierter Einstieg existiert, ohne Legacy-Abhängigkeiten
+if _G.__RB7_UI_INIT then return end
+_G.__RB7_UI_INIT = true
+print("[RB7_UI Stub] geladen.")
