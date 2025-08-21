@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local Events   = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
 local WConfig  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Weapons"):WaitForChild("Config"))
 local WSchema  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Weapons_v1"))
+local LoadoutStore = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("LoadoutStore"))
 
 local function ensureFolder(parent: Instance, name: string): Folder
 	local f = parent:FindFirstChild(name)
@@ -28,25 +29,56 @@ local Shared = ensureFolder(RS, "Shared")
 local ERoot  = ensureFolder(Shared, Events.ROOT)
 local EV     = ensureFolder(ERoot, Events.VERSION)
 
-local RE_Equip  = ensureRE(EV, Events.EQUIP_WEAPON)
-local RE_Shoot  = ensureRE(EV, Events.SHOOT)
-local RE_Reload = ensureRE(EV, Events.RELOAD)
-local RE_AmmoUp = ensureRE(EV, Events.AMMO_UPDATE)
+local RE_Equip      = ensureRE(EV, Events.EQUIP_WEAPON)
+local RE_Shoot      = ensureRE(EV, Events.SHOOT)
+local RE_Reload     = ensureRE(EV, Events.RELOAD)
+local RE_AmmoUp     = ensureRE(EV, Events.AMMO_UPDATE)
 local RF_GetLoadout = ensureRF(EV, Events.GET_LOADOUT)
 
 -- Per-Player Ammo/Zustand
 type AmmoState = { [string]: { mag:number, reserve:number } }
 local ammoCache: {[number]: AmmoState} = {}
-local equipped: {[number]: string} = {}
+local equipped:  {[number]: string}    = {}
 
-local function initPlayer(uid:number)
-	if ammoCache[uid] then return end
+local function cloneAmmoState(src: AmmoState): AmmoState
+	local t: AmmoState = {}
+	for k,v in pairs(src) do t[k] = { mag = v.mag, reserve = v.reserve } end
+	return t
+end
+
+local function initDefaults(): AmmoState
 	local a:AmmoState = {}
 	for name,cfg in pairs(WConfig.Weapons) do
 		a[name] = { mag = cfg.magSize, reserve = cfg.reserve }
 	end
-	ammoCache[uid] = a
-	equipped[uid] = WConfig.DefaultLoadout.Primary
+	return a
+end
+
+local function initPlayer(uid:number)
+	if ammoCache[uid] then return end
+	-- Laden
+	local saved = LoadoutStore.get(uid)
+	if typeof(saved)=="table" then
+		ammoCache[uid] = {}
+		local defaults = initDefaults()
+		-- Merge: nur bekannte Waffen übernehmen
+		for name,cfg in pairs(WConfig.Weapons) do
+			local s = (saved.ammo and saved.ammo[name]) or defaults[name]
+			ammoCache[uid][name] = { mag = s.mag, reserve = s.reserve }
+		end
+		equipped[uid] = saved.equipped or WConfig.DefaultLoadout.Primary
+	else
+		ammoCache[uid] = initDefaults()
+		equipped[uid] = WConfig.DefaultLoadout.Primary
+	end
+end
+
+local function persist(uid:number)
+	local data = {
+		equipped = equipped[uid],
+		ammo = ammoCache[uid] and cloneAmmoState(ammoCache[uid]) or nil,
+	}
+	LoadoutStore.set(uid, data)
 end
 
 local function sendAmmo(player: Player, name:string)
@@ -74,6 +106,7 @@ RE_Equip.OnServerEvent:Connect(function(player, payload)
 	if WConfig.Weapons[name] then
 		equipped[player.UserId] = name
 		sendAmmo(player, name)
+		persist(player.UserId)
 	end
 end)
 
@@ -85,9 +118,7 @@ RE_Shoot.OnServerEvent:Connect(function(player, payload)
 	if a[name].mag > 0 then
 		a[name].mag -= 1
 		sendAmmo(player, name)
-		-- TODO: hier später Ballistik/HitScan (Gameplay-Agent)
-	else
-		-- leer -> ignorieren oder Klick ohne Schuss
+		persist(player.UserId)
 	end
 end)
 
@@ -102,16 +133,22 @@ RE_Reload.OnServerEvent:Connect(function(player, _)
 		a.mag += take
 		a.reserve -= take
 		sendAmmo(player, curr)
+		persist(player.UserId)
 	end
 end)
 
 Players.PlayerAdded:Connect(function(plr)
 	initPlayer(plr.UserId)
-	task.defer(function() sendAmmo(plr, equipped[plr.UserId]) end)
+	task.defer(function()
+		sendAmmo(plr, equipped[plr.UserId])
+	end)
 end)
 Players.PlayerRemoving:Connect(function(plr)
+	if ammoCache[plr.UserId] or equipped[plr.UserId] then
+		persist(plr.UserId)
+	end
 	ammoCache[plr.UserId] = nil
 	equipped[plr.UserId] = nil
 end)
 
-print("[RB7_WeaponsService] ✅ aktiv (Equip/Shoot/Reload/Ammo)")
+print("[RB7_WeaponsService] ✅ aktiv (Equip/Shoot/Reload/Ammo, persistiert)")
