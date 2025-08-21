@@ -8,14 +8,14 @@ function Components.mount(parent)
 end
 
 return Components
-	screenGui.ResetOnSpawn = false
+-- so dass Code, der explizit nach "Components" sucht, besser funktioniert.
+pcall(function()
+	if typeof(script) == "Instance" and script.Name ~= "Components" then
+		script.Name = "Components"
+	end
+end)
 
-	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0.25, 0, 0.1, 0)
-	frame.Position = UDim2.new(0.01, 0, 0.01, 0)
-	frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-	frame.Parent = screenGui
-
+return Components
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.new(1, -8, 1, -8)
 	label.Position = UDim2.new(0, 4, 0, 4)

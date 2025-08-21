@@ -1,5 +1,5 @@
 {
-  "name": "RB7Project-clean",
+  "name": "clean-project",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
