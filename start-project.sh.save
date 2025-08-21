@@ -1,9 +1,9 @@
 #!/bin/bash
-# Start-Skript für RB7 Projekt
-# 1. Rojo-Server starten (nimmt freien Port)
-# 2. Spiel-Datei bauen
-# 3. Spiel in Roblox Studio öffnen
-
+# DEPRECATED: Dieses Skript ist veraltet, nicht erforderlich für reine Rojo/VS/GitHub-Arbeitsabläufe.
+# Wenn du das Projekt bereinigen möchtest, führe: ./cleanup.sh --report   (zum Prüfen)
+# oder ./cleanup.sh (zum interaktiven Löschen)
+echo "Dieses Skript ist veraltet. Siehe ./cleanup.sh --report"
+exit 0
 cd ~/RobloxProjekt || exit 1
 
 # 1. Rojo-Server im Hintergrund starten
