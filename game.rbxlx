@@ -1319,6 +1319,616 @@ end)
 						<UniqueId name="UniqueId">123f7de4522a8ece08b88a68000007f7</UniqueId>
 					</Properties>
 				</Item>
+				<Item class="LocalScript" referent="RBXf82ca264cd7342a2ad51f8a34fe53b57">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_UI</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{15165421-f360-438f-a741-340995824f03}</string>
+						<ProtectedString name="Source"><![CDATA[--!strict
+print("[RB7_UI] Init starting…")
+local LobbyScreen = require(script.Parent.screens.LobbyScreen)
+local Loadout = require(script.Parent.screens.LoadoutScreen)
+local lobby = LobbyScreen(); lobby.Enabled = true
+print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
+local loadoutGui = (select(1, Loadout())); loadoutGui.Enabled = false
+print("[RB7_UI] LoadoutScreen created")
+for _,d in ipairs(lobby:GetDescendants()) do
+  if d:IsA("TextButton") and d.Text=="LOADOUT" then
+    d.MouseButton1Click:Connect(function()
+      lobby.Enabled=false; loadoutGui.Enabled=true
+    end)
+  end
+end
+print("[RB7_UI] Init done.")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">554a495676481a8908b89a91000007ef</UniqueId>
+					</Properties>
+					<Item class="LocalScript" referent="RBX1ddce732681d40f0942cdbb925c9fa90">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Init</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{ead4bb98-e819-4ef2-bf5a-94645867dbea}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+print("[RB7_UI] Init starting…")
+local LobbyScreen = require(script.Parent.screens.LobbyScreen)
+local Loadout = require(script.Parent.screens.LoadoutScreen)
+local lobby = LobbyScreen(); lobby.Enabled = true
+print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
+local loadoutGui = (select(1, Loadout())); loadoutGui.Enabled = false
+print("[RB7_UI] LoadoutScreen created")
+for _,d in ipairs(lobby:GetDescendants()) do
+  if d:IsA("TextButton") and d.Text=="LOADOUT" then
+    d.MouseButton1Click:Connect(function()
+      lobby.Enabled=false; loadoutGui.Enabled=true
+    end)
+  end
+end
+print("[RB7_UI] Init done.")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a91000007f0</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="Folder" referent="RBXd41fc89b40634d11904328173b4e1e8f">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">components</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a91000007f1</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBXb04bbb1887f34c50ad91d0b5cd2bf041">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">LeftMenu</string>
+								<string name="ScriptGuid">{2c8c3b0a-43dc-4303-bf6c-c40fe039f329}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local LeftMenu = {}; LeftMenu.__index = LeftMenu
+function LeftMenu.new(parent: Instance, items: {string})
+  local f = Instance.new("Frame"); f.Name="LeftMenu"; f.Size=UDim2.new(0,260,1,0)
+  f.BackgroundColor3=Theme.Colors.Panel; f.BorderSizePixel=0; f.Parent=parent
+  local header = Instance.new("TextLabel"); header.Name="Header"; header.Size=UDim2.new(1,0,0,40)
+  header.BackgroundTransparency=1; header.Font=Theme.Fonts.Header; header.TextSize=18
+  header.TextXAlignment=Enum.TextXAlignment.Left; header.TextColor3=Theme.Colors.Text
+  header.Text="GAME LOBBY"; header.Position=UDim2.new(0,12,0,6); header.Parent=f
+  local listHolder = Instance.new("Frame"); listHolder.Name="List"; listHolder.BackgroundTransparency=1
+  listHolder.Size=UDim2.new(1,-20,1,-70); listHolder.Position=UDim2.new(0,10,0,50); listHolder.Parent=f
+  local layout = Instance.new("UIListLayout"); layout.Padding=UDim.new(0,6); layout.Parent=listHolder
+  local buttons={}
+  for _,name in ipairs(items) do
+    local b=Instance.new("TextButton"); b.Name=(name:gsub("%s","")); b.Size=UDim2.new(1,0,0,28)
+    b.BackgroundColor3=Theme.Colors.AccentDim; b.BorderSizePixel=0; b.AutoButtonColor=false
+    b.Font=Theme.Fonts.Body; b.TextSize=16; b.TextXAlignment=Enum.TextXAlignment.Left
+    b.TextColor3=Theme.Colors.Text; b.Text=name; b.Parent=listHolder
+    local line=Instance.new("Frame"); line.Size=UDim2.new(1,0,0,1); line.BackgroundColor3=Theme.Colors.Line; line.BorderSizePixel=0; line.Position=UDim2.new(0,0,1,0); line.Parent=b
+    b.MouseEnter:Connect(function() b.BackgroundColor3=Theme.Colors.Accent end)
+    b.MouseLeave:Connect(function() b.BackgroundColor3=Theme.Colors.AccentDim end)
+    table.insert(buttons,b)
+  end
+  return setmetatable({Frame=f,Items=buttons},LeftMenu)
+end
+return LeftMenu
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a91000007f2</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX1e914a0f81434056a5e686aa0cffa5e8">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">MapPreview</string>
+								<string name="ScriptGuid">{c601362c-573f-4706-ae31-a33a1ea4e55e}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function MapPreview(parent: Instance)
+  local frame=Instance.new("Frame"); frame.Name="MapPreview"; frame.Size=UDim2.new(0,260,0,160); frame.BackgroundColor3=Theme.Colors.Panel; frame.BorderSizePixel=0; frame.Parent=parent
+  local img=Instance.new("ImageLabel"); img.Name="Image"; img.Size=UDim2.new(1,-12,1,-12); img.Position=UDim2.new(0,6,0,6); img.BackgroundTransparency=1; img.ScaleType=Enum.ScaleType.Crop; img.Image="rbxassetid://0"; img.Parent=frame
+  local caption=Instance.new("TextLabel"); caption.Name="Caption"; caption.BackgroundTransparency=1; caption.Size=UDim2.new(1,-12,0,18); caption.Position=UDim2.new(0,6,1,-22); caption.Font=Theme.Fonts.Body; caption.TextXAlignment=Enum.TextXAlignment.Left; caption.TextSize=14; caption.TextColor3=Theme.Colors.Text; caption.Text="TOTAL CONQUEST  •  COB TRAINING"; caption.Parent=frame
+  return frame
+end
+return MapPreview
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a91000007f3</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX4139ab73bc524bac86cb1ba771eb6235">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">TeamPanel</string>
+								<string name="ScriptGuid">{0f3a3dde-ce95-42a5-bfa9-9e32e4db6638}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function mkRow(parent: Instance, idx: number, name: string, kills: number, deaths: number, highlight: boolean?)
+  local row=Instance.new("Frame"); row.Name="Row"..idx; row.Size=UDim2.new(1,0,0,22); row.BackgroundTransparency=1; row.Parent=parent
+  local i=Instance.new("TextLabel"); i.Size=UDim2.new(0,22,1,0); i.BackgroundTransparency=1; i.Font=Theme.Fonts.Mono; i.TextSize=14; i.TextColor3=Theme.Colors.SubText; i.Text=tostring(idx).."."; i.Parent=row
+  local n=Instance.new("TextLabel"); n.Position=UDim2.new(0,26,0,0); n.Size=UDim2.new(1,-160,1,0); n.BackgroundTransparency=1; n.Font=Theme.Fonts.Body; n.TextXAlignment=Enum.TextXAlignment.Left; n.TextSize=14; n.TextColor3=highlight and Theme.Colors.Good or Theme.Colors.Text; n.Text=name; n.Parent=row
+  local k=Instance.new("TextLabel"); k.Size=UDim2.new(0,40,1,0); k.Position=UDim2.new(1,-90,0,0); k.BackgroundTransparency=1; k.Font=Theme.Fonts.Mono; k.TextSize=14; k.Text=tostring(kills); k.TextColor3=Theme.Colors.Text; k.Parent=row
+  local d=Instance.new("TextLabel"); d.Size=UDim2.new(0,40,1,0); d.Position=UDim2.new(1,-40,0,0); d.BackgroundTransparency=1; d.Font=Theme.Fonts.Mono; d.TextSize=14; d.Text=tostring(deaths); d.TextColor3=Theme.Colors.Text; d.Parent=row
+end
+local function TeamPanel(parent: Instance, title: string, rows)
+  local panel=Instance.new("Frame"); panel.Name=title:gsub("%s","").."Panel"; panel.BackgroundColor3=Theme.Colors.Panel; panel.BorderSizePixel=0; panel.Size=UDim2.new(0.49,-6,0,170); panel.Parent=parent
+  local header=Instance.new("TextLabel"); header.Name="Header"; header.Size=UDim2.new(1,0,0,28); header.BackgroundColor3=Theme.Colors.Line; header.BorderSizePixel=0; header.Font=Theme.Fonts.Header; header.TextSize=16; header.TextColor3=Theme.Colors.Text; header.Text=title:upper(); header.Parent=panel
+  local body=Instance.new("Frame"); body.Name="Body"; body.BackgroundTransparency=1; body.Position=UDim2.new(0,10,0,36); body.Size=UDim2.new(1,-20,1,-46); body.Parent=panel
+  local layout=Instance.new("UIListLayout"); layout.Padding=UDim.new(0,4); layout.Parent=body
+  for i,r in ipairs(rows) do mkRow(body,i,r[1],r[2],r[3],r[4]) end
+  return panel
+end
+return TeamPanel
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a91000007f4</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBXc3b6f5cf02b24357b980c44a788dffc7">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">screens</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a91000007f5</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBXec1550d3ce0a4703969b40b99b654cf3">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">LoadoutScreen</string>
+								<string name="ScriptGuid">{284824ec-5864-428a-b61e-c8c066e34e90}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function LoadoutScreen()
+  local playerGui=Players.LocalPlayer:WaitForChild("PlayerGui")
+  local gui=Instance.new("ScreenGui"); gui.Name="RB7_Loadout"; gui.IgnoreGuiInset=true; gui.ResetOnSpawn=false; gui.Enabled=false; gui.Parent=playerGui
+  local bg=Instance.new("Frame"); bg.Size=UDim2.new(1,0,1,0); bg.BackgroundColor3=Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent=gui
+  local title=Instance.new("TextLabel"); title.Size=UDim2.new(1,0,0,50); title.BackgroundTransparency=1; title.Font=Theme.Fonts.Header; title.TextSize=24; title.TextColor3=Theme.Colors.Text; title.Text="LOADOUT"; title.Parent=bg
+  local weapons=Instance.new("TextButton"); weapons.Size=UDim2.new(0,220,0,40); weapons.Position=UDim2.new(0,50,0,90); weapons.Text="Weapons"; weapons.BackgroundColor3=Theme.Colors.AccentDim; weapons.TextColor3=Theme.Colors.Text; weapons.Parent=bg
+  local gear=Instance.new("TextButton"); gear.Size=UDim2.new(0,220,0,40); gear.Position=UDim2.new(0,50,0,140); gear.Text="Gear (Head/Arm/Shoulder/Chest/Leg/Clothes)"; gear.BackgroundColor3=Theme.Colors.AccentDim; gear.TextColor3=Theme.Colors.Text; gear.Parent=bg
+  return gui,{Weapons=weapons,Gear=gear}
+end
+return LoadoutScreen
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a91000007f6</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX7ae13823f7474b4194850a33326132aa">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">LobbyScreen</string>
+								<string name="ScriptGuid">{f6173570-4577-4884-880f-3102399292c2}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local Theme = require(script.Parent.Parent.styles.Theme)
+local LeftMenu = require(script.Parent.Parent.components.LeftMenu)
+local TeamPanel = require(script.Parent.Parent.components.TeamPanel)
+local MapPreview = require(script.Parent.Parent.components.MapPreview)
+local function LobbyScreen()
+  local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+  local gui = Instance.new("ScreenGui"); gui.Name="RB7_Lobby"; gui.IgnoreGuiInset=true; gui.DisplayOrder=50; gui.ResetOnSpawn=false; gui.Parent=playerGui
+  local bg=Instance.new("Frame"); bg.Size=UDim2.new(1,0,1,0); bg.BackgroundColor3=Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent=gui
+  local left = LeftMenu.new(bg, {"NOT READY","CHANGE TEAM","LOADOUT","MATCH SETTINGS","PLAYERS","OPTIONS","STATISTICS"}).Frame
+  local preview = MapPreview(bg); preview.Position=UDim2.new(0,10,1,-180)
+  local right=Instance.new("Frame"); right.Name="RightColumn"; right.Size=UDim2.new(1,-280,1,-20); right.Position=UDim2.new(0,270,0,10); right.BackgroundTransparency=1; right.Parent=bg
+  local top=Instance.new("Frame"); top.Name="TeamsRow"; top.Size=UDim2.new(1,0,0,180); top.BackgroundTransparency=1; top.Parent=right
+  local h=Instance.new("UIListLayout"); h.FillDirection=Enum.FillDirection.Horizontal; h.Padding=UDim.new(0,12); h.Parent=top
+  local alpha = TeamPanel(top,"ALPHA TEAM",{{"World x Famous",38,12,false},{"[NwO]JeeNiNe",34,14,false},{"NwO x DoNTe",62,21,true},{"[X]TxkEoVeR",70,22,false}})
+  alpha.Size=UDim2.new(0.5,-6,1,0)
+  local bravo = TeamPanel(top,"BRAVO TEAM",{{"[GOD]Able In The Cut",36,5,true},{"Methodz",99,4,false},{"Fams Ringer Tag",44,6,false},{"CnC Killa Chris",47,6,false}})
+  bravo.Size=UDim2.new(0.5,-6,1,0)
+  local footer=Instance.new("TextLabel"); footer.Name="Footer"; footer.BackgroundTransparency=1; footer.Size=UDim2.new(1,-10,0,18); footer.Position=UDim2.new(0,270,1,-22)
+  footer.Font=Theme.Fonts.Mono; footer.TextXAlignment=Enum.TextXAlignment.Right; footer.TextSize=14; footer.TextColor3=Theme.Colors.SubText; footer.Text="XP MODIFIER: -20%"; footer.Parent=bg
+  return gui
+end
+return LobbyScreen
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a91000007f7</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBX55df8323d6ba4cbd93482c02591ff668">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">styles</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a91000007f8</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBX282945a235894ccdaecb82dffbc4b263">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Theme</string>
+								<string name="ScriptGuid">{45f2e70c-cc24-4cbe-ab39-adaae14f9d0f}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = {
+  Colors = {
+    Bg=Color3.fromRGB(20,20,24), Panel=Color3.fromRGB(36,36,42),
+    Accent=Color3.fromRGB(160,20,20), AccentDim=Color3.fromRGB(120,16,16),
+    Text=Color3.fromRGB(235,235,235), SubText=Color3.fromRGB(190,190,190),
+    Line=Color3.fromRGB(80,80,86), Good=Color3.fromRGB(80,200,120),
+    Warn=Color3.fromRGB(220,200,90),
+  },
+  Fonts={ Header=Enum.Font.GothamBold, Body=Enum.Font.Gotham, Mono=Enum.Font.Code }
+}
+return Theme
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a91000007f9</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBX45a0764c1e734804a9ddab11fef8c79d">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">utils</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a91000007fa</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="LocalScript" referent="RBXc5c23a45545c4106bf8bdc6ff43a12f7">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_UI</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{431017d4-8004-48d8-be2f-85e5d8521b7e}</string>
+						<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local player  = Players.LocalPlayer
+
+if _G.RB7_UI_BOOTED then
+    warn("[RB7_UI] bereits geladen – überspringe.")
+    return
+end
+_G.RB7_UI_BOOTED = true
+
+print("[RB7_UI] Init starting…")
+
+-- Robust: Finde UI/screens, egal wo das Script hängt
+local ps = player:WaitForChild("PlayerScripts")
+local root = script.Parent
+if root.Name ~= "Client" then
+    root = ps:FindFirstChild("Client") or ps
+end
+
+local uiFolder = root:FindFirstChild("UI") or ps:FindFirstChild("UI") or script.Parent:FindFirstChild("UI")
+assert(uiFolder, "[RB7_UI] UI folder not found")
+local screensMod = uiFolder:FindFirstChild("screens")
+assert(screensMod, "[RB7_UI] 'screens' Module not found under UI")
+local Screens = require(screensMod)
+
+Screens.boot({
+    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
+})
+
+print("[RB7_UI] Init done.")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">554a495676481a8908b89a9100000804</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Folder" referent="RBX6c22a5399c0a47b1a0f2c4e52e43cfec">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">UI</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">554a495676481a8908b89a9100000806</UniqueId>
+					</Properties>
+					<Item class="Folder" referent="RBXfeb495b9d3154fbc83ac8d553dc0d537">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">assets</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a9100000807</UniqueId>
+						</Properties>
+						<Item class="Folder" referent="RBX9c37cb3e41cc44e69239965b756be7ee">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">icons</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a9100000808</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBXd3f8c1a6e431414bbd7126ad44689fac">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">components</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a9100000809</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBX46875f4ed4914ee69dec5c535cc6ab2d">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">screens</string>
+							<string name="ScriptGuid">{a6cea541-404d-4998-8644-e9170b9ca7f9}</string>
+							<ProtectedString name="Source"><![CDATA[local M = {}
+local LobbyScreen   = require(script:WaitForChild("LobbyScreen"))
+local LoadoutScreen = require(script:WaitForChild("LoadoutScreen"))
+local Hud           = require(script:WaitForChild("Hud"))
+
+function M.boot(opts)
+    opts = opts or {}
+    local order = opts.displayOrder or {}
+    local CoreGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+    local lobbyGui = LobbyScreen.create()
+    lobbyGui.DisplayOrder = order.Lobby or 50
+    lobbyGui.Parent = CoreGui
+    print(("[RB7_UI] LobbyScreen created; DisplayOrder = %d"):format(lobbyGui.DisplayOrder))
+
+    local loadoutGui = LoadoutScreen.create()
+    loadoutGui.DisplayOrder = order.Loadout or 55
+    loadoutGui.Enabled = false
+    loadoutGui.Parent = CoreGui
+    print("[RB7_UI] LoadoutScreen created")
+
+    local hudGui = Hud.create()
+    hudGui.DisplayOrder = order.HUD or 100
+    hudGui.Parent = CoreGui
+    print("[RB7_UI] Hud created")
+
+    local RS = game:GetService("ReplicatedStorage")
+    local EventsRoot = RS:FindFirstChild("Shared") and RS.Shared:FindFirstChild("Events")
+    if EventsRoot and EventsRoot:FindFirstChild("OpenMenu") then
+        EventsRoot.OpenMenu.OnClientEvent:Connect(function(menu)
+            lobbyGui.Enabled   = (menu == "Lobby")
+            loadoutGui.Enabled = (menu == "Loadout")
+            hudGui.Enabled     = (menu == "HUD")
+        end)
+        print("[RB7_UI] Event bridge active (OpenMenu).")
+    end
+end
+
+return M
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">554a495676481a8908b89a910000080a</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBX76aa472ea226430cae1d0913f92a1c46">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Hud</string>
+								<string name="ScriptGuid">{9cda2660-d627-40f2-9f50-49012a27e979}</string>
+								<ProtectedString name="Source"><![CDATA[local M = {}
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "HUD"
+    local ammo = Instance.new("TextLabel")
+    ammo.Name = "Ammo"
+    ammo.Size = UDim2.fromScale(0.18, 0.08)
+    ammo.Position = UDim2.fromScale(0.80, 0.90)
+    ammo.BackgroundTransparency = 1
+    ammo.TextScaled = true
+    ammo.Text = "Ammo: 30/90"
+    ammo.TextColor3 = Color3.new(1,1,1)
+    ammo.Parent = gui
+    local xp = Instance.new("TextLabel")
+    xp.Name = "XP"
+    xp.Size = UDim2.fromScale(0.18, 0.08)
+    xp.Position = UDim2.fromScale(0.02, 0.90)
+    xp.BackgroundTransparency = 1
+    xp.TextScaled = true
+    xp.Text = "XP: 0"
+    xp.TextColor3 = Color3.new(1,1,1)
+    xp.Parent = gui
+    return gui
+end
+return M
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a910000080b</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBXcc311f9b65b8434da07609e741c1235f">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">LoadoutScreen</string>
+								<string name="ScriptGuid">{b4286819-59eb-469c-8c5b-79fd1ab65112}</string>
+								<ProtectedString name="Source"><![CDATA[local M = {}
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LoadoutScreen"
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.fromScale(0.5, 0.6)
+    frame.Position = UDim2.fromScale(0.25, 0.2)
+    frame.BackgroundTransparency = 0.2
+    frame.Name = "LoadoutFrame"
+    frame.Parent = gui
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.fromScale(1, 0.12)
+    title.BackgroundTransparency = 1
+    title.Text = "Loadout"
+    title.TextScaled = true
+    title.TextColor3 = Color3.new(1,1,1)
+    title.Parent = frame
+    return gui
+end
+return M
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a910000080c</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBXfbb2e9ed1c8246b5a8e339d86a0a5445">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">LobbyScreen</string>
+								<string name="ScriptGuid">{8abdf6c7-b7dd-426f-bd0c-4a311b86f4fb}</string>
+								<ProtectedString name="Source"><![CDATA[local M = {}
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LobbyScreen"
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.fromScale(0.3, 0.08)
+    label.Position = UDim2.fromScale(0.02, 0.03)
+    label.TextScaled = true
+    label.Text = "RB7 • Lobby"
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1,1,1)
+    label.Parent = gui
+    return gui
+end
+return M
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">554a495676481a8908b89a910000080d</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+				</Item>
+				<Item class="LocalScript" referent="RBX41bf50ca58984097b379635f69ff0c8d">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Preboot_CleanUI</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{57d1345b-1861-424e-ac8f-2cbd7a664cb1}</string>
+						<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local plr = Players.LocalPlayer
+
+local function nukeLegacy()
+    local ps = plr:FindFirstChild("PlayerScripts")
+    if not ps then return end
+    local client = ps:FindFirstChild("Client")
+    if not client then return end
+    local legacy = client:FindFirstChild("RB7_UI")
+    if legacy then
+        legacy:Destroy()
+        print("[RB7_Preboot] entfernt: Client.RB7_UI (legacy)")
+    end
+end
+
+-- Früh und wiederholt prüfen
+for i=1,30 do
+    nukeLegacy()
+    RunService.Heartbeat:Wait()
+end
+-- Und auf spätere Hinzufügungen horchen
+local ps = plr:WaitForChild("PlayerScripts")
+ps.DescendantAdded:Connect(function(d)
+    if d.Name == "RB7_UI" and d.Parent and d.Parent.Name == "Client" then
+        task.defer(function()
+            if d.Parent and d.Parent.Name == "Client" then
+                d:Destroy()
+                print("[RB7_Preboot] nachträglich entfernt: Client.RB7_UI")
+            end
+        end)
+    end
+end)
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">554a495676481a8908b89a9100000812</UniqueId>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 		<Item class="StarterCharacterScripts" referent="RBX8f7e9a5201a14a37bf76ba7572039866">
@@ -1671,20 +2281,6 @@ end)
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc60000036a</UniqueId>
-		</Properties>
-	</Item>
-	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
-		<Properties>
-			<BinaryString name="AttributesSerialize"></BinaryString>
-			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-			<bool name="DefinesCapabilities">false</bool>
-			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
-			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-			<string name="Name">ServiceVisibilityService</string>
-			<int64 name="SourceAssetId">-1</int64>
-			<BinaryString name="Tags"></BinaryString>
-			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
-			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
 		</Properties>
 	</Item>
 	<Item class="LuaWebService" referent="RBX0bd9fb073d5a4c3fbd338cd9ba9f8a31">
@@ -3368,6 +3964,20 @@ return Store
 				</Item>
 			</Item>
 		</Item>
+	</Item>
+	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ServiceVisibilityService</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
+			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
+		</Properties>
 	</Item>
 	<Item class="HttpService" referent="RBX72b3f63027f74575baffedc240a79583">
 		<Properties>
