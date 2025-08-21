@@ -1661,9 +1661,7 @@ return require(script.Parent.Parent:WaitForChild("Components"):WaitForChild("ini
 							<string name="Name">components</string>
 							<string name="ScriptGuid">{a1b6bdf0-dd3e-490b-9bd4-3e2c7b1b05e0}</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
--- Minimaler Komponenten-Baukasten
 local Components = {}
-
 function Components.MakeLabel(props: {Name: string?, Text: string?, Size: UDim2?, Position: UDim2?})
 	local l = Instance.new("TextLabel")
 	l.Name = props.Name or "Label"
@@ -1678,7 +1676,6 @@ function Components.MakeLabel(props: {Name: string?, Text: string?, Size: UDim2?
 	l.BorderSizePixel = 0
 	return l
 end
-
 function Components.MakePanel(props: {Name: string?, Size: UDim2?, Position: UDim2?})
 	local f = Instance.new("Frame")
 	f.Name = props.Name or "Panel"
@@ -1691,7 +1688,6 @@ function Components.MakePanel(props: {Name: string?, Size: UDim2?, Position: UDi
 	local pad = Instance.new("UIPadding"); pad.PaddingLeft = UDim.new(0,10); pad.PaddingTop = UDim.new(0,8); pad.Parent = f
 	return f
 end
-
 return Components
 ]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
@@ -2000,11 +1996,7 @@ return M
 local ok, App = pcall(function() return require(script.Parent:WaitForChild("App")) end)
 if ok and App and App.mount then
 	local ok2, res = pcall(App.mount)
-	if ok2 then
-		print("[RB7_UI] App initialisiert.")
-	else
-		warn("[RB7_UI] App-Start fehlgeschlagen:", res)
-	end
+	if ok2 then print("[RB7_UI] App initialisiert.") else warn("[RB7_UI] App-Start fehlgeschlagen:", res) end
 else
 	warn("[RB7_UI] App-Modul nicht ladbar:", App)
 end
@@ -2221,11 +2213,7 @@ end
 local ok, App = pcall(function() return require(script.Parent:WaitForChild("App")) end)
 if ok and App and App.mount then
 	local ok2, res = pcall(App.mount)
-	if ok2 then
-		print("[RB7_UI Legacy] ✅ App mounted via screens")
-	else
-		warn("[RB7_UI Legacy] ⚠️ mount fail:", res)
-	end
+	if ok2 then print("[RB7_UI Legacy] ✅ App mounted via screens") else warn("[RB7_UI Legacy] ⚠️ mount fail:", res) end
 else
 	warn("[RB7_UI Legacy] ⚠️ App nicht ladbar:", App)
 end
@@ -2245,7 +2233,6 @@ end
 							<string name="Name">App</string>
 							<string name="ScriptGuid">{b8d5858e-1cf7-42b2-8401-39fef0df0bcc}</string>
 							<ProtectedString name="Source"><![CDATA[--!strict
--- Robuste App: lädt Components/init.lua sicher und mountet HUD
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -2253,16 +2240,10 @@ local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
 local function getComponentsModule(): ModuleScript?
 	local uiFolder = script.Parent
 	local compFolder = uiFolder:FindFirstChild("Components") or uiFolder:WaitForChild("Components", 5)
-	if not compFolder then
-		warn("[UI/App] ❌ Components-Ordner nicht gefunden.")
-		return nil
-	end
+	if not compFolder then warn("[UI/App] ❌ Components-Ordner nicht gefunden."); return nil end
 	local mod = compFolder:FindFirstChild("init") or compFolder:FindFirstChildWhichIsA("ModuleScript")
-	if not mod then
-		warn("[UI/App] ❌ Components ModuleScript (init.lua) fehlt.")
-		return nil
-	end
-	return mod :: ModuleScript
+	if not mod then warn("[UI/App] ❌ Components ModuleScript (init.lua) fehlt."); return nil end
+	return mod
 end
 
 local ComponentsModule = getComponentsModule()
@@ -2283,7 +2264,6 @@ function App.mount()
 		warn("[UI/App] ⚠️ Components nicht geladen – HUD wird nicht gemountet.")
 		return nil
 	end
-
 	gui = Instance.new("ScreenGui")
 	gui.IgnoreGuiInset = true
 	gui.Name = "RB7_HUD"
@@ -2292,10 +2272,8 @@ function App.mount()
 
 	local panel = Components.MakePanel({Name="HUDPanel", Size=UDim2.fromScale(0.26,0.14), Position=UDim2.new(0,12,0,12)})
 	panel.Parent = gui
-
 	stateLabel = Components.MakeLabel({Name="State", Text="State: —", Size=UDim2.fromScale(1,0.45), Position=UDim2.new(0,0,0,0)})
 	stateLabel.Parent = panel
-
 	timeLabel = Components.MakeLabel({Name="Timer", Text="Time: —", Size=UDim2.fromScale(1,0.45), Position=UDim2.new(0,0,0.5,0)})
 	timeLabel.Parent = panel
 
@@ -2457,45 +2435,19 @@ end
 						<token name="RunContext">0</token>
 						<string name="ScriptGuid">{d6d862c8-e090-4f41-a0ec-35215b934892}</string>
 						<ProtectedString name="Source"><![CDATA[--!strict
--- Sicherer Preboot: entfernt NUR echte Legacy-Knoten.
--- WICHTIG: "Client/UI" und alles darunter wird NIE gelöscht.
+-- Safe Preboot: räumt NUR RB7_UI auf. UI wird NIE gelöscht.
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
 local plr = Players.LocalPlayer
 local ps  = plr:WaitForChild("PlayerScripts")
 local client = ps:FindFirstChild("Client")
-
-local function isOurUI(inst: Instance): boolean
-	-- Bewahre den offiziellen UI-Pfad
-	return client ~= nil and inst:IsDescendantOf(client:FindFirstChild("UI") or client)
-end
-
-local LEGACY_NAMES = {
-	["RB7_UI"] = true,    -- alte UI-Struktur
-	["Client"] = false,   -- nur wenn es ein verschachteltes Duplikat wäre (selten)
-}
-
-local function shouldNukeTop(child: Instance): boolean
-	if child.Name == "RB7_UI" then return true end
-	-- NIEMALS den UI-Ordner selbst löschen
-	if child.Name == "UI" then return false end
-	-- Keine aggressiven Matches mehr
-	return false
-end
-
-local function sweep()
-	if not client then return end
-	for _,child in ipairs(client:GetChildren()) do
-		if shouldNukeTop(child) and not isOurUI(child) then
-			child:Destroy()
-			print(("[RB7_Preboot] entfernt: %s"):format(child.Name))
+if client then
+	for _,ch in ipairs(client:GetChildren()) do
+		if ch.Name == "RB7_UI" then
+			ch:Destroy()
+			print("[RB7_Preboot] entfernt: RB7_UI")
 		end
 	end
 end
-
--- Einmal sauber laufen reicht
-sweep()
 print("[RB7_Preboot] ✅ Safe-Clean (UI bleibt unangetastet).")
 ]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
