@@ -3,8 +3,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 local Events   = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Limits   = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Limits"))
 local WConfig  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Weapons"):WaitForChild("Config"))
 local WSchema  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Weapons_v1"))
+local RateLimiter = require(script.Parent.Parent:WaitForChild("Lib"):WaitForChild("RateLimiter"))
 local LoadoutStore = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("LoadoutStore"))
 
 local function ensureFolder(parent: Instance, name: string): Folder
@@ -23,8 +25,7 @@ local function ensureRF(parent: Instance, name: string): RemoteFunction
 	return r :: RemoteFunction
 end
 
--- Event-Struktur
-local RS = ReplicatedStorage
+local RS     = ReplicatedStorage
 local Shared = ensureFolder(RS, "Shared")
 local ERoot  = ensureFolder(Shared, Events.ROOT)
 local EV     = ensureFolder(ERoot, Events.VERSION)
@@ -35,7 +36,6 @@ local RE_Reload     = ensureRE(EV, Events.RELOAD)
 local RE_AmmoUp     = ensureRE(EV, Events.AMMO_UPDATE)
 local RF_GetLoadout = ensureRF(EV, Events.GET_LOADOUT)
 
--- Per-Player Ammo/Zustand
 type AmmoState = { [string]: { mag:number, reserve:number } }
 local ammoCache: {[number]: AmmoState} = {}
 local equipped:  {[number]: string}    = {}
@@ -56,12 +56,10 @@ end
 
 local function initPlayer(uid:number)
 	if ammoCache[uid] then return end
-	-- Laden
-	local saved = LoadoutStore.get(uid)
+	local saved = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("LoadoutStore")).get(uid)
 	if typeof(saved)=="table" then
 		ammoCache[uid] = {}
 		local defaults = initDefaults()
-		-- Merge: nur bekannte Waffen übernehmen
 		for name,cfg in pairs(WConfig.Weapons) do
 			local s = (saved.ammo and saved.ammo[name]) or defaults[name]
 			ammoCache[uid][name] = { mag = s.mag, reserve = s.reserve }
@@ -74,10 +72,7 @@ local function initPlayer(uid:number)
 end
 
 local function persist(uid:number)
-	local data = {
-		equipped = equipped[uid],
-		ammo = ammoCache[uid] and cloneAmmoState(ammoCache[uid]) or nil,
-	}
+	local data = { equipped = equipped[uid], ammo = ammoCache[uid] and cloneAmmoState(ammoCache[uid]) or nil }
 	LoadoutStore.set(uid, data)
 end
 
@@ -85,22 +80,23 @@ local function sendAmmo(player: Player, name:string)
 	local a = ammoCache[player.UserId]
 	if not a or not a[name] then return end
 	local payload = { name=name, mag=a[name].mag, reserve=a[name].reserve }
-	if WSchema.IsAmmoUpdate(payload) then
-		RE_AmmoUp:FireClient(player, payload)
-	end
+	if WSchema.IsAmmoUpdate(payload) then RE_AmmoUp:FireClient(player, payload) end
+end
+
+local function allowed(uid:number, eventName:string): boolean
+	local lim = Limits[eventName]
+	if not lim then return true end
+	return RateLimiter.check(uid, eventName, lim.cap, lim.rate)
 end
 
 RF_GetLoadout.OnServerInvoke = function(player)
 	initPlayer(player.UserId)
-	return {
-		Primary = WConfig.DefaultLoadout.Primary,
-		Secondary = WConfig.DefaultLoadout.Secondary,
-		Equipped = equipped[player.UserId],
-	}
+	return { Primary = WConfig.DefaultLoadout.Primary, Secondary = WConfig.DefaultLoadout.Secondary, Equipped = equipped[player.UserId] }
 end
 
 RE_Equip.OnServerEvent:Connect(function(player, payload)
 	if not WSchema.IsEquip(payload) then return end
+	if not allowed(player.UserId, Events.EQUIP_WEAPON) then return end
 	initPlayer(player.UserId)
 	local name = payload.name
 	if WConfig.Weapons[name] then
@@ -112,6 +108,7 @@ end)
 
 RE_Shoot.OnServerEvent:Connect(function(player, payload)
 	if not WSchema.IsShoot(payload) then return end
+	if not allowed(player.UserId, Events.SHOOT) then return end
 	initPlayer(player.UserId)
 	local name = payload.name
 	local a = ammoCache[player.UserId]; if not a or not a[name] then return end
@@ -123,6 +120,7 @@ RE_Shoot.OnServerEvent:Connect(function(player, payload)
 end)
 
 RE_Reload.OnServerEvent:Connect(function(player, _)
+	if not allowed(player.UserId, Events.RELOAD) then return end
 	initPlayer(player.UserId)
 	local curr = equipped[player.UserId]; if not curr then return end
 	local cfg = WConfig.Weapons[curr]; if not cfg then return end
@@ -139,16 +137,11 @@ end)
 
 Players.PlayerAdded:Connect(function(plr)
 	initPlayer(plr.UserId)
-	task.defer(function()
-		sendAmmo(plr, equipped[plr.UserId])
-	end)
+	task.defer(function() sendAmmo(plr, equipped[plr.UserId]) end)
 end)
 Players.PlayerRemoving:Connect(function(plr)
-	if ammoCache[plr.UserId] or equipped[plr.UserId] then
-		persist(plr.UserId)
-	end
-	ammoCache[plr.UserId] = nil
-	equipped[plr.UserId] = nil
+	if ammoCache[plr.UserId] or equipped[plr.UserId] then persist(plr.UserId) end
+	ammoCache[plr.UserId] = nil; equipped[plr.UserId] = nil
 end)
 
-print("[RB7_WeaponsService] ✅ aktiv (Equip/Shoot/Reload/Ammo, persistiert)")
+print("[RB7_WeaponsService] ✅ aktiv (mit Rate-Limiter)")
