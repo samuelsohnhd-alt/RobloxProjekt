@@ -1,67 +1,77 @@
-<roblox version="4">
-  <Item class="ReplicatedFirst" referent="0">
-    <Properties>
-      <string name="Name">ReplicatedFirst</string>
-    </Properties>
-  </Item>
-  <Item class="ReplicatedStorage" referent="1">
-    <Properties>
-      <string name="Name">ReplicatedStorage</string>
-    </Properties>
-    <Item class="Folder" referent="2">
-      <Properties>
-        <string name="Name">Shared</string>
-      </Properties>
-    </Item>
-  </Item>
-  <Item class="ServerScriptService" referent="3">
-    <Properties>
-      <string name="Name">ServerScriptService</string>
-    </Properties>
-    <Item class="Folder" referent="4">
-      <Properties>
-        <string name="Name">Server</string>
-      </Properties>
-    </Item>
-  </Item>
-  <Item class="ServerStorage" referent="5">
-    <Properties>
-      <string name="Name">ServerStorage</string>
-    </Properties>
-    <Item class="Folder" referent="6">
-      <Properties>
-        <string name="Name">RB7_Private</string>
-      </Properties>
-      <Item class="Folder" referent="7">
-        <Properties>
-          <string name="Name">Sec</string>
-        </Properties>
-      </Item>
-    </Item>
-  </Item>
-  <Item class="StarterGui" referent="8">
-    <Properties>
-      <string name="Name">StarterGui</string>
-    </Properties>
-    <Item class="Folder" referent="9">
-      <Properties>
-       
-      </Properties>
-    </Item>
-  </Item>
-  <Item class="StarterPlayer" referent="10">
-    <Properties>
-      <string name="Name">StarterPlayer</string>
-    </Properties>
-    <Item class="StarterPlayerScripts" referent="11">
-      <Properties>
-        <string name="Name">StarterPlayerScripts</string>
-      </Properties>
-      <Item class="Folder" referent="12">
-        <Properties>
-          <string name="Name">Client</string>
-        </Properties>
-      </Item>
-    </Item>
-  </Item>
-</roblox>
+cd ~/RobloxProjekt 2>/dev/null || git clone https://github.com/samuelsohnhd-alt/RobloxProjekt.git ~/RobloxProjekt && cd ~/RobloxProjekt
+
+# 1) src-Struktur sicher anlegen
+mkdir -p src/server src/client src/shared src/sec src/ui
+
+# 2) Minimale Start-Skripte (Server/Client) + Shared-Stub
+cat > src/server/RB7_Boot.server.lua <<'LUA'
+-- RB7_Boot.server.lua
+print("RB7: Server boot ok")
+-- Hier initialisieren: Remotes, Services, Configs usw.
+LUA
+
+cat > src/client/RB7_Client.client.lua <<'LUA'
+-- RB7_Client.client.lua
+print("RB7: Client ready")
+LUA
+
+cat > src/shared/README.lua <<'LUA'
+-- Shared-Module: wird von Server & Client gemeinsam genutzt
+return {}
+LUA
+
+# 3) Rojo-Projektdatei passend zu deiner Struktur schreiben
+cat > default.project.json <<'JSON'
+{
+  "name": "RB7",
+  "servePort": 34872,
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst"
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": { "$path": "src/shared" }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": { "$path": "src/server" }
+    },
+
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "RB7_Private": {
+        "$className": "Folder",
+        "Sec": { "$path": "src/sec" }
+      }
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "RB7_UI": { "$path": "src/ui" }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": { "$path": "src/client" }
+      }
+    }
+  }
+}
+JSON
+
+# 4) Git commit & Push (falls Repo schon verbunden ist)
+git add -A
+git commit -m "chore: add minimal boot/client scripts and Rojo mapping" || true
+git push || true
+
+# 5) Rojo neu starten (Port 34872)
+pkill -f "rojo serve --port 34872" >/dev/null 2>&1 || true
+nohup rojo serve --port 34872 >/tmp/rojo_serve.log 2>&1 & disown
+echo "✅ Fertig. Rojo läuft auf http://localhost:34872. In Studio: Rojo-Plugin verbinden."
