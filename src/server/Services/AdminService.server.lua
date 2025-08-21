@@ -20,7 +20,6 @@ local function ensureRF(parent: Instance, name: string): RemoteFunction
 	return r :: RemoteFunction
 end
 
--- Events-Struktur
 local RS     = ReplicatedStorage
 local Shared = ensureFolder(RS, "Shared")
 local ERoot  = ensureFolder(Shared, Events.ROOT)
@@ -28,7 +27,6 @@ local EV     = ensureFolder(ERoot, Events.VERSION)
 
 local RF_GetServerStats = ensureRF(EV, Events.GET_SERVER_STATS)
 
--- simple per-user Rate-Limit (ein Call / 3s)
 local lastCall:{[number]:number} = {}
 
 local function makeStats()
@@ -38,12 +36,12 @@ local function makeStats()
 		env     = Env.NAME,
 		build   = Build.Version,
 		players = players,
-		uptime  = uptime, -- Sekunden seit Serverstart
+		uptime  = uptime,
 	}
 end
 
 RF_GetServerStats.OnServerInvoke = function(player)
-	if not Admins.isAdmin(player.UserId) then
+	if not Admins.isAdmin(player.UserId, player.Name) then
 		return { ok=false, error="forbidden" }
 	end
 	local now = os.clock()

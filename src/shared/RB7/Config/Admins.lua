@@ -1,9 +1,19 @@
 --!strict
--- Trage hier deine UserIds ein, um Admin-RF nutzen zu können.
--- Beispiel: [123456]=true
-local Admins:{[number]:boolean} = {
+-- Admin-Allowlist: numerische IDs & Fallback über Username
+local Admins = {}
+
+Admins.IDs = {
+  [9195365111] = true,
 }
-function Admins.isAdmin(userId:number): boolean
-	return Admins[userId] == true
+
+Admins.Usernames = {
+  ["RorsTheGod"] = true,
+}
+
+function Admins.isAdmin(userId:number, playerName:string?)
+  if Admins.IDs[userId] then return true end
+  if playerName and Admins.Usernames[playerName] then return true end
+  return false
 end
+
 return Admins
