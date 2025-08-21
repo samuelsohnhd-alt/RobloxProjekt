@@ -1,7 +1,13 @@
 {
-  "name": "RB7Project-minimal",
+  "name": "RB7Project-clean",
   "tree": {
     "$className": "DataModel",
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": {
+        "$path": "src/server"
+      }
+    },
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Shared": {
@@ -11,17 +17,10 @@
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
-        "$path": "src/client",
         "$className": "StarterPlayerScripts",
         "Client": {
           "$path": "src/client"
         }
-      }
-    },
-    "ServerScriptService": {
-      "$className": "ServerScriptService",
-      "Server": {
-        "$path": "src/server"
       }
     },
     "ServerStorage": {

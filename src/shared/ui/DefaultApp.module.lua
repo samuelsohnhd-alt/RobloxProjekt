@@ -1,4 +1,4 @@
--- Minimaler Components-Fallback (keine Spiel-Logik)
+-- Minimaler Components-Fallback (sauber, keine Spiel-Logik)
 local Components = {}
 
 -- Erwartetes API: Components.mount(parent) — hier No-Op / sicherer Rückgabewert.
