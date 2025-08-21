@@ -2430,6 +2430,1622 @@ end
 					</Properties>
 				</Item>
 			</Item>
+			<Item class="Folder" referent="RBXc9fb8776307d48e5a8625e80393f41d2">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Client</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000083e</UniqueId>
+				</Properties>
+				<Item class="LocalScript" referent="RBX7800936e14334a89839455515d782887">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">src/client</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{a4be5e05-23f4-4474-94dd-d62845465308}</string>
+						<ProtectedString name="Source"><![CDATA[-- client
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000083f</UniqueId>
+					</Properties>
+					<Item class="Folder" referent="RBX911fbf234ab24b368fa441d6eb6415ff">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Client</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000840</UniqueId>
+						</Properties>
+						<Item class="LocalScript" referent="RBXda1e6b103f1d463992b546788a5ed41f">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<bool name="Disabled">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">RB7_UI</string>
+								<token name="RunContext">0</token>
+								<string name="ScriptGuid">{3eb583c0-0bec-4822-857b-9af06f1299f5}</string>
+								<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local player  = Players.LocalPlayer
+
+-- Doppelstart-Schutz (gemeinsamer Guard für alle UI-Entrypoints)
+if _G.RB7_UI_BOOTED then
+    warn("[RB7_UI Stub] bereits geladen – überspringe.")
+    return
+end
+_G.RB7_UI_BOOTED = true
+
+print("[RB7_UI Stub] delegiere auf UI/screens …")
+
+-- Unabhängig vom Ort: greife immer auf PlayerScripts/UI/screens zu
+local ps = player:WaitForChild("PlayerScripts")
+local ui = ps:WaitForChild("UI")
+local screensMod = ui:WaitForChild("screens")
+local Screens = require(screensMod)
+
+Screens.boot({
+    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
+})
+
+print("[RB7_UI Stub] done.")
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000841</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBXac0a09ce021544a7bd8c58499f579eea">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Debug</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000842</UniqueId>
+						</Properties>
+						<Item class="LocalScript" referent="RBX63a519a49d9f45019d6cb1f60f45ed7b">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<bool name="Disabled">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">RB7_UIMonitor</string>
+								<token name="RunContext">0</token>
+								<string name="ScriptGuid">{d644e68b-6574-4cb1-b3b1-5b44784056d0}</string>
+								<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local plr = Players.LocalPlayer
+
+local function full(n)
+    local ok, path = pcall(function() return n:GetFullName() end)
+    return ok and path or (n.Name .. " (?)")
+end
+
+local function onFound(node, origin)
+    local msg = ("[RB7_UIMonitor] RB7_UI entdeckt (%s): %s"):format(origin, full(node))
+    print(msg)
+    -- Doppelstart-Schutz erzwingen
+    if _G.RB7_UI_BOOTED then
+        -- Falls jemand noch eine Kopie startet, sofort deaktivieren
+        local ok = pcall(function()
+            if node:IsA("LocalScript") then
+                if node:FindFirstChild("screens") then
+                    -- sehr wahrscheinlich legacy
+                    print("[RB7_UIMonitor] deaktiviere vermutetes Legacy-Script.")
+                end
+                -- LocalScript hat die Eigenschaft Enabled
+                node.Enabled = false
+            end
+        end)
+        if not ok then
+            warn("[RB7_UIMonitor] Konnte Legacy nicht deaktivieren (lief evtl. bereits).")
+        end
+    end
+end
+
+-- Frühe Überwachung: PlayerScripts + StarterPlayerScripts
+task.defer(function()
+    -- Bereits vorhandene
+    local ps = plr:WaitForChild("PlayerScripts")
+    for _,d in ipairs(ps:GetDescendants()) do
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            onFound(d, "vorhanden")
+        end
+    end
+    -- Live-Spawn
+    ps.DescendantAdded:Connect(function(d)
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            onFound(d, "spawn")
+        end
+    end)
+end)
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000843</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="LocalScript" referent="RBX98c4c1346c624cb1aaf0d33d64e5b1d8">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Init</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{087cba3f-86de-4ed9-b751-e6b3e46c8c95}</string>
+							<ProtectedString name="Source"><![CDATA[-- client
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000844</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="StringValue" referent="RBX8be594aa513b4e478719223a103cb49c">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">KEEP</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000845</UniqueId>
+							<string name="Value"><![CDATA[KEEP CLIENT
+]]></string>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBXa19a5bff853145078c39ff4e2e4e57fa">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">OpenMenu_Sanity</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{940b35bf-3360-41b7-b63d-63a30045f937}</string>
+							<ProtectedString name="Source"><![CDATA[-- RB7 OpenMenu Sanity (client)
+local RS = game:GetService("ReplicatedStorage")
+local ok = pcall(function()
+    local Shared = RS:WaitForChild("Shared", 5)
+    local Events = Shared and Shared:WaitForChild("Events", 5)
+    local V1     = Events and Events:WaitForChild("v1", 5)
+    local OpenMenu = V1 and V1:WaitForChild("OpenMenu", 5)
+    if OpenMenu and OpenMenu:IsA("RemoteEvent") then
+        print("[RB7_UI] OpenMenu RemoteEvent ✅ vorhanden")
+        OpenMenu.OnClientEvent:Connect(function(...)
+            print("[RB7_UI] OpenMenu signal empfangen")
+        end)
+    else
+        warn("[RB7_UI] OpenMenu RemoteEvent fehlt ❌")
+    end
+end)
+if not ok then
+    warn("[RB7_UI] OpenMenu Sanity: Zugriff auf Remotes fehlgeschlagen.")
+end
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000846</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX86ff6a15075e49658943fe7db7a6c764">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Preboot_CleanUI</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{0c637a07-c5a6-418f-aebf-b094709038b7}</string>
+							<ProtectedString name="Source"><![CDATA[-- RB7 Preboot-CleanUI (client): Entfernt Legacy-LocalScripts "RB7_UI" aggressiv
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local plr = Players.LocalPlayer
+
+local function nukeRB7UI(root)
+    if not root then return end
+    for _,d in ipairs(root:GetDescendants()) do
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            d.Disabled = true
+            d:Destroy()
+            warn("[RB7_Preboot] entfernt: " .. d:GetFullName())
+        end
+    end
+end
+
+local function sweep()
+    local ps = plr:FindFirstChild("PlayerScripts")
+    if ps then
+        nukeRB7UI(ps)
+        for _,c in ipairs(ps:GetChildren()) do nukeRB7UI(c) end
+    end
+end
+
+-- früh mehrfach scannen
+for i=1,60 do
+    sweep()
+    RunService.Heartbeat:Wait()
+end
+-- danach auf Änderungen horchen
+local ps = plr:WaitForChild("PlayerScripts")
+ps.DescendantAdded:Connect(function(d) if d:IsA("LocalScript") and d.Name=="RB7_UI" then d:Destroy() end end)
+ps.ChildAdded:Connect(function(d) if d:IsA("LocalScript") and d.Name=="RB7_UI" then d:Destroy() end end)
+
+-- Fallback nachgeladen
+task.defer(sweep)
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000847</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBXd0cfb56edb6f495f9f369aa764545562">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_Boot</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{ea4c234f-9e8c-4a64-9faf-eecdc36bd264}</string>
+							<ProtectedString name="Source"><![CDATA[print("RB7: Client boot ok")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000848</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX8b37b859195d4cc790b5c4f5a63ea015">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_ClientMain</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{f06ccc21-e4fa-4167-ac9b-a36197b35328}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+-- RB7_ClientMain: erstellt minimales HUD und sendet periodisch Ping an den Server
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+
+-- Resolve RemoteEvent
+local Ping: RemoteEvent = ReplicatedStorage
+	:WaitForChild("Shared")
+	:WaitForChild(Events.ROOT)
+	:WaitForChild(Events.VERSION)
+	:WaitForChild(Events.PING) :: any
+
+-- HUD konstruieren (unter StarterGui/RB7_UI gemappt; zur Laufzeit im PlayerGui)
+local pg = player:WaitForChild("PlayerGui")
+local existing = pg:FindFirstChild("RB7_HUD")
+local hud = existing or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"
+hud.ResetOnSpawn = false
+hud.IgnoreGuiInset = true
+hud.Parent = pg
+
+local label = hud:FindFirstChild("Status") :: TextLabel?
+if not label then
+	label = Instance.new("TextLabel")
+	label.Name = "Status"
+	label.Size = UDim2.new(0, 260, 0, 28)
+	label.Position = UDim2.new(0, 12, 0, 12)
+	label.BackgroundTransparency = 0.3
+	label.TextWrapped = true
+	label.Parent = hud
+end
+label.Text = "RB7 HUD bereit • Verbunden"
+
+-- Pings senden als Lebenszeichen
+task.spawn(function()
+	while true do
+		task.wait(5)
+		label.Text = "RB7 Ping → Server …"
+		local ok = pcall(function()
+			Ping:FireServer({ t = os.time() })
+		end)
+		label.Text = ok and "RB7 Ping gesendet" or "RB7 Ping FEHLER"
+	end
+end)
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000849</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX713e727a37bb4134b4742f87c5a2eb52">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_InputClient</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{9d5d7aac-4b57-4a14-90c1-1c86ce8fd6b5}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local ContextActionService = game:GetService("ContextActionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+local Events  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Actions = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Input"):WaitForChild("Actions"))
+
+local function getEvent(name: string): RemoteEvent
+	return (ReplicatedStorage
+		:WaitForChild("Shared")
+		:WaitForChild(Events.ROOT)
+		:WaitForChild(Events.VERSION)
+		:WaitForChild(name)) :: any
+end
+
+local RE_SetADS    : RemoteEvent = getEvent(Events.SET_ADS)
+local RE_SetCrouch : RemoteEvent = getEvent(Events.SET_CROUCH)
+local RE_Reload    : RemoteEvent = getEvent(Events.RELOAD)
+
+local adsOn = false
+local crouchOn = false
+
+local function bindADS(actionName, inputState, inputObject)
+	if inputState == Enum.UserInputState.Begin then
+		adsOn = not adsOn
+		RE_SetADS:FireServer({ on = adsOn })
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+local function bindCrouch(actionName, inputState, inputObject)
+	if inputState == Enum.UserInputState.Begin then
+		crouchOn = not crouchOn
+		RE_SetCrouch:FireServer({ on = crouchOn })
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+local function bindReload(actionName, inputState, inputObject)
+	if inputState == Enum.UserInputState.Begin then
+		RE_Reload:FireServer({})
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+-- Bindings
+ContextActionService:BindAction(Actions.ADS_TOGGLE, bindADS, true, Enum.UserInputType.MouseButton2)
+ContextActionService:BindAction(Actions.CROUCH_TOGGLE, bindCrouch, true, Enum.KeyCode.C)
+ContextActionService:BindAction(Actions.RELOAD, bindReload, true, Enum.KeyCode.R)
+
+print("[RB7_InputClient] ✅ Bindings aktiv (ADS:right mouse, Crouch:C, Reload:R)")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000084a</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBXe17db08b0ce44475a374d0ea0a692857">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_ProfileClient</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{61ebf54f-2a91-4630-a6a1-466dfcffae50}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+
+local function get(path)
+	local cur = ReplicatedStorage:WaitForChild("Shared"):WaitForChild(Events.ROOT):WaitForChild(Events.VERSION)
+	return cur:WaitForChild(path)
+end
+
+local RF_GetProfile: RemoteFunction = get(Events.GET_PROFILE) :: any
+local RE_ProfileUpdated: RemoteEvent = get(Events.PROFILE_UPDATED) :: any
+
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD")
+if hud then
+	local label = hud:FindFirstChild("Status") :: TextLabel?
+	if label then
+		local ok, prof = pcall(function() return RF_GetProfile:InvokeServer() end)
+		if ok and typeof(prof)=="table" then
+			label.Text = string.format("RB7 HUD bereit • %s (XP %d)", prof.name or "?", prof.xp or 0)
+		end
+		RE_ProfileUpdated.OnClientEvent:Connect(function(pf)
+			if typeof(pf)=="table" then
+				label.Text = string.format("RB7 HUD bereit • %s (XP %d)", pf.name or "?", pf.xp or 0)
+			end
+		end)
+	end
+end
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000084b</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX53c81365bf3c4379a83dcce0e774deb5">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_RoundHud</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{8d52762c-5259-4b11-a45c-11a2ab0d1d02}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+-- RB7_RoundHud: Zeigt Runden-Timer an und reagiert auf Start/Ende (mit Theme)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Theme  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("UITheme"))
+
+local function getEvent(name: string): RemoteEvent
+	return (ReplicatedStorage
+		:WaitForChild("Shared")
+		:WaitForChild(Events.ROOT)
+		:WaitForChild(Events.VERSION)
+		:WaitForChild(name)) :: any
+end
+
+local E_RoundStart: RemoteEvent = getEvent(Events.ROUND_START)
+local E_RoundEnded: RemoteEvent = getEvent(Events.ROUND_ENDED)
+local E_TimerTick : RemoteEvent = getEvent(Events.TIMER_TICK)
+
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD") or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"
+hud.ResetOnSpawn = false
+hud.IgnoreGuiInset = true
+hud.Parent = pg
+
+local function styleLabel(lb: TextLabel, w: number, y: number)
+	lb.Size = UDim2.new(0, w, 0, 28)
+	lb.Position = UDim2.new(0, 12, 0, y)
+	lb.BackgroundColor3 = Theme.Color.PanelBg
+	lb.BackgroundTransparency = 0.3
+	lb.BorderSizePixel = 0
+	lb.Font = Theme.Font         -- <— Enum.Font direkt setzen
+	lb.TextSize = 16
+	lb.TextColor3 = Theme.Color.Text
+end
+
+local statusLabel = hud:FindFirstChild("Status") :: TextLabel?
+if not statusLabel then
+	statusLabel = Instance.new("TextLabel")
+	statusLabel.Name = "Status"
+	statusLabel.TextWrapped = true
+	statusLabel.Parent = hud
+end
+styleLabel(statusLabel, 260, 12)
+statusLabel.Text = "RB7 HUD bereit"
+
+local timerLabel = hud:FindFirstChild("Timer") :: TextLabel?
+if not timerLabel then
+	timerLabel = Instance.new("TextLabel")
+	timerLabel.Name = "Timer"
+	timerLabel.Parent = hud
+end
+styleLabel(timerLabel, 140, 44)
+timerLabel.Text = "⏳ --:--"
+
+local function fmt(sec: number): string
+	sec = math.max(0, math.floor(sec))
+	local m = math.floor(sec/60)
+	local s = sec % 60
+	return string.format("%02d:%02d", m, s)
+end
+
+E_RoundStart.OnClientEvent:Connect(function(payload)
+	statusLabel.Text = "▶ Runde gestartet"
+	if typeof(payload) == "table" and payload.duration then
+		timerLabel.Text = "⏳ " .. fmt(payload.duration)
+	end
+end)
+E_RoundEnded.OnClientEvent:Connect(function(_)
+	statusLabel.Text = "⏹ Runde beendet"
+end)
+E_TimerTick.OnClientEvent:Connect(function(payload)
+	if typeof(payload) == "table" and payload.t then
+		timerLabel.Text = "⏳ " .. fmt(payload.t)
+	end
+end)
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000084c</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX6c2f9f7fe4c8498c8354c43f451532fd">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_StateClient</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{0e481b0b-16e3-405e-8c8b-0a4b3214701f}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+
+local function get(path)
+	local cur = ReplicatedStorage:WaitForChild("Shared"):WaitForChild(Events.ROOT):WaitForChild(Events.VERSION)
+	return cur:WaitForChild(path)
+end
+
+local RF_GetState: RemoteFunction = get(Events.GET_STATE) :: any
+local RE_StateChanged: RemoteEvent = get(Events.STATE_CHANGED) :: any
+
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD")
+local status = hud and hud:FindFirstChild("Status") :: TextLabel?
+
+local function render(st:any)
+	if not status or type(st)~="table" then return end
+	local flags = {}
+	if st.ads then table.insert(flags, "ADS") end
+	if st.crouch then table.insert(flags, "Crouch") end
+	status.Text = ("RB7 HUD bereit • %s"):format(#flags>0 and table.concat(flags, " | ") or "neutral")
+end
+
+-- Initial holen
+local ok, st = pcall(function() return RF_GetState:InvokeServer() end)
+if ok then render(st) end
+
+-- Live-Änderungen
+RE_StateChanged.OnClientEvent:Connect(function(payload)
+	if type(payload)=="table" and payload.userId == player.UserId then
+		render(payload.state)
+	end
+end)
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000084d</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX9211b9076169498380cde67226fe01a5">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_UI</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{48f46870-ff29-4982-9daa-e0069ee0f43e}</string>
+							<ProtectedString name="Source"><![CDATA[-- RB7 UI Stub: sorgt dafür, dass ein definierter Einstieg existiert, ohne Legacy-Abhängigkeiten
+if _G.__RB7_UI_INIT then return end
+_G.__RB7_UI_INIT = true
+print("[RB7_UI Stub] geladen.")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000084e</UniqueId>
+						</Properties>
+						<Item class="LocalScript" referent="RBX565603a196794bc5a2fc7a31d36f0cd7">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<bool name="Disabled">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Init</string>
+								<token name="RunContext">0</token>
+								<string name="ScriptGuid">{30ab0560-c0be-4234-9bf8-4485161837aa}</string>
+								<ProtectedString name="Source"><![CDATA[-- RB7 UI Stub: sorgt dafür, dass ein definierter Einstieg existiert, ohne Legacy-Abhängigkeiten
+if _G.__RB7_UI_INIT then return end
+_G.__RB7_UI_INIT = true
+print("[RB7_UI Stub] geladen.")
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000084f</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="Folder" referent="RBX875ae0aad5dc40428dd83e56ef6169c2">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">components</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000850</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBX44f025e1d65a4ba09d0c547de9162dbd">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">LeftMenu</string>
+									<string name="ScriptGuid">{ee794ce9-88e6-4aa0-acdf-517e72a0c1e7}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local LeftMenu = {}; LeftMenu.__index = LeftMenu
+function LeftMenu.new(parent: Instance, items: {string})
+  local f = Instance.new("Frame"); f.Name="LeftMenu"; f.Size=UDim2.new(0,260,1,0)
+  f.BackgroundColor3=Theme.Colors.Panel; f.BorderSizePixel=0; f.Parent=parent
+  local header = Instance.new("TextLabel"); header.Name="Header"; header.Size=UDim2.new(1,0,0,40)
+  header.BackgroundTransparency=1; header.Font=Theme.Fonts.Header; header.TextSize=18
+  header.TextXAlignment=Enum.TextXAlignment.Left; header.TextColor3=Theme.Colors.Text
+  header.Text="GAME LOBBY"; header.Position=UDim2.new(0,12,0,6); header.Parent=f
+  local listHolder = Instance.new("Frame"); listHolder.Name="List"; listHolder.BackgroundTransparency=1
+  listHolder.Size=UDim2.new(1,-20,1,-70); listHolder.Position=UDim2.new(0,10,0,50); listHolder.Parent=f
+  local layout = Instance.new("UIListLayout"); layout.Padding=UDim.new(0,6); layout.Parent=listHolder
+  local buttons={}
+  for _,name in ipairs(items) do
+    local b=Instance.new("TextButton"); b.Name=(name:gsub("%s","")); b.Size=UDim2.new(1,0,0,28)
+    b.BackgroundColor3=Theme.Colors.AccentDim; b.BorderSizePixel=0; b.AutoButtonColor=false
+    b.Font=Theme.Fonts.Body; b.TextSize=16; b.TextXAlignment=Enum.TextXAlignment.Left
+    b.TextColor3=Theme.Colors.Text; b.Text=name; b.Parent=listHolder
+    local line=Instance.new("Frame"); line.Size=UDim2.new(1,0,0,1); line.BackgroundColor3=Theme.Colors.Line; line.BorderSizePixel=0; line.Position=UDim2.new(0,0,1,0); line.Parent=b
+    b.MouseEnter:Connect(function() b.BackgroundColor3=Theme.Colors.Accent end)
+    b.MouseLeave:Connect(function() b.BackgroundColor3=Theme.Colors.AccentDim end)
+    table.insert(buttons,b)
+  end
+  return setmetatable({Frame=f,Items=buttons},LeftMenu)
+end
+return LeftMenu
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000851</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX4265a243401e43e6b054d10a9631598d">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">MapPreview</string>
+									<string name="ScriptGuid">{c0a50d48-1b74-4bf3-b57a-97f7c96de48b}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function MapPreview(parent: Instance)
+  local frame=Instance.new("Frame"); frame.Name="MapPreview"; frame.Size=UDim2.new(0,260,0,160); frame.BackgroundColor3=Theme.Colors.Panel; frame.BorderSizePixel=0; frame.Parent=parent
+  local img=Instance.new("ImageLabel"); img.Name="Image"; img.Size=UDim2.new(1,-12,1,-12); img.Position=UDim2.new(0,6,0,6); img.BackgroundTransparency=1; img.ScaleType=Enum.ScaleType.Crop; img.Image="rbxassetid://0"; img.Parent=frame
+  local caption=Instance.new("TextLabel"); caption.Name="Caption"; caption.BackgroundTransparency=1; caption.Size=UDim2.new(1,-12,0,18); caption.Position=UDim2.new(0,6,1,-22); caption.Font=Theme.Fonts.Body; caption.TextXAlignment=Enum.TextXAlignment.Left; caption.TextSize=14; caption.TextColor3=Theme.Colors.Text; caption.Text="TOTAL CONQUEST  •  COB TRAINING"; caption.Parent=frame
+  return frame
+end
+return MapPreview
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000852</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX23f765a3c64149d89855f611a0a2c049">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">TeamPanel</string>
+									<string name="ScriptGuid">{0b85c660-090d-45e6-85ba-5966ad4df7fe}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function mkRow(parent: Instance, idx: number, name: string, kills: number, deaths: number, highlight: boolean?)
+  local row=Instance.new("Frame"); row.Name="Row"..idx; row.Size=UDim2.new(1,0,0,22); row.BackgroundTransparency=1; row.Parent=parent
+  local i=Instance.new("TextLabel"); i.Size=UDim2.new(0,22,1,0); i.BackgroundTransparency=1; i.Font=Theme.Fonts.Mono; i.TextSize=14; i.TextColor3=Theme.Colors.SubText; i.Text=tostring(idx).."."; i.Parent=row
+  local n=Instance.new("TextLabel"); n.Position=UDim2.new(0,26,0,0); n.Size=UDim2.new(1,-160,1,0); n.BackgroundTransparency=1; n.Font=Theme.Fonts.Body; n.TextXAlignment=Enum.TextXAlignment.Left; n.TextSize=14; n.TextColor3=highlight and Theme.Colors.Good or Theme.Colors.Text; n.Text=name; n.Parent=row
+  local k=Instance.new("TextLabel"); k.Size=UDim2.new(0,40,1,0); k.Position=UDim2.new(1,-90,0,0); k.BackgroundTransparency=1; k.Font=Theme.Fonts.Mono; k.TextSize=14; k.Text=tostring(kills); k.TextColor3=Theme.Colors.Text; k.Parent=row
+  local d=Instance.new("TextLabel"); d.Size=UDim2.new(0,40,1,0); d.Position=UDim2.new(1,-40,0,0); d.BackgroundTransparency=1; d.Font=Theme.Fonts.Mono; d.TextSize=14; d.Text=tostring(deaths); d.TextColor3=Theme.Colors.Text; d.Parent=row
+end
+local function TeamPanel(parent: Instance, title: string, rows)
+  local panel=Instance.new("Frame"); panel.Name=title:gsub("%s","").."Panel"; panel.BackgroundColor3=Theme.Colors.Panel; panel.BorderSizePixel=0; panel.Size=UDim2.new(0.49,-6,0,170); panel.Parent=parent
+  local header=Instance.new("TextLabel"); header.Name="Header"; header.Size=UDim2.new(1,0,0,28); header.BackgroundColor3=Theme.Colors.Line; header.BorderSizePixel=0; header.Font=Theme.Fonts.Header; header.TextSize=16; header.TextColor3=Theme.Colors.Text; header.Text=title:upper(); header.Parent=panel
+  local body=Instance.new("Frame"); body.Name="Body"; body.BackgroundTransparency=1; body.Position=UDim2.new(0,10,0,36); body.Size=UDim2.new(1,-20,1,-46); body.Parent=panel
+  local layout=Instance.new("UIListLayout"); layout.Padding=UDim.new(0,4); layout.Parent=body
+  for i,r in ipairs(rows) do mkRow(body,i,r[1],r[2],r[3],r[4]) end
+  return panel
+end
+return TeamPanel
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000853</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+						<Item class="Folder" referent="RBXa0fa1b85479140afaa1402c157599f9c">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">screens</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000854</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBX990e36dd51a540f7a57a77aefba17ca4">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">LoadoutScreen</string>
+									<string name="ScriptGuid">{75527f69-6b52-4acf-863e-088b8be4a7e1}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function LoadoutScreen()
+  local playerGui=Players.LocalPlayer:WaitForChild("PlayerGui")
+  local gui=Instance.new("ScreenGui"); gui.Name="RB7_Loadout"; gui.IgnoreGuiInset=true; gui.ResetOnSpawn=false; gui.Enabled=false; gui.Parent=playerGui
+  local bg=Instance.new("Frame"); bg.Size=UDim2.new(1,0,1,0); bg.BackgroundColor3=Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent=gui
+  local title=Instance.new("TextLabel"); title.Size=UDim2.new(1,0,0,50); title.BackgroundTransparency=1; title.Font=Theme.Fonts.Header; title.TextSize=24; title.TextColor3=Theme.Colors.Text; title.Text="LOADOUT"; title.Parent=bg
+  local weapons=Instance.new("TextButton"); weapons.Size=UDim2.new(0,220,0,40); weapons.Position=UDim2.new(0,50,0,90); weapons.Text="Weapons"; weapons.BackgroundColor3=Theme.Colors.AccentDim; weapons.TextColor3=Theme.Colors.Text; weapons.Parent=bg
+  local gear=Instance.new("TextButton"); gear.Size=UDim2.new(0,220,0,40); gear.Position=UDim2.new(0,50,0,140); gear.Text="Gear (Head/Arm/Shoulder/Chest/Leg/Clothes)"; gear.BackgroundColor3=Theme.Colors.AccentDim; gear.TextColor3=Theme.Colors.Text; gear.Parent=bg
+  return gui,{Weapons=weapons,Gear=gear}
+end
+return LoadoutScreen
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000855</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX2dd36117298c453daa1304df64b2c06b">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">LobbyScreen</string>
+									<string name="ScriptGuid">{350a988f-e130-4524-a3d9-a2764d84ed42}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local Theme = require(script.Parent.Parent.styles.Theme)
+local LeftMenu = require(script.Parent.Parent.components.LeftMenu)
+local TeamPanel = require(script.Parent.Parent.components.TeamPanel)
+local MapPreview = require(script.Parent.Parent.components.MapPreview)
+local function LobbyScreen()
+  local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+  local gui = Instance.new("ScreenGui"); gui.Name="RB7_Lobby"; gui.IgnoreGuiInset=true; gui.DisplayOrder=50; gui.ResetOnSpawn=false; gui.Parent=playerGui
+  local bg=Instance.new("Frame"); bg.Size=UDim2.new(1,0,1,0); bg.BackgroundColor3=Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent=gui
+  local left = LeftMenu.new(bg, {"NOT READY","CHANGE TEAM","LOADOUT","MATCH SETTINGS","PLAYERS","OPTIONS","STATISTICS"}).Frame
+  local preview = MapPreview(bg); preview.Position=UDim2.new(0,10,1,-180)
+  local right=Instance.new("Frame"); right.Name="RightColumn"; right.Size=UDim2.new(1,-280,1,-20); right.Position=UDim2.new(0,270,0,10); right.BackgroundTransparency=1; right.Parent=bg
+  local top=Instance.new("Frame"); top.Name="TeamsRow"; top.Size=UDim2.new(1,0,0,180); top.BackgroundTransparency=1; top.Parent=right
+  local h=Instance.new("UIListLayout"); h.FillDirection=Enum.FillDirection.Horizontal; h.Padding=UDim.new(0,12); h.Parent=top
+  local alpha = TeamPanel(top,"ALPHA TEAM",{{"World x Famous",38,12,false},{"[NwO]JeeNiNe",34,14,false},{"NwO x DoNTe",62,21,true},{"[X]TxkEoVeR",70,22,false}})
+  alpha.Size=UDim2.new(0.5,-6,1,0)
+  local bravo = TeamPanel(top,"BRAVO TEAM",{{"[GOD]Able In The Cut",36,5,true},{"Methodz",99,4,false},{"Fams Ringer Tag",44,6,false},{"CnC Killa Chris",47,6,false}})
+  bravo.Size=UDim2.new(0.5,-6,1,0)
+  local footer=Instance.new("TextLabel"); footer.Name="Footer"; footer.BackgroundTransparency=1; footer.Size=UDim2.new(1,-10,0,18); footer.Position=UDim2.new(0,270,1,-22)
+  footer.Font=Theme.Fonts.Mono; footer.TextXAlignment=Enum.TextXAlignment.Right; footer.TextSize=14; footer.TextColor3=Theme.Colors.SubText; footer.Text="XP MODIFIER: -20%"; footer.Parent=bg
+  return gui
+end
+return LobbyScreen
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000856</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+						<Item class="Folder" referent="RBXd8e5524f548c4278a4822875c17b7acc">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">styles</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000857</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBX53947c29ed094d39a84530fd54f22ab7">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Theme</string>
+									<string name="ScriptGuid">{8d33c14f-b367-4de4-927f-bbe11367ae75}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local Theme = {
+  Colors = {
+    Bg=Color3.fromRGB(20,20,24), Panel=Color3.fromRGB(36,36,42),
+    Accent=Color3.fromRGB(160,20,20), AccentDim=Color3.fromRGB(120,16,16),
+    Text=Color3.fromRGB(235,235,235), SubText=Color3.fromRGB(190,190,190),
+    Line=Color3.fromRGB(80,80,86), Good=Color3.fromRGB(80,200,120),
+    Warn=Color3.fromRGB(220,200,90),
+  },
+  Fonts={ Header=Enum.Font.GothamBold, Body=Enum.Font.Gotham, Mono=Enum.Font.Code }
+}
+return Theme
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000858</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+						<Item class="Folder" referent="RBX50ba0233b4974edaa112df7c81ae91fd">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">utils</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000859</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="LocalScript" referent="RBX3767c8350a2e49f184e08abdaf97d96f">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_UI</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{e374a6f1-e7f7-4790-9e66-e887c41aae0b}</string>
+							<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local player  = Players.LocalPlayer
+
+if _G.RB7_UI_BOOTED then
+    warn("[RB7_UI] bereits geladen – überspringe.")
+    return
+end
+_G.RB7_UI_BOOTED = true
+
+print("[RB7_UI] Init starting…")
+
+-- Robust: Finde UI/screens, egal wo das Script hängt
+local ps = player:WaitForChild("PlayerScripts")
+local root = script.Parent
+if root.Name ~= "Client" then
+    root = ps:FindFirstChild("Client") or ps
+end
+
+local uiFolder = root:FindFirstChild("UI") or ps:FindFirstChild("UI") or script.Parent:FindFirstChild("UI")
+assert(uiFolder, "[RB7_UI] UI folder not found")
+local screensMod = uiFolder:FindFirstChild("screens")
+assert(screensMod, "[RB7_UI] 'screens' Module not found under UI")
+local Screens = require(screensMod)
+
+Screens.boot({
+    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
+})
+
+print("[RB7_UI] Init done.")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000085a</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="LocalScript" referent="RBX6dcc3e19754945ce8e38ba05cbd1e2e5">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_WeaponInputClient</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{f794b716-b1af-4bfa-a5a0-df7b9134f00e}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local ContextActionService = game:GetService("ContextActionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+local Events  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local WConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Weapons"):WaitForChild("Config"))
+
+local function getEvent(name: string): any
+	return (ReplicatedStorage
+		:WaitForChild("Shared")
+		:WaitForChild(Events.ROOT)
+		:WaitForChild(Events.VERSION)
+		:WaitForChild(name))
+end
+
+local RE_Equip : RemoteEvent = getEvent(Events.EQUIP_WEAPON)
+local RE_Shoot : RemoteEvent = getEvent(Events.SHOOT)
+local RE_AmmoUp: RemoteEvent = getEvent(Events.AMMO_UPDATE)
+local RF_Loadout: RemoteFunction = getEvent(Events.GET_LOADOUT)
+
+local equipped = "FAMAS"
+
+-- HUD-Hook
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD") or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"; hud.ResetOnSpawn=false; hud.IgnoreGuiInset=true; hud.Parent = pg
+
+local ammoLabel = hud:FindFirstChild("Ammo") :: TextLabel?
+if not ammoLabel then
+	ammoLabel = Instance.new("TextLabel")
+	ammoLabel.Name = "Ammo"
+	ammoLabel.Size = UDim2.new(0, 160, 0, 28)
+	ammoLabel.Position = UDim2.new(0, 12, 0, 76)
+	ammoLabel.BackgroundTransparency = 0.3
+	ammoLabel.Text = "🔫 --/--"
+	ammoLabel.Parent = hud
+end
+
+local function renderAmmo(name:string, mag:number?, reserve:number?)
+	if mag and reserve then
+		ammoLabel.Text = ("🔫 %s  %d/%d"):format(name, mag, reserve)
+	end
+end
+
+-- Initial: Loadout & Start-Anzeige
+local ok, loadout = pcall(function() return RF_Loadout:InvokeServer() end)
+if ok and typeof(loadout)=="table" then
+	equipped = loadout.Equipped or equipped
+end
+RE_Equip:FireServer({ name = equipped })
+
+-- Bindings: Equip 1/2/3, Shoot (LMB)
+local function bindEquip1(_,state) if state==Enum.UserInputState.Begin then equipped="FAMAS"; RE_Equip:FireServer({name=equipped}) end return Enum.ContextActionResult.Sink end
+local function bindEquip2(_,state) if state==Enum.UserInputState.Begin then equipped="MP5";   RE_Equip:FireServer({name=equipped}) end return Enum.ContextActionResult.Sink end
+local function bindEquip3(_,state) if state==Enum.UserInputState.Begin then equipped="PISTOL";RE_Equip:FireServer({name=equipped}) end return Enum.ContextActionResult.Sink end
+local function bindShoot(_,state)
+	if state==Enum.UserInputState.Begin then
+		RE_Shoot:FireServer({ name = equipped })
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+ContextActionService:BindAction("RB7_EQUIP_1", bindEquip1, true, Enum.KeyCode.One)
+ContextActionService:BindAction("RB7_EQUIP_2", bindEquip2, true, Enum.KeyCode.Two)
+ContextActionService:BindAction("RB7_EQUIP_3", bindEquip3, true, Enum.KeyCode.Three)
+ContextActionService:BindAction("RB7_SHOOT",   bindShoot,  true, Enum.UserInputType.MouseButton1)
+
+-- Live-Ammo-Updates vom Server
+RE_AmmoUp.OnClientEvent:Connect(function(payload)
+	if typeof(payload)=="table" then
+		renderAmmo(payload.name, payload.mag, payload.reserve)
+	end
+end)
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000085b</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="Folder" referent="RBX3494bfdee66f4d4db176b4ab63bd874a">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">UI</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000085c</UniqueId>
+						</Properties>
+						<Item class="Folder" referent="RBX47053051e49746ab960b7375b5e37224">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">assets</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000085d</UniqueId>
+							</Properties>
+							<Item class="Folder" referent="RBX0b3b28571e55475a8aacaf087eb4803e">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<string name="Name">icons</string>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000085e</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+						<Item class="Folder" referent="RBXf37c1c5f84fc4c77b4abf618e562666c">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">components</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000085f</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBX353da009de2a4bd5bec787f37b75ec39">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">EventBridge</string>
+									<string name="ScriptGuid">{4a0255a2-6b05-4c57-a490-b0c90cbc54d9}</string>
+									<ProtectedString name="Source"><![CDATA[local RS = game:GetService("ReplicatedStorage")
+local M = {}
+function M.getEventsRoot()
+    -- Erwartet: ReplicatedStorage.Shared.Events.v1
+    local root = RS:FindFirstChild("Shared")
+    if not root then
+        warn("[Loadout/EventBridge] ReplicatedStorage.Shared fehlt")
+        return nil
+    end
+    local ev = root:FindFirstChild("Events")
+    if not ev then
+        warn("[Loadout/EventBridge] Shared.Events fehlt")
+        return nil
+    end
+    local v1 = ev:FindFirstChild("v1") or ev
+    return v1
+end
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000860</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBXb49d19e00e1142ed9d151dd6487411cd">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">TabBar</string>
+									<string name="ScriptGuid">{4346703f-8510-46b0-989f-42c26b764dbe}</string>
+									<ProtectedString name="Source"><![CDATA[local TextButtonPrimary = require(script.Parent:WaitForChild("TextButtonPrimary"))
+local M = {}
+function M.create(tabNames, onSelect)
+    local bar = Instance.new("Frame")
+    bar.Name = "TabBar"
+    bar.Size = UDim2.fromScale(1, 0.1)
+    bar.BackgroundTransparency = 1
+
+    local list = Instance.new("UIListLayout")
+    list.FillDirection = Enum.FillDirection.Horizontal
+    list.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    list.Padding = UDim.new(0, 8)
+    list.Parent = bar
+
+    for _,name in ipairs(tabNames) do
+        local btn = TextButtonPrimary.create({ Size = UDim2.fromOffset(140, 36), Text = name })
+        btn.Name = "Tab_"..name
+        btn.Parent = bar
+        btn.MouseButton1Click:Connect(function()
+            if onSelect then onSelect(name) end
+        end)
+    end
+    return bar
+end
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000861</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX9fc6c922a4b34ffc9e38a82f134d7562">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">TextButtonPrimary</string>
+									<string name="ScriptGuid">{e0548b1d-87f7-4dd9-971b-4b8ab7bff28c}</string>
+									<ProtectedString name="Source"><![CDATA[local M = {}
+function M.create(props)
+    props = props or {}
+    local b = Instance.new("TextButton")
+    b.Name = props.Name or "Button"
+    b.AutoButtonColor = true
+    b.BackgroundTransparency = 0.1
+    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    b.Size = props.Size or UDim2.fromOffset(160, 40)
+    b.Text = props.Text or "Button"
+    b.TextScaled = true
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold
+    local stroke = Instance.new("UIStroke"); stroke.Thickness = 1; stroke.Transparency = 0.3; stroke.Parent = b
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0, 10); corner.Parent = b
+    return b
+end
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000862</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX8443fc0a5759487f9bc3161ae851109b">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">UIState</string>
+									<string name="ScriptGuid">{9a519786-768d-486e-aadb-0d00841f0dd7}</string>
+									<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local M = {
+    _screens = {}, -- name -> ScreenGui
+}
+
+function M.register(name, gui)
+    M._screens[name] = gui
+end
+
+function M.show(name)
+    for n, gui in pairs(M._screens) do
+        if gui and gui.Parent then
+            if gui:IsA("ScreenGui") then
+                gui.Enabled = (n == name) or (n == "HUD" and (name == "HUD" or name == "Lobby"))
+            else
+                gui.Visible = (n == name)
+            end
+        end
+    end
+    print("[UIState] show ->", name)
+end
+
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000863</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+						<Item class="ModuleScript" referent="RBX223a32bcf8184e6f97614242c0de805a">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">screens</string>
+								<string name="ScriptGuid">{bb643433-43f7-442f-9bc7-7dce245b3d56}</string>
+								<ProtectedString name="Source"><![CDATA[local UIState        = require(script.Parent.Parent.components.UIState)
+local LobbyScreen    = require(script:WaitForChild("LobbyScreen"))
+local LoadoutScreen  = require(script:WaitForChild("LoadoutScreen"))
+local Hud            = require(script:WaitForChild("Hud"))
+
+local M = {}
+
+function M.boot(opts)
+    opts = opts or {}
+    local order = opts.displayOrder or {}
+    local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+    local lobby = LobbyScreen.create(); lobby.DisplayOrder = order.Lobby or 50; lobby.Parent = pg
+    print(("[RB7_UI] LobbyScreen created; DisplayOrder = %d"):format(lobby.DisplayOrder))
+
+    local load  = LoadoutScreen.create(); load.DisplayOrder  = order.Loadout or 55; load.Enabled=false; load.Parent=pg
+    print("[RB7_UI] LoadoutScreen created")
+
+    local hud   = Hud.create(); hud.DisplayOrder = order.HUD or 100; hud.Parent = pg
+    print("[RB7_UI] Hud created")
+
+    -- Screens registrieren
+    UIState.register("Lobby", lobby)
+    UIState.register("Loadout", load)
+    UIState.register("HUD", hud)
+
+    -- Startzustand: Lobby + HUD sichtbar
+    lobby.Enabled = true
+    hud.Enabled   = true
+    load.Enabled  = false
+end
+
+return M
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000864</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBXfcfd343ffeb447ddb00f71ef406472c6">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Hud</string>
+									<string name="ScriptGuid">{597fbc1d-3c6d-47be-893c-94e99b5aee1e}</string>
+									<ProtectedString name="Source"><![CDATA[local UIState = require(script.Parent.Parent.components.UIState)
+local Button = require(script.Parent.Parent.components.TextButtonPrimary)
+
+local M = {}
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "HUD"
+
+    -- Ammo
+    local ammo = Instance.new("TextLabel")
+    ammo.Name = "Ammo"; ammo.Size = UDim2.fromScale(0.18, 0.08); ammo.Position = UDim2.fromScale(0.80, 0.90)
+    ammo.BackgroundTransparency = 1; ammo.TextScaled = true; ammo.Text = "Ammo: 30/90"; ammo.TextColor3 = Color3.new(1,1,1)
+    ammo.Parent = gui
+
+    -- XP
+    local xp = Instance.new("TextLabel")
+    xp.Name = "XP"; xp.Size = UDim2.fromScale(0.18, 0.08); xp.Position = UDim2.fromScale(0.02, 0.90)
+    xp.BackgroundTransparency = 1; xp.TextScaled = true; xp.Text = "XP: 0"; xp.TextColor3 = Color3.new(1,1,1)
+    xp.Parent = gui
+
+    -- Menu-Button
+    local menuBtn = Button.create({ Name = "MenuButton", Text = "Menu", Size = UDim2.fromOffset(120, 36) })
+    menuBtn.AnchorPoint = Vector2.new(1,0)
+    menuBtn.Position = UDim2.fromScale(0.985, 0.02)
+    menuBtn.Parent = gui
+    menuBtn.MouseButton1Click:Connect(function()
+        UIState.show("Lobby")
+    end)
+
+    return gui
+end
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000865</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBXa11fb9d552984998944b83348e509c68">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">LoadoutScreen</string>
+									<string name="ScriptGuid">{4ac4f2cb-bf46-4111-8862-b3f7cc135e94}</string>
+									<ProtectedString name="Source"><![CDATA[local UIState = require(script.Parent.Parent.components.UIState)
+local Button = require(script.Parent.Parent.components.TextButtonPrimary)
+
+local M = {}
+
+local WEAPONS = {
+    {name="FAMAS", id="FAMAS"},
+    {name="MP5",   id="MP5"},
+    {name="Pistol",id="Pistol"},
+}
+
+local function header(parent, text)
+    local t = Instance.new("TextLabel")
+    t.Size = UDim2.fromScale(1, 0.12)
+    t.Position = UDim2.fromScale(0,0)
+    t.BackgroundTransparency = 1
+    t.Text = text
+    t.TextScaled = true
+    t.Font = Enum.Font.GothamBold
+    t.TextColor3 = Color3.new(1,1,1)
+    t.Parent = parent
+end
+
+local function scroll(parent)
+    local sc = Instance.new("ScrollingFrame")
+    sc.Name = "List"; sc.Size = UDim2.fromScale(1, 0.70); sc.Position = UDim2.fromScale(0, 0.14)
+    sc.CanvasSize = UDim2.new(0,0,0,0); sc.ScrollBarThickness = 6; sc.BackgroundTransparency = 0.2
+    local padding = Instance.new("UIPadding"); padding.PaddingTop = UDim.new(0,8); padding.PaddingLeft = UDim.new(0,8); padding.PaddingRight = UDim.new(0,8); padding.Parent = sc
+    local ly = Instance.new("UIListLayout"); ly.SortOrder = Enum.SortOrder.LayoutOrder; ly.Padding = UDim.new(0,8); ly.Parent = sc
+    ly:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        sc.CanvasSize = UDim2.new(0,0,0,ly.AbsoluteContentSize.Y+16)
+    end)
+    sc.Parent = parent
+    return sc
+end
+
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LoadoutScreen"
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Root"
+    frame.Size = UDim2.fromScale(0.6, 0.7)
+    frame.Position = UDim2.fromScale(0.2, 0.15)
+    frame.BackgroundTransparency = 0.05
+    frame.Parent = gui
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0, 12); corner.Parent = frame
+
+    header(frame, "Loadout")
+
+    -- Back-Button
+    local back = Button.create({ Text = "← Zurück", Size = UDim2.fromOffset(140, 36) })
+    back.Position = UDim2.fromScale(0.02, 0.02)
+    back.Parent = frame
+    back.MouseButton1Click:Connect(function() UIState.show("Lobby") end)
+
+    -- Weapon List
+    local list = scroll(frame)
+    local selected = { weapon = nil }
+
+    local function addRow(w)
+        local row = Instance.new("Frame")
+        row.Name = "Row_"..w.id; row.Size = UDim2.new(1, -16, 0, 48); row.BackgroundTransparency = 0.3; row.Parent = list
+        local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0,8); c.Parent = row
+
+        local label = Instance.new("TextLabel")
+        label.Name = "Label"; label.Size = UDim2.fromScale(0.6, 1); label.BackgroundTransparency = 1
+        label.Text = w.name; label.TextScaled = true; label.TextColor3 = Color3.new(1,1,1); label.Parent = row
+
+        local pick = Button.create({ Text = "Select", Size = UDim2.fromOffset(120, 36) })
+        pick.Position = UDim2.fromScale(0.7, 0.1); pick.Parent = row
+
+        local status = Instance.new("TextLabel")
+        status.Name = "Status"; status.Size = UDim2.fromOffset(120, 36); status.Position = UDim2.fromScale(0.85, 0.1)
+        status.BackgroundTransparency = 1; status.TextScaled = true; status.Text = ""; status.TextColor3 = Color3.fromRGB(160,255,160)
+        status.Parent = row
+
+        local function mark(active) status.Text = active and "Selected" or "" end
+
+        pick.MouseButton1Click:Connect(function()
+            selected.weapon = w.id
+            for _,child in ipairs(list:GetChildren()) do
+                if child:IsA("Frame") and child:FindFirstChild("Status") then child.Status.Text = "" end
+            end
+            mark(true)
+        end)
+    end
+
+    for _,w in ipairs(WEAPONS) do addRow(w) end
+
+    -- Apply
+    local apply = Button.create({ Text = "Apply Loadout", Size = UDim2.fromOffset(180, 44) })
+    apply.Position = UDim2.fromScale(0.35, 0.88); apply.Parent = frame
+    apply.MouseButton1Click:Connect(function()
+        local weapon = selected.weapon
+        if weapon then
+            print("[Loadout] Selected:", weapon)
+            UIState.show("HUD")
+        else
+            warn("[Loadout] Keine Waffe gewählt")
+        end
+    end)
+
+    return gui
+end
+
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000866</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBXa22390bfebfd4936871b5fc8951edfff">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">LobbyScreen</string>
+									<string name="ScriptGuid">{43673cde-a73f-48da-9555-c3a14795986a}</string>
+									<ProtectedString name="Source"><![CDATA[local UIState = require(script.Parent.Parent.components.UIState)
+local Button = require(script.Parent.Parent.components.TextButtonPrimary)
+
+local M = {}
+
+local function makeTitle(parent, text)
+    local t = Instance.new("TextLabel")
+    t.Size = UDim2.fromScale(1, 0.12)
+    t.Position = UDim2.fromScale(0,0)
+    t.BackgroundTransparency = 1
+    t.Text = text
+    t.TextScaled = true
+    t.Font = Enum.Font.GothamBold
+    t.TextColor3 = Color3.new(1,1,1)
+    t.Parent = parent
+end
+
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LobbyScreen"
+
+    local root = Instance.new("Frame")
+    root.Name = "Root"
+    root.Size = UDim2.fromScale(0.45, 0.6)
+    root.Position = UDim2.fromScale(0.05, 0.2)
+    root.BackgroundTransparency = 0.05
+    root.Parent = gui
+
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0, 12); corner.Parent = root
+    makeTitle(root, "RB7 • Lobby")
+
+    local list = Instance.new("Frame")
+    list.Name = "Menu"
+    list.Size = UDim2.fromScale(1, 0.78)
+    list.Position = UDim2.fromScale(0, 0.16)
+    list.BackgroundTransparency = 1
+    list.Parent = root
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 10)
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
+    layout.Parent = list
+
+    local function addItem(name, click)
+        local b = Button.create({ Text = name, Size = UDim2.fromOffset(260, 44) })
+        b.Parent = list
+        b.MouseButton1Click:Connect(click)
+        return b
+    end
+
+    -- Menüeinträge mit Funktion:
+    addItem("▶ Loadout", function() UIState.show("Loadout") end)
+    addItem("▶ Gear (demnächst)", function() end)
+    addItem("▶ Armor (demnächst)", function() end)
+    addItem("↩ Zurück ins HUD", function() UIState.show("HUD") end)
+
+    return gui
+end
+return M
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000867</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBXcc88b2a287724aee93a034b083e2e626">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">hud</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000868</UniqueId>
+						</Properties>
+						<Item class="LocalScript" referent="RBX7ad8a143372d4af985c6d7ca71a6de9d">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<bool name="Disabled">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Timer</string>
+								<token name="RunContext">0</token>
+								<string name="ScriptGuid">{45e1f1ab-29f1-40c1-a122-6f00128f83ac}</string>
+								<ProtectedString name="Source"><![CDATA[-- RB7 HUD Timer (client)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local plr = Players.LocalPlayer
+local PlayerGui = plr:WaitForChild("PlayerGui")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Events = Shared:WaitForChild("Events")
+local V1     = Events:WaitForChild("v1")
+local RoundTimerTick = V1:WaitForChild("RoundTimerTick")
+
+local hud = PlayerGui:FindFirstChild("RB7_HUD") or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"
+hud.ResetOnSpawn = false
+hud.IgnoreGuiInset = true
+hud.DisplayOrder = 100
+hud.Parent = PlayerGui
+
+local label = hud:FindFirstChild("TimerLabel")
+if not label then
+    label = Instance.new("TextLabel")
+    label.Name = "TimerLabel"
+    label.Size = UDim2.fromOffset(180, 44)
+    label.AnchorPoint = Vector2.new(0.5, 0)
+    label.Position = UDim2.new(0.5, 0, 0, 18)
+    label.BackgroundTransparency = 0.25
+    label.BackgroundColor3 = Color3.fromRGB(10,10,10)
+    label.BorderSizePixel = 0
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 28
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.TextStrokeTransparency = 0.5
+    label.Text = "05:00"
+    label.Parent = hud
+end
+
+local function fmt(seconds:number): string
+    seconds = math.max(-1, math.floor(seconds))
+    if seconds < 0 then return "00:00" end
+    local m = math.floor(seconds / 60)
+    local s = seconds % 60
+    return string.format("%02d:%02d", m, s)
+end
+
+RoundTimerTick.OnClientEvent:Connect(function(remaining)
+    label.Text = fmt(remaining)
+end)
+
+print("[RB7_HUD Timer] ✅ aktiv (RoundTimerTick)")
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000869</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+				</Item>
+			</Item>
 		</Item>
 		<Item class="StarterCharacterScripts" referent="RBX8f7e9a5201a14a37bf76ba7572039866">
 			<Properties>
@@ -2579,6 +4195,18 @@ end
 				<BinaryString name="Tags"></BinaryString>
 				<UniqueId name="UniqueId">09618a79faec3cc608b8863a00000855</UniqueId>
 			</Properties>
+			<Item class="Folder" referent="RBX75c4b3b146944bf5b70960ae382a366a">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">src/ui</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008ba</UniqueId>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="LocalizationService" referent="RBX683ae9419b5443608dbeea9e854e4f31">
@@ -3532,6 +5160,675 @@ return W
 					<UniqueId name="UniqueId">09618a79faec3cc608b8863a0000082b</UniqueId>
 				</Properties>
 			</Item>
+			<Item class="Folder" referent="RBX6c233af23d254f73b5d446b5ede98987">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">src/shared</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000889</UniqueId>
+				</Properties>
+				<Item class="StringValue" referent="RBX703ce51dd4b74db59988db4fbcfe87f8">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">KEEP</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000088a</UniqueId>
+						<string name="Value"><![CDATA[KEEP SHARED
+]]></string>
+					</Properties>
+				</Item>
+				<Item class="Folder" referent="RBXaf276dcd2f7b48a587c8eb028666d92b">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">RB7</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000088b</UniqueId>
+					</Properties>
+					<Item class="Folder" referent="RBX285ec6925a9f48fa81b770d2c8937358">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Config</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000088c</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBX5efa1c2341b94427bae35d2eb3a2d28c">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Admins</string>
+								<string name="ScriptGuid">{c8cad772-d7cb-4fe2-a496-20012c9990bf}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- Admin-Allowlist: numerische IDs & Fallback über Username
+local Admins = {}
+
+Admins.IDs = {
+  [9195365111] = true,
+}
+
+Admins.Usernames = {
+  ["RorsTheGod"] = true,
+}
+
+function Admins.isAdmin(userId:number, playerName:string?)
+  if Admins.IDs[userId] then return true end
+  if playerName and Admins.Usernames[playerName] then return true end
+  return false
+end
+
+return Admins
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000088d</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBXff96fdf72df845fb92f763a23aff113b">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Env</string>
+								<string name="ScriptGuid">{ef5759f5-2b7d-4096-bb72-9e43b12d8004}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+local RunService = game:GetService("RunService")
+local Env = { NAME = RunService:IsStudio() and "dev" or "prod" }
+return Env
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000088e</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX3de06a6dc1c94afa97086d656802b6fc">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">FeatureFlags</string>
+								<string name="ScriptGuid">{6f9da007-3fb2-4901-8a70-53ec11787bba}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- Feature-Flags für inkrementelles Aktivieren/Deaktivieren
+local FF = {
+	UseLegacyUIBridge = true,
+	EnableRoundLoop   = true,
+}
+return FF
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000088f</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX7ef9f0a7140a4ef8aba747b5aaac711f">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Game</string>
+								<string name="ScriptGuid">{a7aca6d6-6c11-4836-a584-db5f208ae9a2}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- Zentrale Spiel-Config (nur Konstanten, kein Hardcode sonstwo)
+local GameConfig = {
+	ROUND_TIME_DEFAULT = 300, -- Sekunden
+	TARGET_SCORE       = 25,
+	RESPAWN_TIME       = 5,
+	FRIENDLY_FIRE      = false,
+}
+return GameConfig
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000890</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBXe6e8c04a5bb14e258307932ea6b20a2f">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">UITheme</string>
+								<string name="ScriptGuid">{b5b457e6-ee98-43d0-b7d0-ec3278925e4b}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- UI-Theming an einer Stelle (Farben/Fonts/Abstände)
+local Theme = {
+	Color = {
+		PanelBg = Color3.fromRGB(25, 25, 30),
+		Accent  = Color3.fromRGB(0, 170, 255),
+		Text    = Color3.fromRGB(230, 230, 235),
+	},
+	Font  = Enum.Font.GothamSemibold,
+	Pad   = 8,
+}
+return Theme
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000891</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBX52a0e8923e5f459e9dd44e2d97f6c9c3">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Constants</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000892</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBXfaa9ed64dcf04eb58bed93deef7eba0d">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Events</string>
+								<string name="ScriptGuid">{12ad95b8-5e19-46a6-9148-cf762b02feca}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- RB7: zentrale Event-Konstanten (stabile Schnittstelle)
+local Events = {
+	ROOT            = "Events",
+	VERSION         = "v1",
+
+	-- Core
+	PING            = "Ping",
+
+	-- Runden/Match
+	ROUND_START     = "RoundStart",
+	ROUND_ENDED     = "RoundEnded",
+	TIMER_TICK      = "TimerTick",
+
+	-- Profile
+	GET_PROFILE     = "GetProfile",
+	PROFILE_UPDATED = "ProfileUpdated",
+
+	-- Inputs (Client -> Server)
+	SET_ADS         = "SetADS",
+	SET_CROUCH      = "SetCrouchState",
+	RELOAD          = "ReloadEvent",
+
+	-- PlayerState
+	GET_STATE       = "GetState",
+	STATE_CHANGED   = "PlayerStateChanged",
+
+	-- Weapons
+	EQUIP_WEAPON    = "EquipWeapon",
+	SHOOT           = "ShootEvent",
+	AMMO_UPDATE     = "AmmoUpdated",
+	GET_LOADOUT     = "GetLoadout",
+
+	-- Admin / Diagnostics
+	GET_SERVER_STATS = "GetServerStats", -- RemoteFunction (C->S) -> { ok, data|error }
+}
+return Events
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000893</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX48f7e4e0b21d449c82f5b46899e34a53">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Limits</string>
+								<string name="ScriptGuid">{f8f832c2-54f0-4f4a-9bfa-4ec679954f92}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- Raten (tokens/sec) & Burst-Kapazität je RemoteEvent-NAME
+return {
+	["SetADS"]         = { cap = 8,  rate = 8  },
+	["SetCrouchState"] = { cap = 8,  rate = 8  },
+	["ReloadEvent"]    = { cap = 2,  rate = 1  },
+	["ShootEvent"]     = { cap = 12, rate = 10 },
+	["EquipWeapon"]    = { cap = 3,  rate = 2  },
+}
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000894</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBX6fd34cc3a19b4180b12ea4e0cfa67aeb">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Input</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000895</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBXf2d719fb34eb459eaee65b809cd49519">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Actions</string>
+								<string name="ScriptGuid">{9f9663d9-e9f2-4a92-83c0-9bb1737f637d}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- RB7 Input Actions (zentrale Bezeichner)
+local A = {
+	ADS_TOGGLE   = "ADS_TOGGLE",   -- Rechtsklick (toggle)
+	CROUCH_TOGGLE= "CROUCH_TOGGLE",-- Taste C (toggle)
+	RELOAD       = "RELOAD",       -- Taste R (impuls)
+}
+return A
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000896</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBX064341d3d96240b2b7399dbbbbb66e87">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Meta</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000897</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBX76175d37b76e48d18103f50bec204f34">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Build</string>
+								<string name="ScriptGuid">{411881f1-166c-403b-82d8-db63863a3781}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- Build-/Schema-Metadaten an einer Stelle
+local Build = {
+	Version     = "0.1.0",
+	SchemaMajor = 1,
+	SchemaName  = "Events_v1",
+}
+return Build
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000898</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="ModuleScript" referent="RBX5a097dda9a804f71aff3b44c432a9515">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Remotes</string>
+								<string name="ScriptGuid">{d40d8813-561a-4411-b562-66c9aa0420c6}</string>
+								<ProtectedString name="Source"><![CDATA[return {
+	remotes = {
+		AMMO_UPDATE = "AmmoUpdated",
+		EQUIP_WEAPON = "EquipWeapon",
+		GET_LOADOUT = "GetLoadout",
+		GET_PROFILE = "GetProfile",
+		GET_STATE = "GetState",
+		PING = "Ping",
+		PROFILE_UPDATED = "ProfileUpdated",
+		RELOAD = "ReloadEvent",
+		ROUND_ENDED = "RoundEnded",
+		ROUND_START = "RoundStart",
+		SET_ADS = "SetADS",
+		SET_CROUCH = "SetCrouchState",
+		SHOOT = "ShootEvent",
+		STATE_CHANGED = "PlayerStateChanged",
+		TIMER_TICK = "TimerTick",
+	},
+	version = "v1",
+}]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000899</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBX6b25bd378d52414285a2efa0cddb942a">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">State</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000089a</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBX7ba438de75a847448ad0f226ec4095bf">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">PlayerState</string>
+								<string name="ScriptGuid">{1063bc0d-5105-480a-bb53-12460a7e73a7}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+export type PlayerState = {
+	userId: number,
+	ads: boolean,
+	crouch: boolean,
+	ammo: number?,
+	updatedAt: number,
+}
+
+local S = {}
+function S.default(userId:number): PlayerState
+	return {
+		userId   = userId,
+		ads      = false,
+		crouch   = false,
+		ammo     = nil,     -- Platzhalter für Waffensystem
+		updatedAt= os.time(),
+	}
+end
+return S
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000089b</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBX4c80ac72b4e44c059d424dfb1f2b3d5d">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Types</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000089c</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBXb5e2cf2fcb464b54b6b66e57c1fd8eb8">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">PlayerProfile</string>
+								<string name="ScriptGuid">{316d213e-0935-435e-8533-722e0caca0b8}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+export type Profile = {
+	userId: number,
+	name: string,
+	xp: number,
+	rank: number,
+	createdAt: number,
+	updatedAt: number,
+}
+local T = {}
+function T.default(userId:number, name:string): Profile
+	return {
+		userId = userId,
+		name = name,
+		xp = 0,
+		rank = 1,
+		createdAt = os.time(),
+		updatedAt = os.time(),
+	}
+end
+return T
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000089d</UniqueId>
+							</Properties>
+						</Item>
+						<Item class="Folder" referent="RBXb3d1388db2a64918b41d983ccff197bd">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<string name="Name">RemoteSchema</string>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000089e</UniqueId>
+							</Properties>
+							<Item class="ModuleScript" referent="RBX1fc2298875a54aa1ab9b5e4dd38b0277">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Events_v1</string>
+									<string name="ScriptGuid">{06188d91-379f-4088-8320-f6d751c0b10a}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+-- Definiert erlaubte Payloads für Events/v1
+export type PingPayload       = { t: number }?           -- optional, falls leer gesendet
+export type TimerTickPayload  = { t: number }            -- verbleibende Zeit in s
+export type RoundStartPayload = { duration: number, endsAt: number }
+export type RoundEndedPayload = { reason: string }       -- z.B. "timeup", "score"
+
+local Schema = {}
+
+function Schema.IsPing(p:any): boolean
+	if p == nil then return true end
+	return type(p)=="table" and type(p.t)=="number"
+end
+
+function Schema.IsTimerTick(p:any): boolean
+	return type(p)=="table" and type(p.t)=="number"
+end
+
+function Schema.IsRoundStart(p:any): boolean
+	return type(p)=="table" and type(p.duration)=="number" and type(p.endsAt)=="number"
+end
+
+function Schema.IsRoundEnded(p:any): boolean
+	return type(p)=="table" and type(p.reason)=="string"
+end
+
+return Schema
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000089f</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBXadeb49634885491c94d9f1f6e5664786">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Inputs_v1</string>
+									<string name="ScriptGuid">{69a7113f-51ba-43cd-8f13-203be454922a}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local Inputs = {}
+
+function Inputs.IsSetADS(p:any): boolean
+	return type(p)=="table" and type(p.on)=="boolean"
+end
+function Inputs.IsSetCrouch(p:any): boolean
+	return type(p)=="table" and type(p.on)=="boolean"
+end
+function Inputs.IsReload(p:any): boolean
+	return p==nil or type(p)=="table"
+end
+
+return Inputs
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008a0</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX7109b035e40e426f8d99fae9966ad04a">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">State_v1</string>
+									<string name="ScriptGuid">{4351299d-5c58-447f-bb43-52f8a1c93e51}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local State = {}
+function State.IsStatePayload(p:any): boolean
+	return type(p)=="table"
+		and type(p.userId)=="number"
+		and type(p.state)=="table"
+end
+return State
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008a1</UniqueId>
+								</Properties>
+							</Item>
+							<Item class="ModuleScript" referent="RBX4e85ddef968f4796891eb06dd94270f4">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">Weapons_v1</string>
+									<string name="ScriptGuid">{ec13aa26-e114-4ddd-813b-52ebf6094f60}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+local S = {}
+function S.IsEquip(p:any): boolean
+	return type(p)=="table" and type(p.name)=="string"
+end
+function S.IsShoot(p:any): boolean
+	return type(p)=="table" and type(p.name)=="string"
+end
+function S.IsAmmoUpdate(p:any): boolean
+	return type(p)=="table" and type(p.name)=="string"
+		and type(p.mag)=="number" and type(p.reserve)=="number"
+end
+return S
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008a2</UniqueId>
+								</Properties>
+							</Item>
+						</Item>
+					</Item>
+					<Item class="Folder" referent="RBXb877974f3a2c4e27b66c425219593b39">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">Weapons</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008a3</UniqueId>
+						</Properties>
+						<Item class="ModuleScript" referent="RBXb7f26b877f334cd79e38e8ee3b9c8ae4">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">Config</string>
+								<string name="ScriptGuid">{c784f8d6-ee7b-4481-b070-ca039f9ef2a6}</string>
+								<ProtectedString name="Source"><![CDATA[--!strict
+-- Basiskonfig für Waffen (vereinfachtes Gerüst)
+local W = {}
+
+W.Weapons = {
+	FAMAS = { slot="Primary",  magSize=30, reserve=90, rpm=900, burst=false },
+	MP5   = { slot="Primary",  magSize=30, reserve=120, rpm=800, burst=false },
+	PISTOL= { slot="Secondary",magSize=15, reserve=45, rpm=450, burst=false },
+}
+
+W.DefaultLoadout = { Primary="FAMAS", Secondary="PISTOL" }
+
+return W
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008a4</UniqueId>
+							</Properties>
+						</Item>
+					</Item>
+				</Item>
+				<Item class="ModuleScript" referent="RBX2e4a28c388e7418fba4bc0f2b2f188a1">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_Init</string>
+						<string name="ScriptGuid">{4c6cad4b-3ddb-43b4-aced-357c027a395d}</string>
+						<ProtectedString name="Source"><![CDATA[return { ok=true }
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008a5</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX2fd62b1fb81a4a2f95a336a62bb909e8">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Types</string>
+						<string name="ScriptGuid">{895489a2-f173-4fa9-b466-f84c45345f1c}</string>
+						<ProtectedString name="Source"><![CDATA[-- shared
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008a6</UniqueId>
+					</Properties>
+				</Item>
+			</Item>
 		</Item>
 		<Item class="Folder" referent="RBX497f387801ea49339b1f1c68949bdd79">
 			<Properties>
@@ -3557,6 +5854,32 @@ return W
 					<string name="Value"><![CDATA[KEEP first
 ]]></string>
 				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXc815e56e5bba452c8e4d233506a758d2">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">src/first</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008c2</UniqueId>
+				</Properties>
+				<Item class="StringValue" referent="RBX4c1f0d61bdef4f57a300dfdadbc52325">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">KEEP</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008c3</UniqueId>
+						<string name="Value"><![CDATA[KEEP first
+]]></string>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 		<Item class="Folder" referent="RBX56e18131495440c68c25b6b33b8441d0">
@@ -4919,6 +7242,1277 @@ print("[RB7_EventsEnsure] ✅ Remotes unter ReplicatedStorage/Shared/Events/v1 v
 				</Properties>
 			</Item>
 		</Item>
+		<Item class="Folder" referent="RBX63489e0eb9d941958aed68cce8dd8f1f">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">Server</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000812</UniqueId>
+			</Properties>
+			<Item class="Script" referent="RBXb7fe16be6c5a426aadab0e40c0367c23">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">src/server</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{d738e4b0-849c-43d2-8b15-dd2ace2c66fc}</string>
+					<ProtectedString name="Source"><![CDATA[-- server
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000813</UniqueId>
+				</Properties>
+				<Item class="Script" referent="RBXce181973100341ecae564773a744ed7a">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Init</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{1a03965b-5ed2-4e4a-921a-8ee1e87842fe}</string>
+						<ProtectedString name="Source"><![CDATA[-- server
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000814</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="StringValue" referent="RBX6650cb1e81164cafa6f341fa235fc502">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">KEEP</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000815</UniqueId>
+						<string name="Value"><![CDATA[KEEP SERVER
+]]></string>
+					</Properties>
+				</Item>
+				<Item class="Folder" referent="RBX8dcf28c918ef4db293205ff7b48b7c2e">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Lib</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000816</UniqueId>
+					</Properties>
+					<Item class="ModuleScript" referent="RBX24f0fcb329e04ba08ffa9963a8ace276">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Logger</string>
+							<string name="ScriptGuid">{fed82f9a-5247-49bd-b027-b0d7b03e52af}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Env = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("Env"))
+local Logger = {}
+local function tag(l) return ("[RB7][%s] "):format(l) end
+function Logger.info(...) if Env.NAME=="dev" then print(tag("INFO"), ...) end end
+function Logger.warn(...) warn(tag("WARN"), ...) end
+function Logger.err(...) warn(tag("ERR"), ...) end
+return Logger
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000817</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBX9e2f74a72e604dc2b61ec235d09ed4f1">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RateLimiter</string>
+							<string name="ScriptGuid">{6a3449ee-ad81-411d-80ad-a0c5f4a5c0a6}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+-- Einfacher Token-Bucket pro (userId,key)
+local RateLimiter = {}
+local buckets:{[number]:{[string]:{t:number,tokens:number}}} = {}
+
+local function refill(b:{t:number,tokens:number}, now:number, rate:number, cap:number)
+	local elapsed = math.max(0, now - b.t)
+	b.tokens = math.min(cap, b.tokens + elapsed * rate)
+	b.t = now
+end
+
+function RateLimiter.check(userId:number, key:string, cap:number, rate:number): boolean
+	local u = buckets[userId]; if not u then u = {}; buckets[userId] = u end
+	local b = u[key]; local now = os.clock()
+	if not b then b = { t = now, tokens = cap }; u[key] = b end
+	refill(b, now, rate, cap)
+	if b.tokens >= 1 then b.tokens -= 1; return true end
+	return false
+end
+
+return RateLimiter
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000818</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Script" referent="RBXd9cf9584ff5444638684875aa9520c0f">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">R6V_TimerPublisher</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{4dee685f-2f81-49ef-92ab-564badb53ac7}</string>
+						<ProtectedString name="Source"><![CDATA[-- RB7: R6V_TimerPublisher (server) – sendet RoundTimerTick über Shared/Events/v1
+local RS = game:GetService("ReplicatedStorage")
+
+local function ensureFolder(parent, name)
+    local f = parent:FindFirstChild(name)
+    if not f then
+        f = Instance.new("Folder")
+        f.Name = name
+        f.Parent = parent
+    end
+    return f
+end
+
+local function ensureRemoteEvent(parent, name)
+    local ev = parent:FindFirstChild(name)
+    if not ev then
+        ev = Instance.new("RemoteEvent")
+        ev.Name = name
+        ev.Parent = parent
+    end
+    return ev
+end
+
+local Shared = ensureFolder(RS, "Shared")
+local Events = ensureFolder(Shared, "Events")
+local V1     = ensureFolder(Events, "v1")
+local TickEvent = ensureRemoteEvent(V1, "RoundTimerTick")
+
+local RoundTimeSeconds = 300
+local PublishEverySecs = 1
+
+local Flag = RS:FindFirstChild("_RB7_TimerPublisher_Running")
+if not Flag then
+    Flag = Instance.new("BoolValue")
+    Flag.Name = "_RB7_TimerPublisher_Running"
+    Flag.Parent = RS
+    Flag.Value = false
+end
+
+if not Flag.Value then
+    Flag.Value = true
+    task.spawn(function()
+        local remaining = RoundTimeSeconds
+        while remaining >= 0 do
+            pcall(function() TickEvent:FireAllClients(remaining) end)
+            task.wait(PublishEverySecs)
+            remaining -= PublishEverySecs
+        end
+        pcall(function() TickEvent:FireAllClients(-1) end)
+        Flag.Value = false
+    end)
+else
+    warn("[R6V_TimerPublisher] Läuft bereits – kein zweiter Loop gestartet.")
+end
+
+print("[R6V_TimerPublisher] ✅ aktiv – RoundTimerTick unter Shared/Events/v1")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000819</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX19eb96d260fb4f07b5abdc575fa68afe">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">R6V_UnlocksManager</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{bf19ae43-24b0-44be-8e8f-150b2809cb18}</string>
+						<ProtectedString name="Source"><![CDATA[--[[
+  RB7: R6V_UnlocksManager (server)
+  Fix: Verhindert "attempt to call a nil value" mit stabilem Tabellen-API
+       und __call-Guard. Stubs sind defensiv & idempotent.
+]]
+local Players           = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local UnlocksManager = {
+    _initialized = false,
+    _profiles = {},
+}
+
+function UnlocksManager.Init()
+    if UnlocksManager._initialized then return end
+    UnlocksManager._initialized = true
+
+    local Events = ReplicatedStorage:FindFirstChild("Events")
+    if Events then
+        local V1 = Events:FindFirstChild("v1")
+        if V1 then
+            local GrantXP = V1:FindFirstChild("GrantXP")
+            if GrantXP and GrantXP:IsA("RemoteEvent") then
+                GrantXP.OnServerEvent:Connect(function(plr, amount)
+                    if typeof(amount) ~= "number" then
+                        warn("[UnlocksManager] GrantXP: amount ungültig", amount)
+                        return
+                    end
+                    UnlocksManager:AddXP(plr, amount)
+                end)
+            end
+        end
+    end
+
+    Players.PlayerAdded:Connect(function(p)
+        UnlocksManager:_ensureProfile(p)
+    end)
+    Players.PlayerRemoving:Connect(function(p)
+        UnlocksManager._profiles[p] = nil
+    end)
+
+    print("[R6V_UnlocksManager] ✅ Init abgeschlossen")
+end
+
+function UnlocksManager:_ensureProfile(player)
+    self._profiles[player] = self._profiles[player] or { xp = 0, unlocks = {} }
+    return self._profiles[player]
+end
+
+function UnlocksManager:AddXP(player, amount)
+    local prof = self:_ensureProfile(player)
+    prof.xp = math.max(0, (prof.xp or 0) + amount)
+    return prof.xp
+end
+
+function UnlocksManager:HasUnlock(player, key)
+    local prof = self:_ensureProfile(player)
+    return prof.unlocks[key] == true
+end
+
+function UnlocksManager:GrantUnlock(player, key)
+    local prof = self:_ensureProfile(player)
+    prof.unlocks[key] = true
+    return true
+end
+
+setmetatable(UnlocksManager, {
+    __call = function(_, ...)
+        warn("[R6V_UnlocksManager] Hinweis: Script als Funktion aufgerufen – gebe Manager-Tabelle zurück.")
+        return UnlocksManager
+    end
+})
+
+UnlocksManager.Init()
+_G.RB7_UnlocksManager = UnlocksManager
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000081a</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX01b1b8bd02404fdeb2a69d20ce451fc3">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_Boot</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{123c3d3f-04d0-46b7-875e-638c12bb06c5}</string>
+						<ProtectedString name="Source"><![CDATA[print("RB7: Server boot ok")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000081b</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX78ff9766e8394d6c85f18fec4d923daa">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_EventsEnsure</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{ccb4e0a5-d3c5-4bde-ba01-8d9bce789aef}</string>
+						<ProtectedString name="Source"><![CDATA[-- RB7_EventsEnsure: vereinheitlicht Remotes unter ReplicatedStorage/Shared/Events/v1
+local RS = game:GetService("ReplicatedStorage")
+
+local function ensureFolder(parent, name)
+    local f = parent:FindFirstChild(name)
+    if not f then
+        f = Instance.new("Folder")
+        f.Name = name
+        f.Parent = parent
+    end
+    return f
+end
+
+local Shared  = ensureFolder(RS, "Shared")
+local Events  = ensureFolder(Shared, "Events")
+local V1      = ensureFolder(Events, "v1")
+
+local function ensureRemoteEvent(parent, name)
+    local ev = parent:FindFirstChild(name)
+    if not ev then
+        ev = Instance.new("RemoteEvent")
+        ev.Name = name
+        ev.Parent = parent
+    end
+    return ev
+end
+
+local function ensureRemoteFunction(parent, name)
+    local rf = parent:FindFirstChild(name)
+    if not rf then
+        rf = Instance.new("RemoteFunction")
+        rf.Name = name
+        rf.Parent = parent
+    end
+    return rf
+end
+
+-- Kern-Remotes, die UI/Services erwarten
+local neededEvents = {
+    "OpenMenu",
+    "RoundTimerTick",
+    "ReloadEvent",
+    "EquipWeapon",
+    "ShootEvent",
+}
+for _,n in ipairs(neededEvents) do
+    ensureRemoteEvent(V1, n)
+end
+
+-- Migration: falls noch altes 'ReplicatedStorage/Events/v1' existiert → Kinder nach Shared/Events/v1 verschieben
+do
+    local oldRoot = RS:FindFirstChild("Events")
+    if oldRoot and oldRoot:FindFirstChild("v1") then
+        local oldV1 = oldRoot.v1
+        for _,child in ipairs(oldV1:GetChildren()) do
+            if not V1:FindFirstChild(child.Name) then
+                child.Parent = V1
+            end
+        end
+        -- optional: alten Knoten bereinigen
+        oldRoot:Destroy()
+    end
+end
+
+print("[RB7_EventsEnsure] ✅ Remotes unter ReplicatedStorage/Shared/Events/v1 vereinheitlicht")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000081c</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX94aa6810901f4b8580f7f310095221a1">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_InputService</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{effef0dd-6f6d-4483-b9ca-31fe6c3e4221}</string>
+						<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Limits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Limits"))
+local InputsSchema = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Inputs_v1"))
+local RateLimiter = require(script.Parent:WaitForChild("Lib"):WaitForChild("RateLimiter"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRE(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+
+local RS     = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RE_SetADS    = ensureRE(EV, Events.SET_ADS)
+local RE_SetCrouch = ensureRE(EV, Events.SET_CROUCH)
+local RE_Reload    = ensureRE(EV, Events.RELOAD)
+
+local function allowed(uid:number, eventName:string): boolean
+	local lim = Limits[eventName]
+	if not lim then return true end
+	return RateLimiter.check(uid, eventName, lim.cap, lim.rate)
+end
+
+RE_SetADS.OnServerEvent:Connect(function(player, payload)
+	if not InputsSchema.IsSetADS(payload) then return end
+	if not allowed(player.UserId, Events.SET_ADS) then return end
+	-- (StateService setzt flags & broadcastet bereits)
+end)
+
+RE_SetCrouch.OnServerEvent:Connect(function(player, payload)
+	if not InputsSchema.IsSetCrouch(payload) then return end
+	if not allowed(player.UserId, Events.SET_CROUCH) then return end
+end)
+
+RE_Reload.OnServerEvent:Connect(function(player, payload)
+	if not InputsSchema.IsReload(payload) then return end
+	if not allowed(player.UserId, Events.RELOAD) then return end
+end)
+
+print("[RB7_InputService] ✅ mit Rate-Limiter aktiv")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000081d</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBXf2735f15a04946dc89da90d9d9faefc5">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_ProfileService</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{79434d94-b104-4eb2-ad70-af71dbfa232d}</string>
+						<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local ProfileTypes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("PlayerProfile"))
+-- Stores liegt unter ServerScriptService/Server/Stores → vom Skript aus: script.Parent:WaitForChild("Stores")
+local ProfileStore = require(script.Parent:WaitForChild("Stores"):WaitForChild("ProfileStore"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRemoteEvent(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+local function ensureRemoteFunction(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+-- Events-Struktur
+local RS = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RF_GetProfile = ensureRemoteFunction(EV, Events.GET_PROFILE)
+local RE_ProfileUpdated = ensureRemoteEvent(EV, Events.PROFILE_UPDATED)
+
+RF_GetProfile.OnServerInvoke = function(player)
+	local prof = ProfileStore.get(player.UserId, player.Name)
+	return prof
+end
+
+Players.PlayerAdded:Connect(function(plr)
+	local prof = ProfileStore.get(plr.UserId, plr.Name)
+	RE_ProfileUpdated:FireClient(plr, prof)
+end)
+
+print("[RB7_ProfileService] ✅ Profile RF/RE aktiv")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000081e</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX3e7449865c92491282e7fa08cb087e37">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_RoundController</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{2545ec1d-7c41-47ea-b955-d019f8a2bbe9}</string>
+						<ProtectedString name="Source"><![CDATA[--!strict
+-- RB7_RoundController: Minimaler Rundenloop mit Timer (verwendet Game-Config)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local EventsConst = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("Game"))
+local Schema     = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Events_v1"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRemoteEvent(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+
+local RSShared = ensureFolder(ReplicatedStorage, "Shared")
+local ERoot    = ensureFolder(RSShared, EventsConst.ROOT)
+local EV       = ensureFolder(ERoot, EventsConst.VERSION)
+
+local E_RoundStart = ensureRemoteEvent(EV, EventsConst.ROUND_START)
+local E_RoundEnded = ensureRemoteEvent(EV, EventsConst.ROUND_ENDED)
+local E_TimerTick  = ensureRemoteEvent(EV, EventsConst.TIMER_TICK)
+
+local roundActive = false
+local roundEndsAt = 0
+
+local function broadcastTick(remain: number)
+	local payload = { t = remain }
+	if Schema.IsTimerTick(payload) then
+		E_TimerTick:FireAllClients(payload)
+	end
+end
+
+local function endRound()
+	if not roundActive then return end
+	roundActive = false
+	E_RoundEnded:FireAllClients({ reason = "timeup" })
+	print("[RB7_RoundController] ⏹ Runde ENDE (reason=timeup)")
+end
+
+local function startRound(duration: number?)
+	if roundActive then endRound() end
+	local dur = typeof(duration) == "number" and duration or GameConfig.ROUND_TIME_DEFAULT
+	roundActive = true
+	roundEndsAt = os.time() + dur
+	E_RoundStart:FireAllClients({ duration = dur, endsAt = roundEndsAt })
+	print(("[RB7_RoundController] ▶ Runde START (dauer=%ds)"):format(dur))
+	task.spawn(function()
+		while roundActive do
+			local remain = math.max(0, roundEndsAt - os.time())
+			broadcastTick(remain)
+			if remain <= 0 then endRound() break end
+			task.wait(1)
+		end
+	end)
+end
+
+local firstPlayerJoined = false
+game:GetService("Players").PlayerAdded:Connect(function(_)
+	if not firstPlayerJoined then
+		firstPlayerJoined = true
+		task.delay(2, function() startRound(GameConfig.ROUND_TIME_DEFAULT) end)
+	end
+end)
+if #Players:GetPlayers() > 0 then
+	task.delay(1, function() startRound(GameConfig.ROUND_TIME_DEFAULT) end)
+end
+
+print("[RB7_RoundController] ✅ bereit (Config-gestützt)")
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a5740000081f</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Script" referent="RBX2d4e09ecf916402080866293321a737a">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">RB7_ServerMain</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{419583f4-5ca6-4d8c-bd41-2d679ac82903}</string>
+						<ProtectedString name="Source"><![CDATA[--!strict
+-- RB7_ServerMain: Stellt Remotes bereit und validiert eingehende Payloads
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players           = game:GetService("Players")
+
+local Build  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Meta"):WaitForChild("Build"))
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Schema = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Events_v1"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRemoteEvent(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+
+-- Pfad: ReplicatedStorage/Shared/Events/v1
+local Shared = ensureFolder(ReplicatedStorage, "Shared")
+local EventsRoot = ensureFolder(Shared, Events.ROOT)
+local V = ensureFolder(EventsRoot, Events.VERSION)
+
+local Ping = ensureRemoteEvent(V, Events.PING)
+
+Ping.OnServerEvent:Connect(function(player: Player, payload)
+	if not Schema.IsPing(payload) then
+		warn(string.format("[RB7][Ping][SchemaError] Spieler=%s payload invalid", player.Name))
+		return
+	end
+	print(string.format("[RB7][Ping] from %s ok", player.Name))
+end)
+
+print(("[RB7_ServerMain] ✅ Remotes bereit unter ReplicatedStorage/Shared/Events/%s • Build %s (Schema=%s)")
+	:format(Events.VERSION, Build.Version, Build.SchemaName))
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000820</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="Folder" referent="RBXd4c3c731813342a081fc4d8dd0943708">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Services</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000821</UniqueId>
+					</Properties>
+					<Item class="Script" referent="RBX42d9ecfeda3f42fb89d2d3fb9735c821">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">AdminService</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{b05dab4f-ec16-4205-a643-61887e9bf33c}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Env    = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("Env"))
+local Build  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Meta"):WaitForChild("Build"))
+local Admins = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("Admins"))
+
+local START = os.clock()
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRF(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+local RS     = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RF_GetServerStats = ensureRF(EV, Events.GET_SERVER_STATS)
+
+local lastCall:{[number]:number} = {}
+
+local function makeStats()
+	local players = #Players:GetPlayers()
+	local uptime  = math.floor(os.clock() - START)
+	return {
+		env     = Env.NAME,
+		build   = Build.Version,
+		players = players,
+		uptime  = uptime,
+	}
+end
+
+RF_GetServerStats.OnServerInvoke = function(player)
+	if not Admins.isAdmin(player.UserId, player.Name) then
+		return { ok=false, error="forbidden" }
+	end
+	local now = os.clock()
+	local prev = lastCall[player.UserId] or 0
+	if now - prev < 3 then
+		return { ok=false, error="rate_limited" }
+	end
+	lastCall[player.UserId] = now
+	return { ok=true, data=makeStats() }
+end
+
+print("[RB7_AdminService] ✅ GetServerStats aktiv (RBAC + RateLimit)")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000822</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="Script" referent="RBX6a64ab5133fc4faaaccd4c8e8ecfbfdd">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">StateService</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{2108bb65-c074-45ce-8a0d-a9a485f092a8}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local STypes  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("State"):WaitForChild("PlayerState"))
+local StateSchema = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("State_v1"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRE(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+local function ensureRF(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+-- Events-Struktur
+local RS = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+-- Eingangs-Events (vom Client)
+local RE_SetADS    = ensureRE(EV, Events.SET_ADS)
+local RE_SetCrouch = ensureRE(EV, Events.SET_CROUCH)
+local RE_Reload    = ensureRE(EV, Events.RELOAD)
+
+-- State-Schnittstellen (Server -> Client, Client -> Server)
+local RE_StateChanged = ensureRE(EV, Events.STATE_CHANGED)
+local RF_GetState     = ensureRF(EV, Events.GET_STATE)
+
+-- interner Cache
+local cache: {[number]: any} = {}
+
+local function getOrCreate(uid:number)
+	local st = cache[uid]
+	if not st then
+		st = STypes.default(uid)
+		cache[uid] = st
+	end
+	return st
+end
+
+local function syncToClient(uid:number)
+	local st = cache[uid]; if not st then return end
+	local payload = { userId = uid, state = st }
+	if StateSchema.IsStatePayload(payload) then
+		RE_StateChanged:FireAllClients(payload)
+	end
+end
+
+-- RemoteFunction: Client fragt aktuellen eigenen Zustand ab
+RF_GetState.OnServerInvoke = function(player)
+	return getOrCreate(player.UserId)
+end
+
+-- Input-Events: Zustand setzen + syncen
+RE_SetADS.OnServerEvent:Connect(function(player, payload)
+	if type(payload)=="table" and type(payload.on)=="boolean" then
+		local st = getOrCreate(player.UserId)
+		st.ads = payload.on
+		st.updatedAt = os.time()
+		syncToClient(player.UserId)
+	end
+end)
+
+RE_SetCrouch.OnServerEvent:Connect(function(player, payload)
+	if type(payload)=="table" and type(payload.on)=="boolean" then
+		local st = getOrCreate(player.UserId)
+		st.crouch = payload.on
+		st.updatedAt = os.time()
+		syncToClient(player.UserId)
+	end
+end)
+
+RE_Reload.OnServerEvent:Connect(function(player, _)
+	-- Platzhalter: Hier später Munition prüfen/setzen
+	local st = getOrCreate(player.UserId)
+	st.updatedAt = os.time()
+	syncToClient(player.UserId)
+end)
+
+-- Lifecycle
+Players.PlayerAdded:Connect(function(plr)
+	getOrCreate(plr.UserId)
+	syncToClient(plr.UserId)
+end)
+Players.PlayerRemoving:Connect(function(plr)
+	cache[plr.UserId] = nil
+end)
+
+print("[RB7_StateService] ✅ PlayerState aktiv (ADS/Crouch/Reload Hooks)")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000823</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="Script" referent="RBX17ee42b02a424cedb11f6f0ecdea27b4">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Telemetry</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{df0ea3c4-24d4-4d79-9241-2448d166699f}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Logger = require(script.Parent.Parent:WaitForChild("Lib"):WaitForChild("Logger"))
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local RS = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+-- Wir hängen uns nur LESEND an RemoteEvents (keine Logikänderung)
+local EVENT_NAMES = {
+	Events.SET_ADS,
+	Events.SET_CROUCH,
+	Events.RELOAD,
+	Events.EQUIP_WEAPON,
+	Events.SHOOT,
+}
+
+local counters : {[string]: number} = {}
+local perUser  : {[number]: {[string]: number}} = {}
+
+local function inc(name:string, uid:number)
+	counters[name] = (counters[name] or 0) + 1
+	local u = perUser[uid]; if not u then u = {}; perUser[uid] = u end
+	u[name] = (u[name] or 0) + 1
+end
+
+local function tryConnect(evName:string)
+	local ok, inst = pcall(function() return EV:WaitForChild(evName, 1) end)
+	if ok and inst and inst:IsA("RemoteEvent") then
+		(inst :: RemoteEvent).OnServerEvent:Connect(function(player: Player, _payload)
+			inc(evName, player.UserId)
+		end)
+		Logger.info("Telemetry hooked:", evName)
+	else
+		Logger.warn("Telemetry miss: RemoteEvent nicht gefunden:", tostring(evName))
+	end
+end
+
+for _,n in ipairs(EVENT_NAMES) do
+	if typeof(n)=="string" then tryConnect(n) end
+end
+
+-- alle 60s kurze Zusammenfassung (nur dev)
+task.spawn(function()
+	while true do
+		task.wait(60)
+		Logger.info("Telemetry snapshot:", counters)
+	end
+end)
+
+print("[RB7_Telemetry] ✅ aktiv (RemoteEvent-Counter, read-only)")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000824</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="Script" referent="RBX76c788ebbd724435bd99ffede929d1ea">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">WeaponsService</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{ef1d292e-a449-46a3-ad82-fb8a07d5981f}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events   = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Limits   = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Limits"))
+local WConfig  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Weapons"):WaitForChild("Config"))
+local WSchema  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Weapons_v1"))
+local RateLimiter = require(script.Parent.Parent:WaitForChild("Lib"):WaitForChild("RateLimiter"))
+local LoadoutStore = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("LoadoutStore"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRE(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+local function ensureRF(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+local RS     = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RE_Equip      = ensureRE(EV, Events.EQUIP_WEAPON)
+local RE_Shoot      = ensureRE(EV, Events.SHOOT)
+local RE_Reload     = ensureRE(EV, Events.RELOAD)
+local RE_AmmoUp     = ensureRE(EV, Events.AMMO_UPDATE)
+local RF_GetLoadout = ensureRF(EV, Events.GET_LOADOUT)
+
+type AmmoState = { [string]: { mag:number, reserve:number } }
+local ammoCache: {[number]: AmmoState} = {}
+local equipped:  {[number]: string}    = {}
+
+local function cloneAmmoState(src: AmmoState): AmmoState
+	local t: AmmoState = {}
+	for k,v in pairs(src) do t[k] = { mag = v.mag, reserve = v.reserve } end
+	return t
+end
+
+local function initDefaults(): AmmoState
+	local a:AmmoState = {}
+	for name,cfg in pairs(WConfig.Weapons) do
+		a[name] = { mag = cfg.magSize, reserve = cfg.reserve }
+	end
+	return a
+end
+
+local function initPlayer(uid:number)
+	if ammoCache[uid] then return end
+	local saved = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("LoadoutStore")).get(uid)
+	if typeof(saved)=="table" then
+		ammoCache[uid] = {}
+		local defaults = initDefaults()
+		for name,cfg in pairs(WConfig.Weapons) do
+			local s = (saved.ammo and saved.ammo[name]) or defaults[name]
+			ammoCache[uid][name] = { mag = s.mag, reserve = s.reserve }
+		end
+		equipped[uid] = saved.equipped or WConfig.DefaultLoadout.Primary
+	else
+		ammoCache[uid] = initDefaults()
+		equipped[uid] = WConfig.DefaultLoadout.Primary
+	end
+end
+
+local function persist(uid:number)
+	local data = { equipped = equipped[uid], ammo = ammoCache[uid] and cloneAmmoState(ammoCache[uid]) or nil }
+	LoadoutStore.set(uid, data)
+end
+
+local function sendAmmo(player: Player, name:string)
+	local a = ammoCache[player.UserId]
+	if not a or not a[name] then return end
+	local payload = { name=name, mag=a[name].mag, reserve=a[name].reserve }
+	if WSchema.IsAmmoUpdate(payload) then RE_AmmoUp:FireClient(player, payload) end
+end
+
+local function allowed(uid:number, eventName:string): boolean
+	local lim = Limits[eventName]
+	if not lim then return true end
+	return RateLimiter.check(uid, eventName, lim.cap, lim.rate)
+end
+
+RF_GetLoadout.OnServerInvoke = function(player)
+	initPlayer(player.UserId)
+	return { Primary = WConfig.DefaultLoadout.Primary, Secondary = WConfig.DefaultLoadout.Secondary, Equipped = equipped[player.UserId] }
+end
+
+RE_Equip.OnServerEvent:Connect(function(player, payload)
+	if not WSchema.IsEquip(payload) then return end
+	if not allowed(player.UserId, Events.EQUIP_WEAPON) then return end
+	initPlayer(player.UserId)
+	local name = payload.name
+	if WConfig.Weapons[name] then
+		equipped[player.UserId] = name
+		sendAmmo(player, name)
+		persist(player.UserId)
+	end
+end)
+
+RE_Shoot.OnServerEvent:Connect(function(player, payload)
+	if not WSchema.IsShoot(payload) then return end
+	if not allowed(player.UserId, Events.SHOOT) then return end
+	initPlayer(player.UserId)
+	local name = payload.name
+	local a = ammoCache[player.UserId]; if not a or not a[name] then return end
+	if a[name].mag > 0 then
+		a[name].mag -= 1
+		sendAmmo(player, name)
+		persist(player.UserId)
+	end
+end)
+
+RE_Reload.OnServerEvent:Connect(function(player, _)
+	if not allowed(player.UserId, Events.RELOAD) then return end
+	initPlayer(player.UserId)
+	local curr = equipped[player.UserId]; if not curr then return end
+	local cfg = WConfig.Weapons[curr]; if not cfg then return end
+	local a = ammoCache[player.UserId][curr]; if not a then return end
+	local needed = cfg.magSize - a.mag
+	if needed > 0 and a.reserve > 0 then
+		local take = math.min(needed, a.reserve)
+		a.mag += take
+		a.reserve -= take
+		sendAmmo(player, curr)
+		persist(player.UserId)
+	end
+end)
+
+Players.PlayerAdded:Connect(function(plr)
+	initPlayer(plr.UserId)
+	task.defer(function() sendAmmo(plr, equipped[plr.UserId]) end)
+end)
+Players.PlayerRemoving:Connect(function(plr)
+	if ammoCache[plr.UserId] or equipped[plr.UserId] then persist(plr.UserId) end
+	ammoCache[plr.UserId] = nil; equipped[plr.UserId] = nil
+end)
+
+print("[RB7_WeaponsService] ✅ aktiv (mit Rate-Limiter)")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000825</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Folder" referent="RBX63410e876a9d4c1aaa21a3daee5a87db">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Stores</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000826</UniqueId>
+					</Properties>
+					<Item class="ModuleScript" referent="RBXd95051f23ecc4083afc24caa4765fef1">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">DataStoreAdapter</string>
+							<string name="ScriptGuid">{e3c8b9e5-6cef-4a0a-800f-4ca3d06396e4}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local RunService = game:GetService("RunService")
+local DataStoreService = game:GetService("DataStoreService")
+local inStudio = RunService:IsStudio()
+local Store = {}
+local mem:any = {}
+
+function Store.getStore(name:string)
+	if inStudio then
+		mem[name] = mem[name] or {}
+		local ns = mem[name]
+		return {
+			GetAsync = function(_, key:string) return ns[key] end,
+			SetAsync = function(_, key:string, value:any) ns[key]=value return true end,
+		}
+	else
+		local ds = DataStoreService:GetDataStore(name)
+		return {
+			GetAsync = function(_, key:string) return ds:GetAsync(key) end,
+			SetAsync = function(_, key:string, value:any) return ds:SetAsync(key, value) end,
+		}
+	end
+end
+
+return Store
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000827</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBXfe93a156242140a59b8a31b705ed7b76">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">LoadoutStore</string>
+							<string name="ScriptGuid">{51b92eae-2b70-4910-94f9-e8f23f12748f}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local DataStoreService = game:GetService("DataStoreService")
+local RunService = game:GetService("RunService")
+local inStudio = RunService:IsStudio()
+
+local Adapter = require(script.Parent:WaitForChild("DataStoreAdapter"))
+
+export type SaveData = {
+	equipped: string?,
+	ammo: { [string]: { mag:number, reserve:number } }?,
+}
+
+local Store = {}
+local ds = Adapter.getStore("RB7_LoadoutAmmo")
+
+function Store.get(userId:number): SaveData?
+	local key = tostring(userId)
+	local ok, result = pcall(function() return ds:GetAsync(key) end)
+	if ok then return result else warn("[LoadoutStore:Get] "..tostring(result)); return nil end
+end
+
+function Store.set(userId:number, data:SaveData)
+	local key = tostring(userId)
+	local ok, err = pcall(function() return ds:SetAsync(key, data) end)
+	if not ok then warn("[LoadoutStore:Set] "..tostring(err)) end
+end
+
+return Store
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000828</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBXe4c1c6ced28b46f3b4552149e64d643f">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">ProfileStore</string>
+							<string name="ScriptGuid">{b67a99d9-8d7f-4072-a436-e86377ef1cc2}</string>
+							<ProtectedString name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local DataStore = require(script.Parent:WaitForChild("DataStoreAdapter"))
+local ProfileTypes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("PlayerProfile"))
+
+local store = DataStore.getStore("RB7_PlayerProfiles")
+local cache:{[number]:ProfileTypes.Profile} = {}
+
+local ProfileStore = {}
+
+function ProfileStore.get(userId:number, name:string?): ProfileTypes.Profile
+	local p = cache[userId]
+	if p then return p end
+	local key = tostring(userId)
+	local data = store:GetAsync(key)
+	if typeof(data)=="table" and data.userId == userId then
+		cache[userId]=data; return data
+	end
+	local fresh = ProfileTypes.default(userId, name or ("User"..userId))
+	cache[userId]=fresh
+	store:SetAsync(key, fresh)
+	return fresh
+end
+
+function ProfileStore.save(userId:number)
+	local p = cache[userId]; if not p then return end
+	p.updatedAt = os.time()
+	store:SetAsync(tostring(userId), p)
+end
+
+function ProfileStore.addXp(userId:number, amount:number)
+	local p = ProfileStore.get(userId)
+	p.xp = math.max(0, (p.xp or 0) + amount)
+	ProfileStore.save(userId)
+	return p
+end
+
+Players.PlayerRemoving:Connect(function(plr)
+	ProfileStore.save(plr.UserId)
+end)
+
+return ProfileStore
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000829</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+			</Item>
+		</Item>
 	</Item>
 	<Item class="ServerStorage" referent="RBXdd9d3be0b26a44d0802d0833c1c4851f">
 		<Properties>
@@ -4986,6 +8580,32 @@ print("[RB7_EventsEnsure] ✅ Remotes unter ReplicatedStorage/Shared/Events/v1 v
 ]]></string>
 				</Properties>
 			</Item>
+			<Item class="Folder" referent="RBXcf05b7be57104a9aaf83c5705ec192ac">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">src/storage</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008c0</UniqueId>
+				</Properties>
+				<Item class="StringValue" referent="RBX91cb9fa0666c4256be4e9f05b2f394b3">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">KEEP</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008c1</UniqueId>
+						<string name="Value"><![CDATA[KEEP storage
+]]></string>
+					</Properties>
+				</Item>
+			</Item>
 		</Item>
 		<Item class="Folder" referent="RBXba05d6ebdade4e4bae09af3241387bef">
 			<Properties>
@@ -5050,6 +8670,60 @@ print("[RB7_EventsEnsure] ✅ Remotes unter ReplicatedStorage/Shared/Events/v1 v
 						<BinaryString name="Tags"></BinaryString>
 						<UniqueId name="UniqueId">428391ff8d622ca408b89b05000007fd</UniqueId>
 					</Properties>
+				</Item>
+				<Item class="Folder" referent="RBX2cf9556122b649c39535da4e6e558b23">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">src/sec</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008bb</UniqueId>
+					</Properties>
+					<Item class="StringValue" referent="RBXafe5684dd0aa4bf6afa73945cfd4ae7c">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">KEEP</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008bc</UniqueId>
+							<string name="Value"><![CDATA[KEEP SEC
+]]></string>
+						</Properties>
+					</Item>
+					<Item class="ModuleScript" referent="RBX6d3ca37961924bd4b7e5428c5b72ebb4">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">README</string>
+							<string name="ScriptGuid">{bd2b02b0-25b1-4638-931d-894e102c86fb}</string>
+							<ProtectedString name="Source"><![CDATA[-- sec
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008bd</UniqueId>
+						</Properties>
+					</Item>
+					<Item class="Folder" referent="RBX8c8beb2d89f2475d8d23f477a0a777c6">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<string name="Name">legacy</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">09b629f03a4d41d308b8a574000008be</UniqueId>
+						</Properties>
+					</Item>
 				</Item>
 			</Item>
 		</Item>
