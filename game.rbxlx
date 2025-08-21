@@ -3631,6 +3631,24 @@ return M
 									<UniqueId name="UniqueId">09b629f03a4d41d308b8a57400000867</UniqueId>
 								</Properties>
 							</Item>
+							<Item class="ModuleScript" referent="RBXfefad787fb124fb3938e213f5ba7801f">
+								<Properties>
+									<BinaryString name="AttributesSerialize"></BinaryString>
+									<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+									<bool name="DefinesCapabilities">false</bool>
+									<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+									<Content name="LinkedSource"><null></null></Content>
+									<string name="Name">components</string>
+									<string name="ScriptGuid">{25b73702-f85d-497e-9cc2-22b0a28cfb47}</string>
+									<ProtectedString name="Source"><![CDATA[--!strict
+-- Legacy components module – exportiert neue Components
+return require(script.Parent.Parent:WaitForChild("Components"):WaitForChild("init"))
+]]></ProtectedString>
+									<int64 name="SourceAssetId">-1</int64>
+									<BinaryString name="Tags"></BinaryString>
+									<UniqueId name="UniqueId">3f8cd3780ca2845308b8a8f900000862</UniqueId>
+								</Properties>
+							</Item>
 						</Item>
 						<Item class="Folder" referent="RBXcef29a2983d84e2b8d46bcab5e4145bf">
 							<Properties>
@@ -4086,7 +4104,7 @@ return M
 								<string name="Name">App</string>
 								<string name="ScriptGuid">{034070ca-523d-403e-848a-dc01c918fc06}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
--- UI/App.lua – kleines HUD + Event-Wireup (fix: require ModuleScript, nicht den Folder)
+-- UI/App.lua – kleines HUD + Event-Wireup (robust: sucht Components-Module im Ordner)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local plr = Players.LocalPlayer
@@ -4095,18 +4113,15 @@ local pg = plr:WaitForChild("PlayerGui")
 local componentsFolder = script.Parent:FindFirstChild("Components")
 assert(componentsFolder ~= nil, "[UI/App] Components Ordner fehlt")
 
--- Suche explizit das ModuleScript (z. B. "init")
 local compModule: ModuleScript? =
 	componentsFolder:FindFirstChild("init") :: ModuleScript?
-		or componentsFolder:FindFirstChild("Components") :: ModuleScript?
-		or componentsFolder:FindFirstChildWhichIsA("ModuleScript") :: ModuleScript?
-
+	or componentsFolder:FindFirstChild("Components") :: ModuleScript?
+	or componentsFolder:FindFirstChildWhichIsA("ModuleScript") :: ModuleScript?
 assert(compModule ~= nil, "[UI/App] Components ModuleScript fehlt (erwarte init.lua)")
 
 local Components = require(compModule)
 
-local EventsFolder = ReplicatedStorage:WaitForChild("Events")
-local v1 = EventsFolder:WaitForChild("v1")
+local v1 = ReplicatedStorage:WaitForChild("Events"):WaitForChild("v1")
 local RoundTimeUpdated = v1:WaitForChild("RoundTimeUpdated")
 local RoundStateChanged = v1:WaitForChild("RoundStateChanged")
 
@@ -4132,7 +4147,6 @@ function App.mount()
 	timeLabel = Components.MakeLabel({Name="Timer", Text="Time: —", Size=UDim2.fromScale(1,0.45), Position=UDim2.new(0,0,0.5,0)})
 	timeLabel.Parent = panel
 
-	-- Event Wiring
 	RoundTimeUpdated.OnClientEvent:Connect(function(remaining: number)
 		if timeLabel then timeLabel.Text = ("Time: %ds"):format(tonumber(remaining) or -1) end
 	end)
@@ -4163,7 +4177,6 @@ return App
 								<token name="RunContext">0</token>
 								<string name="ScriptGuid">{3b576248-3ed8-4767-b11e-df680ebf8e8a}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
--- Prüft, ob Components-Ordner und ein ModuleScript (z. B. init) existieren
 local folder = script.Parent:FindFirstChild("Components")
 local mod = folder and folder:FindFirstChildWhichIsA("ModuleScript")
 if folder and mod then
@@ -4189,13 +4202,14 @@ end
 								<token name="RunContext">0</token>
 								<string name="ScriptGuid">{bfe797bc-2c5c-4158-a3fe-117f40e01327}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
--- UI/Boot.client.lua – lädt App und mountet
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-
+-- UI/Boot.client.lua – lädt App und mountet (mit sauberem Fehlerlog)
 local App = require(script.Parent:WaitForChild("App"))
-App.mount()
+local ok, res = pcall(function() return App.mount() end)
+if ok then
+	print("[RB7_UI] App initialisiert.")
+else
+	warn("[RB7_UI] App-Start fehlgeschlagen:", res)
+end
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
 								<BinaryString name="Tags"></BinaryString>
@@ -4214,29 +4228,13 @@ App.mount()
 								<token name="RunContext">0</token>
 								<string name="ScriptGuid">{47ae1e96-df38-4572-b146-555257c6a7ae}</string>
 								<ProtectedString name="Source"><![CDATA[--!strict
--- UI/screens.client.lua – Legacy-Bridge
--- Stellt `script.components` als ModuleScript bereit, das die neuen UI/Components exportiert.
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local function ensureModule(name: string): ModuleScript
-	local m = script:FindFirstChild(name)
-	if m and m:IsA("ModuleScript") then return m end
-	m = Instance.new("ModuleScript")
-	m.Name = name
-	m.Source = "-- legacy components shim\nreturn require(script.Parent:WaitForChild(\"Components\"):WaitForChild(\"init\"))"
-	m.Parent = script
-	return m
-end
-
--- Stelle script.components als ModuleScript zur Verfügung
-local shim = ensureModule("components")
-
--- Optional: kleine Probe, ob require funktioniert
-local ok, res = pcall(function() return require(shim) end)
+-- Legacy screens-loader: delegiert auf App
+local App = require(script.Parent:WaitForChild("App"))
+local ok, res = pcall(function() return App.mount() end)
 if ok then
-	print("[RB7_UI LegacyBridge] ✅ script.components verfügbar")
+	print("[RB7_UI Legacy] ✅ App mounted via screens")
 else
-	warn("[RB7_UI LegacyBridge] ⚠️ require(script.components) fehlgeschlagen:", res)
+	warn("[RB7_UI Legacy] ⚠️ mount fail:", res)
 end
 ]]></ProtectedString>
 								<int64 name="SourceAssetId">-1</int64>
@@ -4789,6 +4787,20 @@ if ok then print("[RoundState] initial:", state) end
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc60000036a</UniqueId>
+		</Properties>
+	</Item>
+	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ServiceVisibilityService</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
+			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
 		</Properties>
 	</Item>
 	<Item class="LuaWebService" referent="RBX0bd9fb073d5a4c3fbd338cd9ba9f8a31">
@@ -9426,20 +9438,6 @@ setState("LOBBY")
 				</Item>
 			</Item>
 		</Item>
-	</Item>
-	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
-		<Properties>
-			<BinaryString name="AttributesSerialize"></BinaryString>
-			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-			<bool name="DefinesCapabilities">false</bool>
-			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
-			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-			<string name="Name">ServiceVisibilityService</string>
-			<int64 name="SourceAssetId">-1</int64>
-			<BinaryString name="Tags"></BinaryString>
-			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
-			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
-		</Properties>
 	</Item>
 	<Item class="HttpService" referent="RBX72b3f63027f74575baffedc240a79583">
 		<Properties>
