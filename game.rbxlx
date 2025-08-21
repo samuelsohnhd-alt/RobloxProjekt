@@ -1929,6 +1929,134 @@ end)
 						<UniqueId name="UniqueId">554a495676481a8908b89a9100000812</UniqueId>
 					</Properties>
 				</Item>
+				<Item class="Folder" referent="RBXd73e97e1d2cd4839a35ca9e1096345b8">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Client</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">354ed2d07964e88708b89cf3000007fd</UniqueId>
+					</Properties>
+					<Item class="LocalScript" referent="RBX0b35994c28b146bf9c525a108cd4437a">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_UI</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{2ae29f6c-b9c2-494a-8515-af5df8d6b433}</string>
+							<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local player  = Players.LocalPlayer
+
+-- Doppelstart-Schutz (gemeinsamer Guard für alle UI-Entrypoints)
+if _G.RB7_UI_BOOTED then
+    warn("[RB7_UI Stub] bereits geladen – überspringe.")
+    return
+end
+_G.RB7_UI_BOOTED = true
+
+print("[RB7_UI Stub] delegiere auf UI/screens …")
+
+-- Unabhängig vom Ort: greife immer auf PlayerScripts/UI/screens zu
+local ps = player:WaitForChild("PlayerScripts")
+local ui = ps:WaitForChild("UI")
+local screensMod = ui:WaitForChild("screens")
+local Screens = require(screensMod)
+
+Screens.boot({
+    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
+})
+
+print("[RB7_UI Stub] done.")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">354ed2d07964e88708b89cf3000007fe</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Folder" referent="RBX6a57d2445e6e489297270e8f534ba645">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Debug</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">354ed2d07964e88708b89cf300000801</UniqueId>
+					</Properties>
+					<Item class="LocalScript" referent="RBX7175f092e8484c4b9a4dc7caa646613d">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">RB7_UIMonitor</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{bee7e090-2b96-4214-a09c-cd2771387c9b}</string>
+							<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local plr = Players.LocalPlayer
+
+local function full(n)
+    local ok, path = pcall(function() return n:GetFullName() end)
+    return ok and path or (n.Name .. " (?)")
+end
+
+local function onFound(node, origin)
+    local msg = ("[RB7_UIMonitor] RB7_UI entdeckt (%s): %s"):format(origin, full(node))
+    print(msg)
+    -- Doppelstart-Schutz erzwingen
+    if _G.RB7_UI_BOOTED then
+        -- Falls jemand noch eine Kopie startet, sofort deaktivieren
+        local ok = pcall(function()
+            if node:IsA("LocalScript") then
+                if node:FindFirstChild("screens") then
+                    -- sehr wahrscheinlich legacy
+                    print("[RB7_UIMonitor] deaktiviere vermutetes Legacy-Script.")
+                end
+                -- LocalScript hat die Eigenschaft Enabled
+                node.Enabled = false
+            end
+        end)
+        if not ok then
+            warn("[RB7_UIMonitor] Konnte Legacy nicht deaktivieren (lief evtl. bereits).")
+        end
+    end
+end
+
+-- Frühe Überwachung: PlayerScripts + StarterPlayerScripts
+task.defer(function()
+    -- Bereits vorhandene
+    local ps = plr:WaitForChild("PlayerScripts")
+    for _,d in ipairs(ps:GetDescendants()) do
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            onFound(d, "vorhanden")
+        end
+    end
+    -- Live-Spawn
+    ps.DescendantAdded:Connect(function(d)
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            onFound(d, "spawn")
+        end
+    end)
+end)
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">354ed2d07964e88708b89cf300000802</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
 			</Item>
 		</Item>
 		<Item class="StarterCharacterScripts" referent="RBX8f7e9a5201a14a37bf76ba7572039866">
