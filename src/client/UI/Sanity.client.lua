@@ -1,5 +1,4 @@
 --!strict
--- Prüft, ob Components-Ordner und ein ModuleScript (z. B. init) existieren
 local folder = script.Parent:FindFirstChild("Components")
 local mod = folder and folder:FindFirstChildWhichIsA("ModuleScript")
 if folder and mod then

@@ -1,5 +1,5 @@
 --!strict
--- UI/App.lua – kleines HUD + Event-Wireup (fix: require ModuleScript, nicht den Folder)
+-- UI/App.lua – kleines HUD + Event-Wireup (robust: sucht Components-Module im Ordner)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local plr = Players.LocalPlayer
@@ -8,18 +8,15 @@ local pg = plr:WaitForChild("PlayerGui")
 local componentsFolder = script.Parent:FindFirstChild("Components")
 assert(componentsFolder ~= nil, "[UI/App] Components Ordner fehlt")
 
--- Suche explizit das ModuleScript (z. B. "init")
 local compModule: ModuleScript? =
 	componentsFolder:FindFirstChild("init") :: ModuleScript?
-		or componentsFolder:FindFirstChild("Components") :: ModuleScript?
-		or componentsFolder:FindFirstChildWhichIsA("ModuleScript") :: ModuleScript?
-
+	or componentsFolder:FindFirstChild("Components") :: ModuleScript?
+	or componentsFolder:FindFirstChildWhichIsA("ModuleScript") :: ModuleScript?
 assert(compModule ~= nil, "[UI/App] Components ModuleScript fehlt (erwarte init.lua)")
 
 local Components = require(compModule)
 
-local EventsFolder = ReplicatedStorage:WaitForChild("Events")
-local v1 = EventsFolder:WaitForChild("v1")
+local v1 = ReplicatedStorage:WaitForChild("Events"):WaitForChild("v1")
 local RoundTimeUpdated = v1:WaitForChild("RoundTimeUpdated")
 local RoundStateChanged = v1:WaitForChild("RoundStateChanged")
 
@@ -45,7 +42,6 @@ function App.mount()
 	timeLabel = Components.MakeLabel({Name="Timer", Text="Time: —", Size=UDim2.fromScale(1,0.45), Position=UDim2.new(0,0,0.5,0)})
 	timeLabel.Parent = panel
 
-	-- Event Wiring
 	RoundTimeUpdated.OnClientEvent:Connect(function(remaining: number)
 		if timeLabel then timeLabel.Text = ("Time: %ds"):format(tonumber(remaining) or -1) end
 	end)
