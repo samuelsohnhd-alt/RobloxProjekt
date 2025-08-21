@@ -1747,20 +1747,17 @@ return M
 function M.create(props)
     props = props or {}
     local b = Instance.new("TextButton")
+    b.Name = props.Name or "Button"
     b.AutoButtonColor = true
     b.BackgroundTransparency = 0.1
+    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     b.Size = props.Size or UDim2.fromOffset(160, 40)
     b.Text = props.Text or "Button"
     b.TextScaled = true
     b.TextColor3 = Color3.new(1,1,1)
     b.Font = Enum.Font.GothamBold
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = 1
-    stroke.Transparency = 0.3
-    stroke.Parent = b
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = b
+    local stroke = Instance.new("UIStroke"); stroke.Thickness = 1; stroke.Transparency = 0.3; stroke.Parent = b
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0, 10); corner.Parent = b
     return b
 end
 return M
@@ -1803,6 +1800,46 @@ return M
 								<UniqueId name="UniqueId">2e7e5d193d84740f08b8a03c00000809</UniqueId>
 							</Properties>
 						</Item>
+						<Item class="ModuleScript" referent="RBX1dec81bf6558431faf3b67873b4f24f5">
+							<Properties>
+								<BinaryString name="AttributesSerialize"></BinaryString>
+								<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+								<bool name="DefinesCapabilities">false</bool>
+								<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+								<Content name="LinkedSource"><null></null></Content>
+								<string name="Name">UIState</string>
+								<string name="ScriptGuid">{14a63043-5a3a-44fb-9262-69032164a6b1}</string>
+								<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local M = {
+    _screens = {}, -- name -> ScreenGui
+}
+
+function M.register(name, gui)
+    M._screens[name] = gui
+end
+
+function M.show(name)
+    for n, gui in pairs(M._screens) do
+        if gui and gui.Parent then
+            if gui:IsA("ScreenGui") then
+                gui.Enabled = (n == name) or (n == "HUD" and (name == "HUD" or name == "Lobby"))
+            else
+                gui.Visible = (n == name)
+            end
+        end
+    end
+    print("[UIState] show ->", name)
+end
+
+return M
+]]></ProtectedString>
+								<int64 name="SourceAssetId">-1</int64>
+								<BinaryString name="Tags"></BinaryString>
+								<UniqueId name="UniqueId">1f6b4be9d44787d308b8a27d00000801</UniqueId>
+							</Properties>
+						</Item>
 					</Item>
 					<Item class="ModuleScript" referent="RBX46875f4ed4914ee69dec5c535cc6ab2d">
 						<Properties>
@@ -1813,19 +1850,12 @@ return M
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">screens</string>
 							<string name="ScriptGuid">{a6cea541-404d-4998-8644-e9170b9ca7f9}</string>
-							<ProtectedString name="Source"><![CDATA[local M = {}
-local LobbyScreen   = require(script:WaitForChild("LobbyScreen"))
-local LoadoutScreen = require(script:WaitForChild("LoadoutScreen"))
-local Hud           = require(script:WaitForChild("Hud"))
+							<ProtectedString name="Source"><![CDATA[local UIState        = require(script.Parent.Parent.components.UIState)
+local LobbyScreen    = require(script:WaitForChild("LobbyScreen"))
+local LoadoutScreen  = require(script:WaitForChild("LoadoutScreen"))
+local Hud            = require(script:WaitForChild("Hud"))
 
-local function setVisible(gui, on)
-    if not gui then return end
-    if gui:IsA("ScreenGui") then
-        gui.Enabled = on
-    else
-        gui.Visible = on
-    end
-end
+local M = {}
 
 function M.boot(opts)
     opts = opts or {}
@@ -1841,31 +1871,15 @@ function M.boot(opts)
     local hud   = Hud.create(); hud.DisplayOrder = order.HUD or 100; hud.Parent = pg
     print("[RB7_UI] Hud created")
 
-    -- Startzustand: Lobby + HUD sichtbar, Loadout aus
-    setVisible(lobby, true)
-    setVisible(hud,   true)
-    setVisible(load,  false)
+    -- Screens registrieren
+    UIState.register("Lobby", lobby)
+    UIState.register("Loadout", load)
+    UIState.register("HUD", hud)
 
-    -- Event-Bridge: ReplicatedStorage.Shared.Events[.v1].OpenMenu
-    local RS = game:GetService("ReplicatedStorage")
-    local shared = RS:FindFirstChild("Shared")
-    local events = shared and shared:FindFirstChild("Events")
-    local v1     = events and (events:FindFirstChild("v1") or events)
-    local openMenu = v1 and v1:FindFirstChild("OpenMenu")
-
-    if openMenu and openMenu:IsA("RemoteEvent") then
-        openMenu.OnClientEvent:Connect(function(menu)
-            -- menu: "Lobby" | "Loadout" | "HUD"
-            local t = tostring(menu)
-            setVisible(lobby,   t == "Lobby")
-            setVisible(load,    t == "Loadout")
-            setVisible(hud,     t == "HUD" or t == "Lobby") -- HUD bleibt in Lobby sichtbar
-            print("[RB7_UI] OpenMenu ->", t)
-        end)
-        print("[RB7_UI] Event bridge active (OpenMenu).")
-    else
-        warn("[RB7_UI] OpenMenu RemoteEvent nicht gefunden (ReplicatedStorage.Shared.Events[.v1].OpenMenu)")
-    end
+    -- Startzustand: Lobby + HUD sichtbar
+    lobby.Enabled = true
+    hud.Enabled   = true
+    load.Enabled  = false
 end
 
 return M
@@ -1883,28 +1897,35 @@ return M
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Hud</string>
 								<string name="ScriptGuid">{9cda2660-d627-40f2-9f50-49012a27e979}</string>
-								<ProtectedString name="Source"><![CDATA[local M = {}
+								<ProtectedString name="Source"><![CDATA[local UIState = require(script.Parent.Parent.components.UIState)
+local Button = require(script.Parent.Parent.components.TextButtonPrimary)
+
+local M = {}
 function M.create()
     local gui = Instance.new("ScreenGui")
     gui.Name = "HUD"
+
+    -- Ammo
     local ammo = Instance.new("TextLabel")
-    ammo.Name = "Ammo"
-    ammo.Size = UDim2.fromScale(0.18, 0.08)
-    ammo.Position = UDim2.fromScale(0.80, 0.90)
-    ammo.BackgroundTransparency = 1
-    ammo.TextScaled = true
-    ammo.Text = "Ammo: 30/90"
-    ammo.TextColor3 = Color3.new(1,1,1)
+    ammo.Name = "Ammo"; ammo.Size = UDim2.fromScale(0.18, 0.08); ammo.Position = UDim2.fromScale(0.80, 0.90)
+    ammo.BackgroundTransparency = 1; ammo.TextScaled = true; ammo.Text = "Ammo: 30/90"; ammo.TextColor3 = Color3.new(1,1,1)
     ammo.Parent = gui
+
+    -- XP
     local xp = Instance.new("TextLabel")
-    xp.Name = "XP"
-    xp.Size = UDim2.fromScale(0.18, 0.08)
-    xp.Position = UDim2.fromScale(0.02, 0.90)
-    xp.BackgroundTransparency = 1
-    xp.TextScaled = true
-    xp.Text = "XP: 0"
-    xp.TextColor3 = Color3.new(1,1,1)
+    xp.Name = "XP"; xp.Size = UDim2.fromScale(0.18, 0.08); xp.Position = UDim2.fromScale(0.02, 0.90)
+    xp.BackgroundTransparency = 1; xp.TextScaled = true; xp.Text = "XP: 0"; xp.TextColor3 = Color3.new(1,1,1)
     xp.Parent = gui
+
+    -- Menu-Button
+    local menuBtn = Button.create({ Name = "MenuButton", Text = "Menu", Size = UDim2.fromOffset(120, 36) })
+    menuBtn.AnchorPoint = Vector2.new(1,0)
+    menuBtn.Position = UDim2.fromScale(0.985, 0.02)
+    menuBtn.Parent = gui
+    menuBtn.MouseButton1Click:Connect(function()
+        UIState.show("Lobby")
+    end)
+
     return gui
 end
 return M
@@ -1923,57 +1944,38 @@ return M
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">LoadoutScreen</string>
 								<string name="ScriptGuid">{b4286819-59eb-469c-8c5b-79fd1ab65112}</string>
-								<ProtectedString name="Source"><![CDATA[local EventBridge = require(script.Parent.Parent.components.EventBridge)
-local TextButtonPrimary = require(script.Parent.Parent.components.TextButtonPrimary)
-local TabBar = require(script.Parent.Parent.components.TabBar)
+								<ProtectedString name="Source"><![CDATA[local UIState = require(script.Parent.Parent.components.UIState)
+local Button = require(script.Parent.Parent.components.TextButtonPrimary)
 
 local M = {}
 
 local WEAPONS = {
-    -- DisplayName, Id/Preset
     {name="FAMAS", id="FAMAS"},
     {name="MP5",   id="MP5"},
     {name="Pistol",id="Pistol"},
 }
 
-local function makeHeader(parent, text)
-    local title = Instance.new("TextLabel")
-    title.Name = "Title"
-    title.Size = UDim2.fromScale(1, 0.1)
-    title.Position = UDim2.fromScale(0, 0)
-    title.BackgroundTransparency = 1
-    title.Text = text
-    title.TextScaled = true
-    title.TextColor3 = Color3.new(1,1,1)
-    title.Font = Enum.Font.GothamBold
-    title.Parent = parent
-    return title
+local function header(parent, text)
+    local t = Instance.new("TextLabel")
+    t.Size = UDim2.fromScale(1, 0.12)
+    t.Position = UDim2.fromScale(0,0)
+    t.BackgroundTransparency = 1
+    t.Text = text
+    t.TextScaled = true
+    t.Font = Enum.Font.GothamBold
+    t.TextColor3 = Color3.new(1,1,1)
+    t.Parent = parent
 end
 
-local function makeScroll(parent)
+local function scroll(parent)
     local sc = Instance.new("ScrollingFrame")
-    sc.Name = "List"
-    sc.Size = UDim2.fromScale(1, 0.7)
-    sc.Position = UDim2.fromScale(0, 0.12)
-    sc.CanvasSize = UDim2.new(0,0,0,0)
-    sc.ScrollBarThickness = 6
-    sc.BackgroundTransparency = 0.2
-
-    local padding = Instance.new("UIPadding")
-    padding.PaddingTop = UDim.new(0,8)
-    padding.PaddingLeft = UDim.new(0,8)
-    padding.PaddingRight = UDim.new(0,8)
-    padding.Parent = sc
-
-    local list = Instance.new("UIListLayout")
-    list.SortOrder = Enum.SortOrder.LayoutOrder
-    list.Padding = UDim.new(0,8)
-    list.Parent = sc
-
-    list:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        sc.CanvasSize = UDim2.new(0,0,0,list.AbsoluteContentSize.Y+16)
+    sc.Name = "List"; sc.Size = UDim2.fromScale(1, 0.70); sc.Position = UDim2.fromScale(0, 0.14)
+    sc.CanvasSize = UDim2.new(0,0,0,0); sc.ScrollBarThickness = 6; sc.BackgroundTransparency = 0.2
+    local padding = Instance.new("UIPadding"); padding.PaddingTop = UDim.new(0,8); padding.PaddingLeft = UDim.new(0,8); padding.PaddingRight = UDim.new(0,8); padding.Parent = sc
+    local ly = Instance.new("UIListLayout"); ly.SortOrder = Enum.SortOrder.LayoutOrder; ly.Padding = UDim.new(0,8); ly.Parent = sc
+    ly:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        sc.CanvasSize = UDim2.new(0,0,0,ly.AbsoluteContentSize.Y+16)
     end)
-
     sc.Parent = parent
     return sc
 end
@@ -1988,114 +1990,58 @@ function M.create()
     frame.Position = UDim2.fromScale(0.2, 0.15)
     frame.BackgroundTransparency = 0.05
     frame.Parent = gui
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0, 12); corner.Parent = frame
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = frame
+    header(frame, "Loadout")
 
-    makeHeader(frame, "Loadout")
+    -- Back-Button
+    local back = Button.create({ Text = "← Zurück", Size = UDim2.fromOffset(140, 36) })
+    back.Position = UDim2.fromScale(0.02, 0.02)
+    back.Parent = frame
+    back.MouseButton1Click:Connect(function() UIState.show("Lobby") end)
 
+    -- Weapon List
+    local list = scroll(frame)
     local selected = { weapon = nil }
 
-    -- Tabbar
-    local tabs = TabBar.create({"Weapons","Gear","Armor","Back"}, function(tab)
-        if tab == "Back" then
-            -- Zur Lobby zurück
-            local ev = EventBridge.getEventsRoot()
-            if ev and ev:FindFirstChild("OpenMenu") then
-                ev.OpenMenu:FireServer("Lobby")
-            end
-            gui.Enabled = false
-            return
-        end
-        -- (Platzhalter: weitere Tabs zukünftig)
-    end)
-    tabs.Position = UDim2.fromScale(0, 0.88)
-    tabs.Parent = frame
-
-    -- Waffenliste
-    local list = makeScroll(frame)
-
-    local function spawnWeaponRow(w)
+    local function addRow(w)
         local row = Instance.new("Frame")
-        row.Name = "Row_"..w.id
-        row.Size = UDim2.new(1, -16, 0, 48)
-        row.BackgroundTransparency = 0.3
-        row.Parent = list
-
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = row
+        row.Name = "Row_"..w.id; row.Size = UDim2.new(1, -16, 0, 48); row.BackgroundTransparency = 0.3; row.Parent = list
+        local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0,8); c.Parent = row
 
         local label = Instance.new("TextLabel")
-        label.Name = "Label"
-        label.Size = UDim2.fromScale(0.6, 1)
-        label.BackgroundTransparency = 1
-        label.Text = w.name
-        label.TextScaled = true
-        label.TextColor3 = Color3.new(1,1,1)
-        label.Parent = row
+        label.Name = "Label"; label.Size = UDim2.fromScale(0.6, 1); label.BackgroundTransparency = 1
+        label.Text = w.name; label.TextScaled = true; label.TextColor3 = Color3.new(1,1,1); label.Parent = row
 
-        local pick = TextButtonPrimary.create({ Size = UDim2.fromOffset(120, 36), Text = "Select" })
-        pick.Position = UDim2.fromScale(0.7, 0.1)
-        pick.Parent = row
+        local pick = Button.create({ Text = "Select", Size = UDim2.fromOffset(120, 36) })
+        pick.Position = UDim2.fromScale(0.7, 0.1); pick.Parent = row
 
         local status = Instance.new("TextLabel")
-        status.Name = "Status"
-        status.Size = UDim2.fromOffset(120, 36)
-        status.Position = UDim2.fromScale(0.85, 0.1)
-        status.BackgroundTransparency = 1
-        status.TextScaled = true
-        status.Text = ""
-        status.TextColor3 = Color3.new(0.7,1,0.7)
+        status.Name = "Status"; status.Size = UDim2.fromOffset(120, 36); status.Position = UDim2.fromScale(0.85, 0.1)
+        status.BackgroundTransparency = 1; status.TextScaled = true; status.Text = ""; status.TextColor3 = Color3.fromRGB(160,255,160)
         status.Parent = row
 
-        local function updateStatus(active)
-            status.Text = active and "Selected" or ""
-        end
+        local function mark(active) status.Text = active and "Selected" or "" end
 
         pick.MouseButton1Click:Connect(function()
             selected.weapon = w.id
-            -- Statusanzeigen aktualisieren
             for _,child in ipairs(list:GetChildren()) do
-                if child:IsA("Frame") and child:FindFirstChild("Status") then
-                    child.Status.Text = ""
-                end
+                if child:IsA("Frame") and child:FindFirstChild("Status") then child.Status.Text = "" end
             end
-            updateStatus(true)
+            mark(true)
         end)
     end
 
-    for _,w in ipairs(WEAPONS) do
-        spawnWeaponRow(w)
-    end
+    for _,w in ipairs(WEAPONS) do addRow(w) end
 
-    -- Apply-Button
-    local apply = TextButtonPrimary.create({ Size = UDim2.fromOffset(180, 44), Text = "Apply Loadout" })
-    apply.Position = UDim2.fromScale(0.35, 0.88)
-    apply.Parent = frame
-
+    -- Apply
+    local apply = Button.create({ Text = "Apply Loadout", Size = UDim2.fromOffset(180, 44) })
+    apply.Position = UDim2.fromScale(0.35, 0.88); apply.Parent = frame
     apply.MouseButton1Click:Connect(function()
-        local ev = EventBridge.getEventsRoot()
-        if not ev then
-            warn("[Loadout] EventsRoot nicht gefunden")
-            return
-        end
         local weapon = selected.weapon
         if weapon then
-            -- Robust: feuere, was es gibt
-            if ev:FindFirstChild("EquipWeapon") then
-                ev.EquipWeapon:FireServer(weapon)
-                print("[Loadout] EquipWeapon ->", weapon)
-            end
-            if ev:FindFirstChild("SaveWeaponChoice") then
-                ev.SaveWeaponChoice:FireServer(weapon)
-                print("[Loadout] SaveWeaponChoice ->", weapon)
-            end
-            if ev:FindFirstChild("OpenMenu") then
-                ev.OpenMenu:FireServer("HUD") -- zurück ins Spiel/HUD
-            end
-            gui.Enabled = false
+            print("[Loadout] Selected:", weapon)
+            UIState.show("HUD")
         else
             warn("[Loadout] Keine Waffe gewählt")
         end
@@ -2120,18 +2066,62 @@ return M
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">LobbyScreen</string>
 								<string name="ScriptGuid">{8abdf6c7-b7dd-426f-bd0c-4a311b86f4fb}</string>
-								<ProtectedString name="Source"><![CDATA[local M = {}
+								<ProtectedString name="Source"><![CDATA[local UIState = require(script.Parent.Parent.components.UIState)
+local Button = require(script.Parent.Parent.components.TextButtonPrimary)
+
+local M = {}
+
+local function makeTitle(parent, text)
+    local t = Instance.new("TextLabel")
+    t.Size = UDim2.fromScale(1, 0.12)
+    t.Position = UDim2.fromScale(0,0)
+    t.BackgroundTransparency = 1
+    t.Text = text
+    t.TextScaled = true
+    t.Font = Enum.Font.GothamBold
+    t.TextColor3 = Color3.new(1,1,1)
+    t.Parent = parent
+end
+
 function M.create()
     local gui = Instance.new("ScreenGui")
     gui.Name = "LobbyScreen"
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.fromScale(0.3, 0.08)
-    label.Position = UDim2.fromScale(0.02, 0.03)
-    label.TextScaled = true
-    label.Text = "RB7 • Lobby"
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.new(1,1,1)
-    label.Parent = gui
+
+    local root = Instance.new("Frame")
+    root.Name = "Root"
+    root.Size = UDim2.fromScale(0.45, 0.6)
+    root.Position = UDim2.fromScale(0.05, 0.2)
+    root.BackgroundTransparency = 0.05
+    root.Parent = gui
+
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0, 12); corner.Parent = root
+    makeTitle(root, "RB7 • Lobby")
+
+    local list = Instance.new("Frame")
+    list.Name = "Menu"
+    list.Size = UDim2.fromScale(1, 0.78)
+    list.Position = UDim2.fromScale(0, 0.16)
+    list.BackgroundTransparency = 1
+    list.Parent = root
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 10)
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
+    layout.Parent = list
+
+    local function addItem(name, click)
+        local b = Button.create({ Text = name, Size = UDim2.fromOffset(260, 44) })
+        b.Parent = list
+        b.MouseButton1Click:Connect(click)
+        return b
+    end
+
+    -- Menüeinträge mit Funktion:
+    addItem("▶ Loadout", function() UIState.show("Loadout") end)
+    addItem("▶ Gear (demnächst)", function() end)
+    addItem("▶ Armor (demnächst)", function() end)
+    addItem("↩ Zurück ins HUD", function() UIState.show("HUD") end)
+
     return gui
 end
 return M
@@ -2141,47 +2131,6 @@ return M
 								<UniqueId name="UniqueId">554a495676481a8908b89a910000080d</UniqueId>
 							</Properties>
 						</Item>
-					</Item>
-					<Item class="LocalScript" referent="RBX3727a741c7d249079e845e9c9ce788a9">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-							<bool name="DefinesCapabilities">false</bool>
-							<bool name="Disabled">false</bool>
-							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-							<Content name="LinkedSource"><null></null></Content>
-							<string name="Name">OpenLoadoutHotkey</string>
-							<token name="RunContext">0</token>
-							<string name="ScriptGuid">{b256b57e-716c-4012-9fb5-f33bc5d06761}</string>
-							<ProtectedString name="Source"><![CDATA[local ContextActionService = game:GetService("ContextActionService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local events = ReplicatedStorage:FindFirstChild("Shared")
-events = events and events:FindFirstChild("Events")
-events = events and (events:FindFirstChild("v1") or events)
-
-local OpenMenu = events and events:FindFirstChild("OpenMenu")
-
-local ACTION = "RB7_OpenLoadout"
-
-local function handler(_, state, _)
-    if state ~= Enum.UserInputState.Begin then return end
-    if OpenMenu and OpenMenu:IsA("RemoteEvent") then
-        OpenMenu:FireServer("Loadout")
-        print("[RB7_UI] Hotkey L -> OpenMenu('Loadout')")
-    else
-        warn("[RB7_UI] Hotkey: OpenMenu RemoteEvent nicht gefunden.")
-    end
-end
-
--- Taste L als Hotkey
-ContextActionService:BindAction(ACTION, handler, false, Enum.KeyCode.L)
-print("[RB7_UI] Hotkey 'L' zum Öffnen des Loadouts aktiv.")
-]]></ProtectedString>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<UniqueId name="UniqueId">7653e669c6135c0008b8a0c60000080e</UniqueId>
-						</Properties>
 					</Item>
 				</Item>
 				<Item class="LocalScript" referent="RBX41bf50ca58984097b379635f69ff0c8d">
@@ -2364,6 +2313,121 @@ end)
 							<UniqueId name="UniqueId">354ed2d07964e88708b89cf300000802</UniqueId>
 						</Properties>
 					</Item>
+				</Item>
+				<Item class="Folder" referent="RBX6d961fdbd2f441aaba6b5dfb4b8be983">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">hud</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">1f6b4be9d44787d308b8a27d00000804</UniqueId>
+					</Properties>
+					<Item class="LocalScript" referent="RBXe2ddf7d60afc48d994d028bdfcc92df0">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+							<bool name="DefinesCapabilities">false</bool>
+							<bool name="Disabled">false</bool>
+							<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+							<Content name="LinkedSource"><null></null></Content>
+							<string name="Name">Timer</string>
+							<token name="RunContext">0</token>
+							<string name="ScriptGuid">{5fd18ac1-7162-4e2d-b8be-f32e255cbcc5}</string>
+							<ProtectedString name="Source"><![CDATA[-- RB7 HUD Timer (client)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local plr = Players.LocalPlayer
+local PlayerGui = plr:WaitForChild("PlayerGui")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Events = Shared:WaitForChild("Events")
+local V1     = Events:WaitForChild("v1")
+local RoundTimerTick = V1:WaitForChild("RoundTimerTick")
+
+local hud = PlayerGui:FindFirstChild("RB7_HUD") or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"
+hud.ResetOnSpawn = false
+hud.IgnoreGuiInset = true
+hud.DisplayOrder = 100
+hud.Parent = PlayerGui
+
+local label = hud:FindFirstChild("TimerLabel")
+if not label then
+    label = Instance.new("TextLabel")
+    label.Name = "TimerLabel"
+    label.Size = UDim2.fromOffset(180, 44)
+    label.AnchorPoint = Vector2.new(0.5, 0)
+    label.Position = UDim2.new(0.5, 0, 0, 18)
+    label.BackgroundTransparency = 0.25
+    label.BackgroundColor3 = Color3.fromRGB(10,10,10)
+    label.BorderSizePixel = 0
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 28
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.TextStrokeTransparency = 0.5
+    label.Text = "05:00"
+    label.Parent = hud
+end
+
+local function fmt(seconds:number): string
+    seconds = math.max(-1, math.floor(seconds))
+    if seconds < 0 then return "00:00" end
+    local m = math.floor(seconds / 60)
+    local s = seconds % 60
+    return string.format("%02d:%02d", m, s)
+end
+
+RoundTimerTick.OnClientEvent:Connect(function(remaining)
+    label.Text = fmt(remaining)
+end)
+
+print("[RB7_HUD Timer] ✅ aktiv (RoundTimerTick)")
+]]></ProtectedString>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">1f6b4be9d44787d308b8a27d00000805</UniqueId>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="LocalScript" referent="RBX9136e1cc77894cd1be4aff6f3113217d">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">OpenMenu_Sanity</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{caf92a18-5435-495b-80fe-175fefc2dee9}</string>
+						<ProtectedString name="Source"><![CDATA[-- RB7 OpenMenu Sanity (client)
+local RS = game:GetService("ReplicatedStorage")
+local ok = pcall(function()
+    local Shared = RS:WaitForChild("Shared", 5)
+    local Events = Shared and Shared:WaitForChild("Events", 5)
+    local V1     = Events and Events:WaitForChild("v1", 5)
+    local OpenMenu = V1 and V1:WaitForChild("OpenMenu", 5)
+    if OpenMenu and OpenMenu:IsA("RemoteEvent") then
+        print("[RB7_UI] OpenMenu RemoteEvent ✅ vorhanden")
+        OpenMenu.OnClientEvent:Connect(function(...)
+            print("[RB7_UI] OpenMenu signal empfangen")
+        end)
+    else
+        warn("[RB7_UI] OpenMenu RemoteEvent fehlt ❌")
+    end
+end)
+if not ok then
+    warn("[RB7_UI] OpenMenu Sanity: Zugriff auf Remotes fehlgeschlagen.")
+end
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">1f6b4be9d44787d308b8a27d00000807</UniqueId>
+					</Properties>
 				</Item>
 			</Item>
 		</Item>
