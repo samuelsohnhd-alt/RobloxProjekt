@@ -3,6 +3,7 @@
   "name": "RB7_Project",
   "servePort": 34872,
   "tree": {
+    "$className": "DataModel",
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Shared": {
