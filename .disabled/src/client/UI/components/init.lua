@@ -1,5 +1,4 @@
 -- filepath: src/client/ui/Components/init.lua
--- ...existing code...
 -- Minimal stub, verhindert Fehler wenn Components/init.lua fehlt.
 local Components = {}
 
@@ -12,4 +11,3 @@ function Components.Get(name)
 end
 
 return Components
--- ...existing code...
