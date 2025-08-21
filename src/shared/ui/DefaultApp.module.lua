@@ -1,9 +1,9 @@
 -- Minimaler Fallback-App-Module für UI-Mount (Client-seitig).
-local DefaultApp = {}
+local Components = {}
 
 -- Erwartetes Interface:
--- DefaultApp.mount(parent: PlayerGui | GuiObject) -> ScreenGui
-function DefaultApp.mount(parent)
+-- Components.mount(parent: PlayerGui | GuiObject) -> ScreenGui
+function Components.mount(parent)
 	assert(parent, "parent required")
 	-- Erstelle ein minimales ScreenGui
 	local screenGui = Instance.new("ScreenGui")
@@ -28,4 +28,12 @@ function DefaultApp.mount(parent)
 	return screenGui
 end
 
-return DefaultApp
+-- Versuche den ModuleScript-Namen zur Laufzeit anzupassen (wenn möglich),
+-- so dass Code, der explizit nach "Components" sucht, besser funktioniert.
+pcall(function()
+	if typeof(script) == "Instance" and script.Name ~= "Components" then
+		script.Name = "Components"
+	end
+end)
+
+return Components
