@@ -1,4 +1,4 @@
-local UIState        = require(script.Parent.Parent.components.UIState)
+local UIState        = require(script.Parent.Parent.Components.UIState)
 local LobbyScreen    = require(script:WaitForChild("LobbyScreen"))
 local LoadoutScreen  = require(script:WaitForChild("LoadoutScreen"))
 local Hud            = require(script:WaitForChild("Hud"))

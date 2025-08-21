@@ -1,5 +1,5 @@
-local UIState = require(script.Parent.Parent.components.UIState)
-local Button = require(script.Parent.Parent.components.TextButtonPrimary)
+local UIState = require(script.Parent.Parent.Components.UIState)
+local Button = require(script.Parent.Parent.Components.TextButtonPrimary)
 
 local M = {}
 
