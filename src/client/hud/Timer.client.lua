@@ -5,13 +5,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local plr = Players.LocalPlayer
 local PlayerGui = plr:WaitForChild("PlayerGui")
 
--- Events v1
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Events = Shared:WaitForChild("Events")
 local V1     = Events:WaitForChild("v1")
 local RoundTimerTick = V1:WaitForChild("RoundTimerTick")
 
--- ScreenGui + Label erzeugen (idempotent)
 local hud = PlayerGui:FindFirstChild("RB7_HUD") or Instance.new("ScreenGui")
 hud.Name = "RB7_HUD"
 hud.ResetOnSpawn = false

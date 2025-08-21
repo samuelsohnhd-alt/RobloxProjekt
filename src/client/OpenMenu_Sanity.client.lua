@@ -1,4 +1,4 @@
--- RB7 OpenMenu Sanity (client): prüft Event & hört (no-op)
+-- RB7 OpenMenu Sanity (client)
 local RS = game:GetService("ReplicatedStorage")
 local ok = pcall(function()
     local Shared = RS:WaitForChild("Shared", 5)
@@ -8,7 +8,6 @@ local ok = pcall(function()
     if OpenMenu and OpenMenu:IsA("RemoteEvent") then
         print("[RB7_UI] OpenMenu RemoteEvent ✅ vorhanden")
         OpenMenu.OnClientEvent:Connect(function(...)
-            -- später: hier Loadout öffnen
             print("[RB7_UI] OpenMenu signal empfangen")
         end)
     else
