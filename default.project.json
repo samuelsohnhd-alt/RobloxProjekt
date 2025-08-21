@@ -2,18 +2,15 @@
   "name": "RB7",
   "tree": {
     "$className": "DataModel",
-
     "ServerScriptService": {
       "$className": "ServerScriptService",
       "server": { "$path": "src/server" }
     },
-
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "shared": { "$path": "src/shared" },
       "sec":    { "$path": "src/sec" }
     },
-
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
@@ -23,4 +20,3 @@
     }
   }
 }
-
