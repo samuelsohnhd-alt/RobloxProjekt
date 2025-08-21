@@ -6214,6 +6214,86 @@ print("[RB7_HUD Timer] ✅ aktiv (RoundTimerTick)")
 						</Properties>
 					</Item>
 				</Item>
+				<Item class="LocalScript" referent="RBX45dfd49d676244cb933439acb887c7c4">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">check_components</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{d7114acc-e560-4c27-a29b-ee3b33f818cd}</string>
+						<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+
+local function log(level, msg)
+	print(string.format("[%s] %s", level, msg))
+end
+
+local function inspectComponents(container)
+	if not container then
+		return nil, "not found"
+	end
+	local child = container:FindFirstChild("Components")
+	if not child then
+		return nil, "Components not found in container (" .. container:GetFullName() .. ")"
+	end
+	if child:IsA("ModuleScript") then
+		return true, "Components is a ModuleScript at " .. child:GetFullName()
+	end
+	if child:IsA("Folder") then
+		-- check if folder contains any ModuleScripts
+		for _, v in ipairs(child:GetChildren()) do
+			if v:IsA("ModuleScript") then
+				return true, "Components is a Folder containing ModuleScripts at " .. child:GetFullName()
+			end
+		end
+		return nil, "Components is a Folder but contains no ModuleScript (invalid for require) at " .. child:GetFullName()
+	end
+	return nil, "Components exists but is neither ModuleScript nor Folder (type=" .. child.ClassName .. ") at " .. child:GetFullName()
+end
+
+local function runCheck()
+	local checks = {
+		ReplicatedStorage:FindFirstChild("Shared") and ReplicatedStorage.Shared:FindFirstChild("UI") or nil,
+		ReplicatedStorage:FindFirstChild("UI"),
+		StarterGui,
+		script.Parent,
+	}
+	for i, container in ipairs(checks) do
+		local ok, msg = inspectComponents(container)
+		if ok then
+			log("DIAG-OK", msg)
+			return
+		else
+			log("DIAG-ERR", msg)
+		end
+	end
+	log("DIAG-INFO", "Fallback: Wenn Components als Folder vorhanden ist, muss mindestens ein ModuleScript mit dem App-Interface vorhanden sein.")
+	log("DIAG-INFO", "Empfohlen: Lege ein ModuleScript namens 'Components' unter einem der Pfade an:")
+	log("DIAG-INFO", "- ReplicatedStorage.Shared.UI.Components (empfohlen), oder")
+	log("DIAG-INFO", "- ReplicatedStorage.UI.Components, oder")
+	log("DIAG-INFO", "- StarterGui.Components (nur wenn client-seitig erwartet).")
+	log("DIAG-TEST", "Teste jetzt: Starte den Client (Play/Join). Suche im Output nach 'DIAG-OK' oder 'DIAG-ERR'. Wenn 'DIAG-OK' erscheint, ist das Problem gelöst.")
+end
+
+-- Run on player added (client-side)
+local player = Players.LocalPlayer
+if player then
+	runCheck()
+else
+	Players.PlayerAdded:Wait()
+	runCheck()
+end
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">1eb9a2be72eecbad08b8c4ef000008b4</UniqueId>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 		<Item class="StarterCharacterScripts" referent="RBX8f7e9a5201a14a37bf76ba7572039866">
@@ -6578,6 +6658,20 @@ print("[RB7_HUD Timer] ✅ aktiv (RoundTimerTick)")
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc60000036a</UniqueId>
+		</Properties>
+	</Item>
+	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ServiceVisibilityService</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
+			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
 		</Properties>
 	</Item>
 	<Item class="LuaWebService" referent="RBX0bd9fb073d5a4c3fbd338cd9ba9f8a31">
@@ -7326,6 +7420,112 @@ return W
 					<BinaryString name="Tags"></BinaryString>
 					<UniqueId name="UniqueId">3ad1f6bdd057363808b8a9c5000009d3</UniqueId>
 				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXe99f96eb240741ecaeb42c64b107cb67">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">ui</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">1eb9a2be72eecbad08b8c4ef000008b7</UniqueId>
+				</Properties>
+				<Item class="ModuleScript" referent="RBXdd246ca85309406db685e687322cc84f">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">DefaultApp.module</string>
+						<string name="ScriptGuid">{8763cbc5-0827-4409-908a-2f75c6620566}</string>
+						<ProtectedString name="Source"><![CDATA[-- Minimaler Fallback-App-Module für UI-Mount (Client-seitig).
+local DefaultApp = {}
+
+-- Erwartetes Interface:
+-- DefaultApp.mount(parent: PlayerGui | GuiObject) -> ScreenGui
+function DefaultApp.mount(parent)
+	assert(parent, "parent required")
+	-- Erstelle ein minimales ScreenGui
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "RB7_DefaultApp"
+	screenGui.ResetOnSpawn = false
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0.25, 0, 0.1, 0)
+	frame.Position = UDim2.new(0.01, 0, 0.01, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	frame.Parent = screenGui
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, -8, 1, -8)
+	label.Position = UDim2.new(0, 4, 0, 4)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(255,255,255)
+	label.Text = "Default HUD (Fallback)"
+	label.Parent = frame
+
+	screenGui.Parent = parent
+	return screenGui
+end
+
+return DefaultApp
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">1eb9a2be72eecbad08b8c4ef000008b8</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX0f4487a7112a4122aae8680bf9aa5e13">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Components.module</string>
+						<string name="ScriptGuid">{91f7046e-f9d8-4afd-9941-861d76ede693}</string>
+						<ProtectedString name="Source"><![CDATA[local Components = {}
+
+-- Erwartetes Interface: require(Components).mount(playerGui)
+function Components.mount(parent)
+	assert(parent, "parent required for Components.mount")
+	-- Einfaches ScreenGui als Fallback-HUD
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "RB7_FallbackComponents"
+	screenGui.ResetOnSpawn = false
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0.25, 0, 0.08, 0)
+	frame.Position = UDim2.new(0.01, 0, 0.01, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(28, 28, 30)
+	frame.BorderSizePixel = 0
+	frame.Parent = screenGui
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, -8, 1, -8)
+	label.Position = UDim2.new(0, 4, 0, 4)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(220,220,220)
+	label.Text = "Fallback HUD (Components)"
+	label.Font = Enum.Font.SourceSans
+	label.TextSize = 18
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Parent = frame
+
+	screenGui.Parent = parent
+	return screenGui
+end
+
+return Components
+]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">1eb9a2be72eecbad08b8c4ef000008ba</UniqueId>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 		<Item class="Folder" referent="RBX497f387801ea49339b1f1c68949bdd79">
@@ -10919,20 +11119,6 @@ return ProfileStore
 				</Item>
 			</Item>
 		</Item>
-	</Item>
-	<Item class="ServiceVisibilityService" referent="RBX7b4ec48c2b1b4ec1a85bdae48bc80a0f">
-		<Properties>
-			<BinaryString name="AttributesSerialize"></BinaryString>
-			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
-			<bool name="DefinesCapabilities">false</bool>
-			<BinaryString name="HiddenServices">AAAAAA==</BinaryString>
-			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-			<string name="Name">ServiceVisibilityService</string>
-			<int64 name="SourceAssetId">-1</int64>
-			<BinaryString name="Tags"></BinaryString>
-			<UniqueId name="UniqueId">34c22ac50b6ab91508b7fbc600000386</UniqueId>
-			<BinaryString name="VisibleServices">AAAAAA==</BinaryString>
-		</Properties>
 	</Item>
 	<Item class="HttpService" referent="RBX72b3f63027f74575baffedc240a79583">
 		<Properties>
