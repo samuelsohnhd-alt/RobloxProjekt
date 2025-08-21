@@ -1,0 +1,2053 @@
+<roblox version="4">
+  <Item class="ReplicatedStorage" referent="0">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="1">
+      <Properties>
+        <string name="Name">First</string>
+      </Properties>
+      <Item class="StringValue" referent="2">
+        <Properties>
+          <string name="Name">KEEP</string>
+          <string name="Value"><![CDATA[KEEP first
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="Folder" referent="3">
+      <Properties>
+        <string name="Name">Shared</string>
+      </Properties>
+      <Item class="StringValue" referent="4">
+        <Properties>
+          <string name="Name">KEEP</string>
+          <string name="Value"><![CDATA[KEEP SHARED
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Folder" referent="5">
+        <Properties>
+          <string name="Name">RB7</string>
+        </Properties>
+        <Item class="Folder" referent="6">
+          <Properties>
+            <string name="Name">Config</string>
+          </Properties>
+          <Item class="ModuleScript" referent="7">
+            <Properties>
+              <string name="Name">Env</string>
+              <string name="Source"><![CDATA[--!strict
+local RunService = game:GetService("RunService")
+local Env = { NAME = RunService:IsStudio() and "dev" or "prod" }
+return Env
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="8">
+            <Properties>
+              <string name="Name">FeatureFlags</string>
+              <string name="Source"><![CDATA[--!strict
+-- Feature-Flags für inkrementelles Aktivieren/Deaktivieren
+local FF = {
+	UseLegacyUIBridge = true,
+	EnableRoundLoop   = true,
+}
+return FF
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="9">
+            <Properties>
+              <string name="Name">Game</string>
+              <string name="Source"><![CDATA[--!strict
+-- Zentrale Spiel-Config (nur Konstanten, kein Hardcode sonstwo)
+local GameConfig = {
+	ROUND_TIME_DEFAULT = 300, -- Sekunden
+	TARGET_SCORE       = 25,
+	RESPAWN_TIME       = 5,
+	FRIENDLY_FIRE      = false,
+}
+return GameConfig
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="10">
+            <Properties>
+              <string name="Name">UITheme</string>
+              <string name="Source"><![CDATA[--!strict
+-- UI-Theming an einer Stelle (Farben/Fonts/Abstände)
+local Theme = {
+	Color = {
+		PanelBg = Color3.fromRGB(25, 25, 30),
+		Accent  = Color3.fromRGB(0, 170, 255),
+		Text    = Color3.fromRGB(230, 230, 235),
+	},
+	Font  = Enum.Font.GothamSemibold,
+	Pad   = 8,
+}
+return Theme
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="11">
+          <Properties>
+            <string name="Name">Constants</string>
+          </Properties>
+          <Item class="ModuleScript" referent="12">
+            <Properties>
+              <string name="Name">Events</string>
+              <string name="Source"><![CDATA[--!strict
+-- RB7: zentrale Event-Konstanten
+local Events = {
+	ROOT            = "Events",
+	VERSION         = "v1",
+
+	-- Core
+	PING            = "Ping",
+
+	-- Runden/Match
+	ROUND_START     = "RoundStart",       -- RemoteEvent (S->C)
+	ROUND_ENDED     = "RoundEnded",       -- RemoteEvent (S->C)
+	TIMER_TICK      = "TimerTick",        -- RemoteEvent (S->C) payload: { t:number }
+
+	-- Profile
+	GET_PROFILE     = "GetProfile",       -- RemoteFunction (C->S) -> Profile
+	PROFILE_UPDATED = "ProfileUpdated",   -- RemoteEvent (S->C)
+
+	-- Inputs (Client -> Server)
+	SET_ADS         = "SetADS",           -- RemoteEvent payload: { on:boolean }
+	SET_CROUCH      = "SetCrouchState",   -- RemoteEvent payload: { on:boolean }
+	RELOAD          = "ReloadEvent",      -- RemoteEvent payload: { }
+
+	-- PlayerState
+	GET_STATE       = "GetState",         -- RemoteFunction (C->S) -> PlayerState
+	STATE_CHANGED   = "PlayerStateChanged", -- RemoteEvent (S->C) payload: { userId:number, state:table }
+
+	-- Weapons (Client -> Server unless noted)
+	EQUIP_WEAPON    = "EquipWeapon",      -- RE payload: { name:string }   (C->S)
+	SHOOT           = "ShootEvent",       -- RE payload: { name:string }   (C->S)
+	AMMO_UPDATE     = "AmmoUpdated",      -- RE payload: { name, mag, reserve } (S->C)
+	GET_LOADOUT     = "GetLoadout",       -- RF returns { Primary=..., Secondary=... } (C->S)
+}
+return Events
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="13">
+            <Properties>
+              <string name="Name">Limits</string>
+              <string name="Source"><![CDATA[--!strict
+-- Raten (tokens/sec) & Burst-Kapazität je RemoteEvent-NAME
+return {
+	["SetADS"]         = { cap = 8,  rate = 8  },
+	["SetCrouchState"] = { cap = 8,  rate = 8  },
+	["ReloadEvent"]    = { cap = 2,  rate = 1  },
+	["ShootEvent"]     = { cap = 12, rate = 10 },
+	["EquipWeapon"]    = { cap = 3,  rate = 2  },
+}
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="14">
+          <Properties>
+            <string name="Name">Input</string>
+          </Properties>
+          <Item class="ModuleScript" referent="15">
+            <Properties>
+              <string name="Name">Actions</string>
+              <string name="Source"><![CDATA[--!strict
+-- RB7 Input Actions (zentrale Bezeichner)
+local A = {
+	ADS_TOGGLE   = "ADS_TOGGLE",   -- Rechtsklick (toggle)
+	CROUCH_TOGGLE= "CROUCH_TOGGLE",-- Taste C (toggle)
+	RELOAD       = "RELOAD",       -- Taste R (impuls)
+}
+return A
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="16">
+          <Properties>
+            <string name="Name">Meta</string>
+          </Properties>
+          <Item class="ModuleScript" referent="17">
+            <Properties>
+              <string name="Name">Build</string>
+              <string name="Source"><![CDATA[--!strict
+-- Build-/Schema-Metadaten an einer Stelle
+local Build = {
+	Version     = "0.1.0",
+	SchemaMajor = 1,
+	SchemaName  = "Events_v1",
+}
+return Build
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="18">
+            <Properties>
+              <string name="Name">Remotes</string>
+              <string name="Source">return {
+	remotes = {
+		PING = "Ping",
+	},
+	version = "v1",
+}</string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="19">
+          <Properties>
+            <string name="Name">State</string>
+          </Properties>
+          <Item class="ModuleScript" referent="20">
+            <Properties>
+              <string name="Name">PlayerState</string>
+              <string name="Source"><![CDATA[--!strict
+export type PlayerState = {
+	userId: number,
+	ads: boolean,
+	crouch: boolean,
+	ammo: number?,
+	updatedAt: number,
+}
+
+local S = {}
+function S.default(userId:number): PlayerState
+	return {
+		userId   = userId,
+		ads      = false,
+		crouch   = false,
+		ammo     = nil,     -- Platzhalter für Waffensystem
+		updatedAt= os.time(),
+	}
+end
+return S
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="21">
+          <Properties>
+            <string name="Name">Types</string>
+          </Properties>
+          <Item class="ModuleScript" referent="22">
+            <Properties>
+              <string name="Name">PlayerProfile</string>
+              <string name="Source"><![CDATA[--!strict
+export type Profile = {
+	userId: number,
+	name: string,
+	xp: number,
+	rank: number,
+	createdAt: number,
+	updatedAt: number,
+}
+local T = {}
+function T.default(userId:number, name:string): Profile
+	return {
+		userId = userId,
+		name = name,
+		xp = 0,
+		rank = 1,
+		createdAt = os.time(),
+		updatedAt = os.time(),
+	}
+end
+return T
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="Folder" referent="23">
+            <Properties>
+              <string name="Name">RemoteSchema</string>
+            </Properties>
+            <Item class="ModuleScript" referent="24">
+              <Properties>
+                <string name="Name">Events_v1</string>
+                <string name="Source"><![CDATA[--!strict
+-- Definiert erlaubte Payloads für Events/v1
+export type PingPayload       = { t: number }?           -- optional, falls leer gesendet
+export type TimerTickPayload  = { t: number }            -- verbleibende Zeit in s
+export type RoundStartPayload = { duration: number, endsAt: number }
+export type RoundEndedPayload = { reason: string }       -- z.B. "timeup", "score"
+
+local Schema = {}
+
+function Schema.IsPing(p:any): boolean
+	if p == nil then return true end
+	return type(p)=="table" and type(p.t)=="number"
+end
+
+function Schema.IsTimerTick(p:any): boolean
+	return type(p)=="table" and type(p.t)=="number"
+end
+
+function Schema.IsRoundStart(p:any): boolean
+	return type(p)=="table" and type(p.duration)=="number" and type(p.endsAt)=="number"
+end
+
+function Schema.IsRoundEnded(p:any): boolean
+	return type(p)=="table" and type(p.reason)=="string"
+end
+
+return Schema
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="25">
+              <Properties>
+                <string name="Name">Inputs_v1</string>
+                <string name="Source"><![CDATA[--!strict
+local Inputs = {}
+
+function Inputs.IsSetADS(p:any): boolean
+	return type(p)=="table" and type(p.on)=="boolean"
+end
+function Inputs.IsSetCrouch(p:any): boolean
+	return type(p)=="table" and type(p.on)=="boolean"
+end
+function Inputs.IsReload(p:any): boolean
+	return p==nil or type(p)=="table"
+end
+
+return Inputs
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="26">
+              <Properties>
+                <string name="Name">State_v1</string>
+                <string name="Source"><![CDATA[--!strict
+local State = {}
+function State.IsStatePayload(p:any): boolean
+	return type(p)=="table"
+		and type(p.userId)=="number"
+		and type(p.state)=="table"
+end
+return State
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="27">
+              <Properties>
+                <string name="Name">Weapons_v1</string>
+                <string name="Source"><![CDATA[--!strict
+local S = {}
+function S.IsEquip(p:any): boolean
+	return type(p)=="table" and type(p.name)=="string"
+end
+function S.IsShoot(p:any): boolean
+	return type(p)=="table" and type(p.name)=="string"
+end
+function S.IsAmmoUpdate(p:any): boolean
+	return type(p)=="table" and type(p.name)=="string"
+		and type(p.mag)=="number" and type(p.reserve)=="number"
+end
+return S
+]]></string>
+              </Properties>
+            </Item>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="28">
+          <Properties>
+            <string name="Name">Weapons</string>
+          </Properties>
+          <Item class="ModuleScript" referent="29">
+            <Properties>
+              <string name="Name">Config</string>
+              <string name="Source"><![CDATA[--!strict
+-- Basiskonfig für Waffen (vereinfachtes Gerüst)
+local W = {}
+
+W.Weapons = {
+	FAMAS = { slot="Primary",  magSize=30, reserve=90, rpm=900, burst=false },
+	MP5   = { slot="Primary",  magSize=30, reserve=120, rpm=800, burst=false },
+	PISTOL= { slot="Secondary",magSize=15, reserve=45, rpm=450, burst=false },
+}
+
+W.DefaultLoadout = { Primary="FAMAS", Secondary="PISTOL" }
+
+return W
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+      </Item>
+      <Item class="ModuleScript" referent="30">
+        <Properties>
+          <string name="Name">RB7_Init</string>
+          <string name="Source"><![CDATA[return { ok=true }
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="31">
+        <Properties>
+          <string name="Name">Types</string>
+          <string name="Source"><![CDATA[-- shared
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="32">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Script" referent="33">
+      <Properties>
+        <string name="Name">Server</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[-- server
+]]></string>
+      </Properties>
+      <Item class="Script" referent="34">
+        <Properties>
+          <string name="Name">Init</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[-- server
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="StringValue" referent="35">
+        <Properties>
+          <string name="Name">KEEP</string>
+          <string name="Value"><![CDATA[KEEP SERVER
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Folder" referent="36">
+        <Properties>
+          <string name="Name">Lib</string>
+        </Properties>
+        <Item class="ModuleScript" referent="37">
+          <Properties>
+            <string name="Name">RateLimiter</string>
+            <string name="Source"><![CDATA[--!strict
+-- Einfacher Token-Bucket pro (userId,key)
+local RateLimiter = {}
+local buckets:{[number]:{[string]:{t:number,tokens:number}}} = {}
+
+local function refill(b:{t:number,tokens:number}, now:number, rate:number, cap:number)
+	local elapsed = math.max(0, now - b.t)
+	b.tokens = math.min(cap, b.tokens + elapsed * rate)
+	b.t = now
+end
+
+function RateLimiter.check(userId:number, key:string, cap:number, rate:number): boolean
+	local u = buckets[userId]; if not u then u = {}; buckets[userId] = u end
+	local b = u[key]; local now = os.clock()
+	if not b then b = { t = now, tokens = cap }; u[key] = b end
+	refill(b, now, rate, cap)
+	if b.tokens >= 1 then b.tokens -= 1; return true end
+	return false
+end
+
+return RateLimiter
+]]></string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Script" referent="38">
+        <Properties>
+          <string name="Name">RB7_Boot</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[print("RB7: Server boot ok")
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Script" referent="39">
+        <Properties>
+          <string name="Name">RB7_InputService</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Limits = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Limits"))
+local InputsSchema = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Inputs_v1"))
+local RateLimiter = require(script.Parent:WaitForChild("Lib"):WaitForChild("RateLimiter"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRE(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+
+local RS     = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RE_SetADS    = ensureRE(EV, Events.SET_ADS)
+local RE_SetCrouch = ensureRE(EV, Events.SET_CROUCH)
+local RE_Reload    = ensureRE(EV, Events.RELOAD)
+
+local function allowed(uid:number, eventName:string): boolean
+	local lim = Limits[eventName]
+	if not lim then return true end
+	return RateLimiter.check(uid, eventName, lim.cap, lim.rate)
+end
+
+RE_SetADS.OnServerEvent:Connect(function(player, payload)
+	if not InputsSchema.IsSetADS(payload) then return end
+	if not allowed(player.UserId, Events.SET_ADS) then return end
+	-- (StateService setzt flags & broadcastet bereits)
+end)
+
+RE_SetCrouch.OnServerEvent:Connect(function(player, payload)
+	if not InputsSchema.IsSetCrouch(payload) then return end
+	if not allowed(player.UserId, Events.SET_CROUCH) then return end
+end)
+
+RE_Reload.OnServerEvent:Connect(function(player, payload)
+	if not InputsSchema.IsReload(payload) then return end
+	if not allowed(player.UserId, Events.RELOAD) then return end
+end)
+
+print("[RB7_InputService] ✅ mit Rate-Limiter aktiv")
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Script" referent="40">
+        <Properties>
+          <string name="Name">RB7_ProfileService</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local ProfileTypes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("PlayerProfile"))
+-- Stores liegt unter ServerScriptService/Server/Stores → vom Skript aus: script.Parent:WaitForChild("Stores")
+local ProfileStore = require(script.Parent:WaitForChild("Stores"):WaitForChild("ProfileStore"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRemoteEvent(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+local function ensureRemoteFunction(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+-- Events-Struktur
+local RS = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RF_GetProfile = ensureRemoteFunction(EV, Events.GET_PROFILE)
+local RE_ProfileUpdated = ensureRemoteEvent(EV, Events.PROFILE_UPDATED)
+
+RF_GetProfile.OnServerInvoke = function(player)
+	local prof = ProfileStore.get(player.UserId, player.Name)
+	return prof
+end
+
+Players.PlayerAdded:Connect(function(plr)
+	local prof = ProfileStore.get(plr.UserId, plr.Name)
+	RE_ProfileUpdated:FireClient(plr, prof)
+end)
+
+print("[RB7_ProfileService] ✅ Profile RF/RE aktiv")
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Script" referent="41">
+        <Properties>
+          <string name="Name">RB7_RoundController</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[--!strict
+-- RB7_RoundController: Minimaler Rundenloop mit Timer (verwendet Game-Config)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local EventsConst = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("Game"))
+local Schema     = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Events_v1"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRemoteEvent(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+
+local RSShared = ensureFolder(ReplicatedStorage, "Shared")
+local ERoot    = ensureFolder(RSShared, EventsConst.ROOT)
+local EV       = ensureFolder(ERoot, EventsConst.VERSION)
+
+local E_RoundStart = ensureRemoteEvent(EV, EventsConst.ROUND_START)
+local E_RoundEnded = ensureRemoteEvent(EV, EventsConst.ROUND_ENDED)
+local E_TimerTick  = ensureRemoteEvent(EV, EventsConst.TIMER_TICK)
+
+local roundActive = false
+local roundEndsAt = 0
+
+local function broadcastTick(remain: number)
+	local payload = { t = remain }
+	if Schema.IsTimerTick(payload) then
+		E_TimerTick:FireAllClients(payload)
+	end
+end
+
+local function endRound()
+	if not roundActive then return end
+	roundActive = false
+	E_RoundEnded:FireAllClients({ reason = "timeup" })
+	print("[RB7_RoundController] ⏹ Runde ENDE (reason=timeup)")
+end
+
+local function startRound(duration: number?)
+	if roundActive then endRound() end
+	local dur = typeof(duration) == "number" and duration or GameConfig.ROUND_TIME_DEFAULT
+	roundActive = true
+	roundEndsAt = os.time() + dur
+	E_RoundStart:FireAllClients({ duration = dur, endsAt = roundEndsAt })
+	print(("[RB7_RoundController] ▶ Runde START (dauer=%ds)"):format(dur))
+	task.spawn(function()
+		while roundActive do
+			local remain = math.max(0, roundEndsAt - os.time())
+			broadcastTick(remain)
+			if remain <= 0 then endRound() break end
+			task.wait(1)
+		end
+	end)
+end
+
+local firstPlayerJoined = false
+game:GetService("Players").PlayerAdded:Connect(function(_)
+	if not firstPlayerJoined then
+		firstPlayerJoined = true
+		task.delay(2, function() startRound(GameConfig.ROUND_TIME_DEFAULT) end)
+	end
+end)
+if #Players:GetPlayers() > 0 then
+	task.delay(1, function() startRound(GameConfig.ROUND_TIME_DEFAULT) end)
+end
+
+print("[RB7_RoundController] ✅ bereit (Config-gestützt)")
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Script" referent="42">
+        <Properties>
+          <string name="Name">RB7_ServerMain</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[--!strict
+-- RB7_ServerMain: Stellt Remotes bereit und validiert eingehende Payloads
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players           = game:GetService("Players")
+
+local Build  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Meta"):WaitForChild("Build"))
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Schema = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Events_v1"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRemoteEvent(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+
+-- Pfad: ReplicatedStorage/Shared/Events/v1
+local Shared = ensureFolder(ReplicatedStorage, "Shared")
+local EventsRoot = ensureFolder(Shared, Events.ROOT)
+local V = ensureFolder(EventsRoot, Events.VERSION)
+
+local Ping = ensureRemoteEvent(V, Events.PING)
+
+Ping.OnServerEvent:Connect(function(player: Player, payload)
+	if not Schema.IsPing(payload) then
+		warn(string.format("[RB7][Ping][SchemaError] Spieler=%s payload invalid", player.Name))
+		return
+	end
+	print(string.format("[RB7][Ping] from %s ok", player.Name))
+end)
+
+print(("[RB7_ServerMain] ✅ Remotes bereit unter ReplicatedStorage/Shared/Events/%s • Build %s (Schema=%s)")
+	:format(Events.VERSION, Build.Version, Build.SchemaName))
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Folder" referent="43">
+        <Properties>
+          <string name="Name">Services</string>
+        </Properties>
+        <Item class="Script" referent="44">
+          <Properties>
+            <string name="Name">StateService</string>
+            <token name="RunContext">0</token>
+            <string name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local STypes  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("State"):WaitForChild("PlayerState"))
+local StateSchema = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("State_v1"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRE(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+local function ensureRF(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+-- Events-Struktur
+local RS = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+-- Eingangs-Events (vom Client)
+local RE_SetADS    = ensureRE(EV, Events.SET_ADS)
+local RE_SetCrouch = ensureRE(EV, Events.SET_CROUCH)
+local RE_Reload    = ensureRE(EV, Events.RELOAD)
+
+-- State-Schnittstellen (Server -> Client, Client -> Server)
+local RE_StateChanged = ensureRE(EV, Events.STATE_CHANGED)
+local RF_GetState     = ensureRF(EV, Events.GET_STATE)
+
+-- interner Cache
+local cache: {[number]: any} = {}
+
+local function getOrCreate(uid:number)
+	local st = cache[uid]
+	if not st then
+		st = STypes.default(uid)
+		cache[uid] = st
+	end
+	return st
+end
+
+local function syncToClient(uid:number)
+	local st = cache[uid]; if not st then return end
+	local payload = { userId = uid, state = st }
+	if StateSchema.IsStatePayload(payload) then
+		RE_StateChanged:FireAllClients(payload)
+	end
+end
+
+-- RemoteFunction: Client fragt aktuellen eigenen Zustand ab
+RF_GetState.OnServerInvoke = function(player)
+	return getOrCreate(player.UserId)
+end
+
+-- Input-Events: Zustand setzen + syncen
+RE_SetADS.OnServerEvent:Connect(function(player, payload)
+	if type(payload)=="table" and type(payload.on)=="boolean" then
+		local st = getOrCreate(player.UserId)
+		st.ads = payload.on
+		st.updatedAt = os.time()
+		syncToClient(player.UserId)
+	end
+end)
+
+RE_SetCrouch.OnServerEvent:Connect(function(player, payload)
+	if type(payload)=="table" and type(payload.on)=="boolean" then
+		local st = getOrCreate(player.UserId)
+		st.crouch = payload.on
+		st.updatedAt = os.time()
+		syncToClient(player.UserId)
+	end
+end)
+
+RE_Reload.OnServerEvent:Connect(function(player, _)
+	-- Platzhalter: Hier später Munition prüfen/setzen
+	local st = getOrCreate(player.UserId)
+	st.updatedAt = os.time()
+	syncToClient(player.UserId)
+end)
+
+-- Lifecycle
+Players.PlayerAdded:Connect(function(plr)
+	getOrCreate(plr.UserId)
+	syncToClient(plr.UserId)
+end)
+Players.PlayerRemoving:Connect(function(plr)
+	cache[plr.UserId] = nil
+end)
+
+print("[RB7_StateService] ✅ PlayerState aktiv (ADS/Crouch/Reload Hooks)")
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="Script" referent="45">
+          <Properties>
+            <string name="Name">WeaponsService</string>
+            <token name="RunContext">0</token>
+            <string name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Events   = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Limits   = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Limits"))
+local WConfig  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Weapons"):WaitForChild("Config"))
+local WSchema  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("RemoteSchema"):WaitForChild("Weapons_v1"))
+local RateLimiter = require(script.Parent.Parent:WaitForChild("Lib"):WaitForChild("RateLimiter"))
+local LoadoutStore = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("LoadoutStore"))
+
+local function ensureFolder(parent: Instance, name: string): Folder
+	local f = parent:FindFirstChild(name)
+	if not f then f = Instance.new("Folder"); f.Name = name; f.Parent = parent end
+	return f :: Folder
+end
+local function ensureRE(parent: Instance, name: string): RemoteEvent
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteEvent"); r.Name = name; r.Parent = parent end
+	return r :: RemoteEvent
+end
+local function ensureRF(parent: Instance, name: string): RemoteFunction
+	local r = parent:FindFirstChild(name)
+	if not r then r = Instance.new("RemoteFunction"); r.Name = name; r.Parent = parent end
+	return r :: RemoteFunction
+end
+
+local RS     = ReplicatedStorage
+local Shared = ensureFolder(RS, "Shared")
+local ERoot  = ensureFolder(Shared, Events.ROOT)
+local EV     = ensureFolder(ERoot, Events.VERSION)
+
+local RE_Equip      = ensureRE(EV, Events.EQUIP_WEAPON)
+local RE_Shoot      = ensureRE(EV, Events.SHOOT)
+local RE_Reload     = ensureRE(EV, Events.RELOAD)
+local RE_AmmoUp     = ensureRE(EV, Events.AMMO_UPDATE)
+local RF_GetLoadout = ensureRF(EV, Events.GET_LOADOUT)
+
+type AmmoState = { [string]: { mag:number, reserve:number } }
+local ammoCache: {[number]: AmmoState} = {}
+local equipped:  {[number]: string}    = {}
+
+local function cloneAmmoState(src: AmmoState): AmmoState
+	local t: AmmoState = {}
+	for k,v in pairs(src) do t[k] = { mag = v.mag, reserve = v.reserve } end
+	return t
+end
+
+local function initDefaults(): AmmoState
+	local a:AmmoState = {}
+	for name,cfg in pairs(WConfig.Weapons) do
+		a[name] = { mag = cfg.magSize, reserve = cfg.reserve }
+	end
+	return a
+end
+
+local function initPlayer(uid:number)
+	if ammoCache[uid] then return end
+	local saved = require(script.Parent.Parent:WaitForChild("Stores"):WaitForChild("LoadoutStore")).get(uid)
+	if typeof(saved)=="table" then
+		ammoCache[uid] = {}
+		local defaults = initDefaults()
+		for name,cfg in pairs(WConfig.Weapons) do
+			local s = (saved.ammo and saved.ammo[name]) or defaults[name]
+			ammoCache[uid][name] = { mag = s.mag, reserve = s.reserve }
+		end
+		equipped[uid] = saved.equipped or WConfig.DefaultLoadout.Primary
+	else
+		ammoCache[uid] = initDefaults()
+		equipped[uid] = WConfig.DefaultLoadout.Primary
+	end
+end
+
+local function persist(uid:number)
+	local data = { equipped = equipped[uid], ammo = ammoCache[uid] and cloneAmmoState(ammoCache[uid]) or nil }
+	LoadoutStore.set(uid, data)
+end
+
+local function sendAmmo(player: Player, name:string)
+	local a = ammoCache[player.UserId]
+	if not a or not a[name] then return end
+	local payload = { name=name, mag=a[name].mag, reserve=a[name].reserve }
+	if WSchema.IsAmmoUpdate(payload) then RE_AmmoUp:FireClient(player, payload) end
+end
+
+local function allowed(uid:number, eventName:string): boolean
+	local lim = Limits[eventName]
+	if not lim then return true end
+	return RateLimiter.check(uid, eventName, lim.cap, lim.rate)
+end
+
+RF_GetLoadout.OnServerInvoke = function(player)
+	initPlayer(player.UserId)
+	return { Primary = WConfig.DefaultLoadout.Primary, Secondary = WConfig.DefaultLoadout.Secondary, Equipped = equipped[player.UserId] }
+end
+
+RE_Equip.OnServerEvent:Connect(function(player, payload)
+	if not WSchema.IsEquip(payload) then return end
+	if not allowed(player.UserId, Events.EQUIP_WEAPON) then return end
+	initPlayer(player.UserId)
+	local name = payload.name
+	if WConfig.Weapons[name] then
+		equipped[player.UserId] = name
+		sendAmmo(player, name)
+		persist(player.UserId)
+	end
+end)
+
+RE_Shoot.OnServerEvent:Connect(function(player, payload)
+	if not WSchema.IsShoot(payload) then return end
+	if not allowed(player.UserId, Events.SHOOT) then return end
+	initPlayer(player.UserId)
+	local name = payload.name
+	local a = ammoCache[player.UserId]; if not a or not a[name] then return end
+	if a[name].mag > 0 then
+		a[name].mag -= 1
+		sendAmmo(player, name)
+		persist(player.UserId)
+	end
+end)
+
+RE_Reload.OnServerEvent:Connect(function(player, _)
+	if not allowed(player.UserId, Events.RELOAD) then return end
+	initPlayer(player.UserId)
+	local curr = equipped[player.UserId]; if not curr then return end
+	local cfg = WConfig.Weapons[curr]; if not cfg then return end
+	local a = ammoCache[player.UserId][curr]; if not a then return end
+	local needed = cfg.magSize - a.mag
+	if needed > 0 and a.reserve > 0 then
+		local take = math.min(needed, a.reserve)
+		a.mag += take
+		a.reserve -= take
+		sendAmmo(player, curr)
+		persist(player.UserId)
+	end
+end)
+
+Players.PlayerAdded:Connect(function(plr)
+	initPlayer(plr.UserId)
+	task.defer(function() sendAmmo(plr, equipped[plr.UserId]) end)
+end)
+Players.PlayerRemoving:Connect(function(plr)
+	if ammoCache[plr.UserId] or equipped[plr.UserId] then persist(plr.UserId) end
+	ammoCache[plr.UserId] = nil; equipped[plr.UserId] = nil
+end)
+
+print("[RB7_WeaponsService] ✅ aktiv (mit Rate-Limiter)")
+]]></string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Folder" referent="46">
+        <Properties>
+          <string name="Name">Stores</string>
+        </Properties>
+        <Item class="ModuleScript" referent="47">
+          <Properties>
+            <string name="Name">DataStoreAdapter</string>
+            <string name="Source"><![CDATA[--!strict
+local RunService = game:GetService("RunService")
+local DataStoreService = game:GetService("DataStoreService")
+local inStudio = RunService:IsStudio()
+local Store = {}
+local mem:any = {}
+
+function Store.getStore(name:string)
+	if inStudio then
+		mem[name] = mem[name] or {}
+		local ns = mem[name]
+		return {
+			GetAsync = function(_, key:string) return ns[key] end,
+			SetAsync = function(_, key:string, value:any) ns[key]=value return true end,
+		}
+	else
+		local ds = DataStoreService:GetDataStore(name)
+		return {
+			GetAsync = function(_, key:string) return ds:GetAsync(key) end,
+			SetAsync = function(_, key:string, value:any) return ds:SetAsync(key, value) end,
+		}
+	end
+end
+
+return Store
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="48">
+          <Properties>
+            <string name="Name">LoadoutStore</string>
+            <string name="Source"><![CDATA[--!strict
+local DataStoreService = game:GetService("DataStoreService")
+local RunService = game:GetService("RunService")
+local inStudio = RunService:IsStudio()
+
+local Adapter = require(script.Parent:WaitForChild("DataStoreAdapter"))
+
+export type SaveData = {
+	equipped: string?,
+	ammo: { [string]: { mag:number, reserve:number } }?,
+}
+
+local Store = {}
+local ds = Adapter.getStore("RB7_LoadoutAmmo")
+
+function Store.get(userId:number): SaveData?
+	local key = tostring(userId)
+	local ok, result = pcall(function() return ds:GetAsync(key) end)
+	if ok then return result else warn("[LoadoutStore:Get] "..tostring(result)); return nil end
+end
+
+function Store.set(userId:number, data:SaveData)
+	local key = tostring(userId)
+	local ok, err = pcall(function() return ds:SetAsync(key, data) end)
+	if not ok then warn("[LoadoutStore:Set] "..tostring(err)) end
+end
+
+return Store
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="49">
+          <Properties>
+            <string name="Name">ProfileStore</string>
+            <string name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local DataStore = require(script.Parent:WaitForChild("DataStoreAdapter"))
+local ProfileTypes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Types"):WaitForChild("PlayerProfile"))
+
+local store = DataStore.getStore("RB7_PlayerProfiles")
+local cache:{[number]:ProfileTypes.Profile} = {}
+
+local ProfileStore = {}
+
+function ProfileStore.get(userId:number, name:string?): ProfileTypes.Profile
+	local p = cache[userId]
+	if p then return p end
+	local key = tostring(userId)
+	local data = store:GetAsync(key)
+	if typeof(data)=="table" and data.userId == userId then
+		cache[userId]=data; return data
+	end
+	local fresh = ProfileTypes.default(userId, name or ("User"..userId))
+	cache[userId]=fresh
+	store:SetAsync(key, fresh)
+	return fresh
+end
+
+function ProfileStore.save(userId:number)
+	local p = cache[userId]; if not p then return end
+	p.updatedAt = os.time()
+	store:SetAsync(tostring(userId), p)
+end
+
+function ProfileStore.addXp(userId:number, amount:number)
+	local p = ProfileStore.get(userId)
+	p.xp = math.max(0, (p.xp or 0) + amount)
+	ProfileStore.save(userId)
+	return p
+end
+
+Players.PlayerRemoving:Connect(function(plr)
+	ProfileStore.save(plr.UserId)
+end)
+
+return ProfileStore
+]]></string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerStorage" referent="50">
+    <Properties>
+      <string name="Name">ServerStorage</string>
+    </Properties>
+    <Item class="Folder" referent="51">
+      <Properties>
+        <string name="Name">RB7_Private</string>
+      </Properties>
+      <Item class="Folder" referent="52">
+        <Properties>
+          <string name="Name">Sec</string>
+        </Properties>
+        <Item class="StringValue" referent="53">
+          <Properties>
+            <string name="Name">KEEP</string>
+            <string name="Value"><![CDATA[KEEP SEC
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="54">
+          <Properties>
+            <string name="Name">README</string>
+            <string name="Source"><![CDATA[-- sec
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="Folder" referent="55">
+          <Properties>
+            <string name="Name">legacy</string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+    <Item class="Folder" referent="56">
+      <Properties>
+        <string name="Name">Storage</string>
+      </Properties>
+      <Item class="StringValue" referent="57">
+        <Properties>
+          <string name="Name">KEEP</string>
+          <string name="Value"><![CDATA[KEEP storage
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="StarterGui" referent="58">
+    <Properties>
+      <string name="Name">StarterGui</string>
+    </Properties>
+    <Item class="Folder" referent="59">
+      <Properties>
+        <string name="Name">RB7_UI</string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="60">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="61">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="LocalScript" referent="62">
+        <Properties>
+          <string name="Name">Client</string>
+          <string name="Source"><![CDATA[-- client
+]]></string>
+        </Properties>
+        <Item class="Folder" referent="63">
+          <Properties>
+            <string name="Name">Client</string>
+          </Properties>
+          <Item class="LocalScript" referent="64">
+            <Properties>
+              <string name="Name">RB7_UI</string>
+              <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local player  = Players.LocalPlayer
+
+-- Doppelstart-Schutz (gemeinsamer Guard für alle UI-Entrypoints)
+if _G.RB7_UI_BOOTED then
+    warn("[RB7_UI Stub] bereits geladen – überspringe.")
+    return
+end
+_G.RB7_UI_BOOTED = true
+
+print("[RB7_UI Stub] delegiere auf UI/screens …")
+
+-- Unabhängig vom Ort: greife immer auf PlayerScripts/UI/screens zu
+local ps = player:WaitForChild("PlayerScripts")
+local ui = ps:WaitForChild("UI")
+local screensMod = ui:WaitForChild("screens")
+local Screens = require(screensMod)
+
+Screens.boot({
+    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
+})
+
+print("[RB7_UI Stub] done.")
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="65">
+          <Properties>
+            <string name="Name">Debug</string>
+          </Properties>
+          <Item class="LocalScript" referent="66">
+            <Properties>
+              <string name="Name">RB7_UIMonitor</string>
+              <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local plr = Players.LocalPlayer
+
+local function full(n)
+    local ok, path = pcall(function() return n:GetFullName() end)
+    return ok and path or (n.Name .. " (?)")
+end
+
+local function onFound(node, origin)
+    local msg = ("[RB7_UIMonitor] RB7_UI entdeckt (%s): %s"):format(origin, full(node))
+    print(msg)
+    -- Doppelstart-Schutz erzwingen
+    if _G.RB7_UI_BOOTED then
+        -- Falls jemand noch eine Kopie startet, sofort deaktivieren
+        local ok = pcall(function()
+            if node:IsA("LocalScript") then
+                if node:FindFirstChild("screens") then
+                    -- sehr wahrscheinlich legacy
+                    print("[RB7_UIMonitor] deaktiviere vermutetes Legacy-Script.")
+                end
+                -- LocalScript hat die Eigenschaft Enabled
+                node.Enabled = false
+            end
+        end)
+        if not ok then
+            warn("[RB7_UIMonitor] Konnte Legacy nicht deaktivieren (lief evtl. bereits).")
+        end
+    end
+end
+
+-- Frühe Überwachung: PlayerScripts + StarterPlayerScripts
+task.defer(function()
+    -- Bereits vorhandene
+    local ps = plr:WaitForChild("PlayerScripts")
+    for _,d in ipairs(ps:GetDescendants()) do
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            onFound(d, "vorhanden")
+        end
+    end
+    -- Live-Spawn
+    ps.DescendantAdded:Connect(function(d)
+        if d:IsA("LocalScript") and d.Name == "RB7_UI" then
+            onFound(d, "spawn")
+        end
+    end)
+end)
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="LocalScript" referent="67">
+          <Properties>
+            <string name="Name">Init</string>
+            <string name="Source"><![CDATA[-- client
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="StringValue" referent="68">
+          <Properties>
+            <string name="Name">KEEP</string>
+            <string name="Value"><![CDATA[KEEP CLIENT
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="69">
+          <Properties>
+            <string name="Name">Preboot_CleanUI</string>
+            <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local plr = Players.LocalPlayer
+
+local function nukeLegacy()
+    local ps = plr:FindFirstChild("PlayerScripts")
+    if not ps then return end
+    local client = ps:FindFirstChild("Client")
+    if not client then return end
+    local legacy = client:FindFirstChild("RB7_UI")
+    if legacy then
+        legacy:Destroy()
+        print("[RB7_Preboot] entfernt: Client.RB7_UI (legacy)")
+    end
+end
+
+-- Früh und wiederholt prüfen
+for i=1,30 do
+    nukeLegacy()
+    RunService.Heartbeat:Wait()
+end
+-- Und auf spätere Hinzufügungen horchen
+local ps = plr:WaitForChild("PlayerScripts")
+ps.DescendantAdded:Connect(function(d)
+    if d.Name == "RB7_UI" and d.Parent and d.Parent.Name == "Client" then
+        task.defer(function()
+            if d.Parent and d.Parent.Name == "Client" then
+                d:Destroy()
+                print("[RB7_Preboot] nachträglich entfernt: Client.RB7_UI")
+            end
+        end)
+    end
+end)
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="70">
+          <Properties>
+            <string name="Name">RB7_Boot</string>
+            <string name="Source"><![CDATA[print("RB7: Client boot ok")
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="71">
+          <Properties>
+            <string name="Name">RB7_ClientMain</string>
+            <string name="Source"><![CDATA[--!strict
+-- RB7_ClientMain: erstellt minimales HUD und sendet periodisch Ping an den Server
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+
+-- Resolve RemoteEvent
+local Ping: RemoteEvent = ReplicatedStorage
+	:WaitForChild("Shared")
+	:WaitForChild(Events.ROOT)
+	:WaitForChild(Events.VERSION)
+	:WaitForChild(Events.PING) :: any
+
+-- HUD konstruieren (unter StarterGui/RB7_UI gemappt; zur Laufzeit im PlayerGui)
+local pg = player:WaitForChild("PlayerGui")
+local existing = pg:FindFirstChild("RB7_HUD")
+local hud = existing or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"
+hud.ResetOnSpawn = false
+hud.IgnoreGuiInset = true
+hud.Parent = pg
+
+local label = hud:FindFirstChild("Status") :: TextLabel?
+if not label then
+	label = Instance.new("TextLabel")
+	label.Name = "Status"
+	label.Size = UDim2.new(0, 260, 0, 28)
+	label.Position = UDim2.new(0, 12, 0, 12)
+	label.BackgroundTransparency = 0.3
+	label.TextWrapped = true
+	label.Parent = hud
+end
+label.Text = "RB7 HUD bereit • Verbunden"
+
+-- Pings senden als Lebenszeichen
+task.spawn(function()
+	while true do
+		task.wait(5)
+		label.Text = "RB7 Ping → Server …"
+		local ok = pcall(function()
+			Ping:FireServer({ t = os.time() })
+		end)
+		label.Text = ok and "RB7 Ping gesendet" or "RB7 Ping FEHLER"
+	end
+end)
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="72">
+          <Properties>
+            <string name="Name">RB7_InputClient</string>
+            <string name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local ContextActionService = game:GetService("ContextActionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+local Events  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Actions = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Input"):WaitForChild("Actions"))
+
+local function getEvent(name: string): RemoteEvent
+	return (ReplicatedStorage
+		:WaitForChild("Shared")
+		:WaitForChild(Events.ROOT)
+		:WaitForChild(Events.VERSION)
+		:WaitForChild(name)) :: any
+end
+
+local RE_SetADS    : RemoteEvent = getEvent(Events.SET_ADS)
+local RE_SetCrouch : RemoteEvent = getEvent(Events.SET_CROUCH)
+local RE_Reload    : RemoteEvent = getEvent(Events.RELOAD)
+
+local adsOn = false
+local crouchOn = false
+
+local function bindADS(actionName, inputState, inputObject)
+	if inputState == Enum.UserInputState.Begin then
+		adsOn = not adsOn
+		RE_SetADS:FireServer({ on = adsOn })
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+local function bindCrouch(actionName, inputState, inputObject)
+	if inputState == Enum.UserInputState.Begin then
+		crouchOn = not crouchOn
+		RE_SetCrouch:FireServer({ on = crouchOn })
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+local function bindReload(actionName, inputState, inputObject)
+	if inputState == Enum.UserInputState.Begin then
+		RE_Reload:FireServer({})
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+-- Bindings
+ContextActionService:BindAction(Actions.ADS_TOGGLE, bindADS, true, Enum.UserInputType.MouseButton2)
+ContextActionService:BindAction(Actions.CROUCH_TOGGLE, bindCrouch, true, Enum.KeyCode.C)
+ContextActionService:BindAction(Actions.RELOAD, bindReload, true, Enum.KeyCode.R)
+
+print("[RB7_InputClient] ✅ Bindings aktiv (ADS:right mouse, Crouch:C, Reload:R)")
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="73">
+          <Properties>
+            <string name="Name">RB7_ProfileClient</string>
+            <string name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+
+local function get(path)
+	local cur = ReplicatedStorage:WaitForChild("Shared"):WaitForChild(Events.ROOT):WaitForChild(Events.VERSION)
+	return cur:WaitForChild(path)
+end
+
+local RF_GetProfile: RemoteFunction = get(Events.GET_PROFILE) :: any
+local RE_ProfileUpdated: RemoteEvent = get(Events.PROFILE_UPDATED) :: any
+
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD")
+if hud then
+	local label = hud:FindFirstChild("Status") :: TextLabel?
+	if label then
+		local ok, prof = pcall(function() return RF_GetProfile:InvokeServer() end)
+		if ok and typeof(prof)=="table" then
+			label.Text = string.format("RB7 HUD bereit • %s (XP %d)", prof.name or "?", prof.xp or 0)
+		end
+		RE_ProfileUpdated.OnClientEvent:Connect(function(pf)
+			if typeof(pf)=="table" then
+				label.Text = string.format("RB7 HUD bereit • %s (XP %d)", pf.name or "?", pf.xp or 0)
+			end
+		end)
+	end
+end
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="74">
+          <Properties>
+            <string name="Name">RB7_RoundHud</string>
+            <string name="Source"><![CDATA[--!strict
+-- RB7_RoundHud: Zeigt Runden-Timer an und reagiert auf Start/Ende (mit Theme)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local Theme  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Config"):WaitForChild("UITheme"))
+
+local function getEvent(name: string): RemoteEvent
+	return (ReplicatedStorage
+		:WaitForChild("Shared")
+		:WaitForChild(Events.ROOT)
+		:WaitForChild(Events.VERSION)
+		:WaitForChild(name)) :: any
+end
+
+local E_RoundStart: RemoteEvent = getEvent(Events.ROUND_START)
+local E_RoundEnded: RemoteEvent = getEvent(Events.ROUND_ENDED)
+local E_TimerTick : RemoteEvent = getEvent(Events.TIMER_TICK)
+
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD") or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"
+hud.ResetOnSpawn = false
+hud.IgnoreGuiInset = true
+hud.Parent = pg
+
+local function styleLabel(lb: TextLabel, w: number, y: number)
+	lb.Size = UDim2.new(0, w, 0, 28)
+	lb.Position = UDim2.new(0, 12, 0, y)
+	lb.BackgroundColor3 = Theme.Color.PanelBg
+	lb.BackgroundTransparency = 0.3
+	lb.BorderSizePixel = 0
+	lb.Font = Theme.Font         -- <— Enum.Font direkt setzen
+	lb.TextSize = 16
+	lb.TextColor3 = Theme.Color.Text
+end
+
+local statusLabel = hud:FindFirstChild("Status") :: TextLabel?
+if not statusLabel then
+	statusLabel = Instance.new("TextLabel")
+	statusLabel.Name = "Status"
+	statusLabel.TextWrapped = true
+	statusLabel.Parent = hud
+end
+styleLabel(statusLabel, 260, 12)
+statusLabel.Text = "RB7 HUD bereit"
+
+local timerLabel = hud:FindFirstChild("Timer") :: TextLabel?
+if not timerLabel then
+	timerLabel = Instance.new("TextLabel")
+	timerLabel.Name = "Timer"
+	timerLabel.Parent = hud
+end
+styleLabel(timerLabel, 140, 44)
+timerLabel.Text = "⏳ --:--"
+
+local function fmt(sec: number): string
+	sec = math.max(0, math.floor(sec))
+	local m = math.floor(sec/60)
+	local s = sec % 60
+	return string.format("%02d:%02d", m, s)
+end
+
+E_RoundStart.OnClientEvent:Connect(function(payload)
+	statusLabel.Text = "▶ Runde gestartet"
+	if typeof(payload) == "table" and payload.duration then
+		timerLabel.Text = "⏳ " .. fmt(payload.duration)
+	end
+end)
+E_RoundEnded.OnClientEvent:Connect(function(_)
+	statusLabel.Text = "⏹ Runde beendet"
+end)
+E_TimerTick.OnClientEvent:Connect(function(payload)
+	if typeof(payload) == "table" and payload.t then
+		timerLabel.Text = "⏳ " .. fmt(payload.t)
+	end
+end)
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="75">
+          <Properties>
+            <string name="Name">RB7_StateClient</string>
+            <string name="Source"><![CDATA[--!strict
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Events = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+
+local function get(path)
+	local cur = ReplicatedStorage:WaitForChild("Shared"):WaitForChild(Events.ROOT):WaitForChild(Events.VERSION)
+	return cur:WaitForChild(path)
+end
+
+local RF_GetState: RemoteFunction = get(Events.GET_STATE) :: any
+local RE_StateChanged: RemoteEvent = get(Events.STATE_CHANGED) :: any
+
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD")
+local status = hud and hud:FindFirstChild("Status") :: TextLabel?
+
+local function render(st:any)
+	if not status or type(st)~="table" then return end
+	local flags = {}
+	if st.ads then table.insert(flags, "ADS") end
+	if st.crouch then table.insert(flags, "Crouch") end
+	status.Text = ("RB7 HUD bereit • %s"):format(#flags>0 and table.concat(flags, " | ") or "neutral")
+end
+
+-- Initial holen
+local ok, st = pcall(function() return RF_GetState:InvokeServer() end)
+if ok then render(st) end
+
+-- Live-Änderungen
+RE_StateChanged.OnClientEvent:Connect(function(payload)
+	if type(payload)=="table" and payload.userId == player.UserId then
+		render(payload.state)
+	end
+end)
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="76">
+          <Properties>
+            <string name="Name">RB7_UI</string>
+            <string name="Source"><![CDATA[--!strict
+print("[RB7_UI] Init starting…")
+local LobbyScreen = require(script.Parent.screens.LobbyScreen)
+local Loadout = require(script.Parent.screens.LoadoutScreen)
+local lobby = LobbyScreen(); lobby.Enabled = true
+print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
+local loadoutGui = (select(1, Loadout())); loadoutGui.Enabled = false
+print("[RB7_UI] LoadoutScreen created")
+for _,d in ipairs(lobby:GetDescendants()) do
+  if d:IsA("TextButton") and d.Text=="LOADOUT" then
+    d.MouseButton1Click:Connect(function()
+      lobby.Enabled=false; loadoutGui.Enabled=true
+    end)
+  end
+end
+print("[RB7_UI] Init done.")
+]]></string>
+          </Properties>
+          <Item class="LocalScript" referent="77">
+            <Properties>
+              <string name="Name">Init</string>
+              <string name="Source"><![CDATA[--!strict
+print("[RB7_UI] Init starting…")
+local LobbyScreen = require(script.Parent.screens.LobbyScreen)
+local Loadout = require(script.Parent.screens.LoadoutScreen)
+local lobby = LobbyScreen(); lobby.Enabled = true
+print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
+local loadoutGui = (select(1, Loadout())); loadoutGui.Enabled = false
+print("[RB7_UI] LoadoutScreen created")
+for _,d in ipairs(lobby:GetDescendants()) do
+  if d:IsA("TextButton") and d.Text=="LOADOUT" then
+    d.MouseButton1Click:Connect(function()
+      lobby.Enabled=false; loadoutGui.Enabled=true
+    end)
+  end
+end
+print("[RB7_UI] Init done.")
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="Folder" referent="78">
+            <Properties>
+              <string name="Name">components</string>
+            </Properties>
+            <Item class="ModuleScript" referent="79">
+              <Properties>
+                <string name="Name">LeftMenu</string>
+                <string name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local LeftMenu = {}; LeftMenu.__index = LeftMenu
+function LeftMenu.new(parent: Instance, items: {string})
+  local f = Instance.new("Frame"); f.Name="LeftMenu"; f.Size=UDim2.new(0,260,1,0)
+  f.BackgroundColor3=Theme.Colors.Panel; f.BorderSizePixel=0; f.Parent=parent
+  local header = Instance.new("TextLabel"); header.Name="Header"; header.Size=UDim2.new(1,0,0,40)
+  header.BackgroundTransparency=1; header.Font=Theme.Fonts.Header; header.TextSize=18
+  header.TextXAlignment=Enum.TextXAlignment.Left; header.TextColor3=Theme.Colors.Text
+  header.Text="GAME LOBBY"; header.Position=UDim2.new(0,12,0,6); header.Parent=f
+  local listHolder = Instance.new("Frame"); listHolder.Name="List"; listHolder.BackgroundTransparency=1
+  listHolder.Size=UDim2.new(1,-20,1,-70); listHolder.Position=UDim2.new(0,10,0,50); listHolder.Parent=f
+  local layout = Instance.new("UIListLayout"); layout.Padding=UDim.new(0,6); layout.Parent=listHolder
+  local buttons={}
+  for _,name in ipairs(items) do
+    local b=Instance.new("TextButton"); b.Name=(name:gsub("%s","")); b.Size=UDim2.new(1,0,0,28)
+    b.BackgroundColor3=Theme.Colors.AccentDim; b.BorderSizePixel=0; b.AutoButtonColor=false
+    b.Font=Theme.Fonts.Body; b.TextSize=16; b.TextXAlignment=Enum.TextXAlignment.Left
+    b.TextColor3=Theme.Colors.Text; b.Text=name; b.Parent=listHolder
+    local line=Instance.new("Frame"); line.Size=UDim2.new(1,0,0,1); line.BackgroundColor3=Theme.Colors.Line; line.BorderSizePixel=0; line.Position=UDim2.new(0,0,1,0); line.Parent=b
+    b.MouseEnter:Connect(function() b.BackgroundColor3=Theme.Colors.Accent end)
+    b.MouseLeave:Connect(function() b.BackgroundColor3=Theme.Colors.AccentDim end)
+    table.insert(buttons,b)
+  end
+  return setmetatable({Frame=f,Items=buttons},LeftMenu)
+end
+return LeftMenu
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="80">
+              <Properties>
+                <string name="Name">MapPreview</string>
+                <string name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function MapPreview(parent: Instance)
+  local frame=Instance.new("Frame"); frame.Name="MapPreview"; frame.Size=UDim2.new(0,260,0,160); frame.BackgroundColor3=Theme.Colors.Panel; frame.BorderSizePixel=0; frame.Parent=parent
+  local img=Instance.new("ImageLabel"); img.Name="Image"; img.Size=UDim2.new(1,-12,1,-12); img.Position=UDim2.new(0,6,0,6); img.BackgroundTransparency=1; img.ScaleType=Enum.ScaleType.Crop; img.Image="rbxassetid://0"; img.Parent=frame
+  local caption=Instance.new("TextLabel"); caption.Name="Caption"; caption.BackgroundTransparency=1; caption.Size=UDim2.new(1,-12,0,18); caption.Position=UDim2.new(0,6,1,-22); caption.Font=Theme.Fonts.Body; caption.TextXAlignment=Enum.TextXAlignment.Left; caption.TextSize=14; caption.TextColor3=Theme.Colors.Text; caption.Text="TOTAL CONQUEST  •  COB TRAINING"; caption.Parent=frame
+  return frame
+end
+return MapPreview
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="81">
+              <Properties>
+                <string name="Name">TeamPanel</string>
+                <string name="Source"><![CDATA[--!strict
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function mkRow(parent: Instance, idx: number, name: string, kills: number, deaths: number, highlight: boolean?)
+  local row=Instance.new("Frame"); row.Name="Row"..idx; row.Size=UDim2.new(1,0,0,22); row.BackgroundTransparency=1; row.Parent=parent
+  local i=Instance.new("TextLabel"); i.Size=UDim2.new(0,22,1,0); i.BackgroundTransparency=1; i.Font=Theme.Fonts.Mono; i.TextSize=14; i.TextColor3=Theme.Colors.SubText; i.Text=tostring(idx).."."; i.Parent=row
+  local n=Instance.new("TextLabel"); n.Position=UDim2.new(0,26,0,0); n.Size=UDim2.new(1,-160,1,0); n.BackgroundTransparency=1; n.Font=Theme.Fonts.Body; n.TextXAlignment=Enum.TextXAlignment.Left; n.TextSize=14; n.TextColor3=highlight and Theme.Colors.Good or Theme.Colors.Text; n.Text=name; n.Parent=row
+  local k=Instance.new("TextLabel"); k.Size=UDim2.new(0,40,1,0); k.Position=UDim2.new(1,-90,0,0); k.BackgroundTransparency=1; k.Font=Theme.Fonts.Mono; k.TextSize=14; k.Text=tostring(kills); k.TextColor3=Theme.Colors.Text; k.Parent=row
+  local d=Instance.new("TextLabel"); d.Size=UDim2.new(0,40,1,0); d.Position=UDim2.new(1,-40,0,0); d.BackgroundTransparency=1; d.Font=Theme.Fonts.Mono; d.TextSize=14; d.Text=tostring(deaths); d.TextColor3=Theme.Colors.Text; d.Parent=row
+end
+local function TeamPanel(parent: Instance, title: string, rows)
+  local panel=Instance.new("Frame"); panel.Name=title:gsub("%s","").."Panel"; panel.BackgroundColor3=Theme.Colors.Panel; panel.BorderSizePixel=0; panel.Size=UDim2.new(0.49,-6,0,170); panel.Parent=parent
+  local header=Instance.new("TextLabel"); header.Name="Header"; header.Size=UDim2.new(1,0,0,28); header.BackgroundColor3=Theme.Colors.Line; header.BorderSizePixel=0; header.Font=Theme.Fonts.Header; header.TextSize=16; header.TextColor3=Theme.Colors.Text; header.Text=title:upper(); header.Parent=panel
+  local body=Instance.new("Frame"); body.Name="Body"; body.BackgroundTransparency=1; body.Position=UDim2.new(0,10,0,36); body.Size=UDim2.new(1,-20,1,-46); body.Parent=panel
+  local layout=Instance.new("UIListLayout"); layout.Padding=UDim.new(0,4); layout.Parent=body
+  for i,r in ipairs(rows) do mkRow(body,i,r[1],r[2],r[3],r[4]) end
+  return panel
+end
+return TeamPanel
+]]></string>
+              </Properties>
+            </Item>
+          </Item>
+          <Item class="Folder" referent="82">
+            <Properties>
+              <string name="Name">screens</string>
+            </Properties>
+            <Item class="ModuleScript" referent="83">
+              <Properties>
+                <string name="Name">LoadoutScreen</string>
+                <string name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local Theme = require(script.Parent.Parent.styles.Theme)
+local function LoadoutScreen()
+  local playerGui=Players.LocalPlayer:WaitForChild("PlayerGui")
+  local gui=Instance.new("ScreenGui"); gui.Name="RB7_Loadout"; gui.IgnoreGuiInset=true; gui.ResetOnSpawn=false; gui.Enabled=false; gui.Parent=playerGui
+  local bg=Instance.new("Frame"); bg.Size=UDim2.new(1,0,1,0); bg.BackgroundColor3=Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent=gui
+  local title=Instance.new("TextLabel"); title.Size=UDim2.new(1,0,0,50); title.BackgroundTransparency=1; title.Font=Theme.Fonts.Header; title.TextSize=24; title.TextColor3=Theme.Colors.Text; title.Text="LOADOUT"; title.Parent=bg
+  local weapons=Instance.new("TextButton"); weapons.Size=UDim2.new(0,220,0,40); weapons.Position=UDim2.new(0,50,0,90); weapons.Text="Weapons"; weapons.BackgroundColor3=Theme.Colors.AccentDim; weapons.TextColor3=Theme.Colors.Text; weapons.Parent=bg
+  local gear=Instance.new("TextButton"); gear.Size=UDim2.new(0,220,0,40); gear.Position=UDim2.new(0,50,0,140); gear.Text="Gear (Head/Arm/Shoulder/Chest/Leg/Clothes)"; gear.BackgroundColor3=Theme.Colors.AccentDim; gear.TextColor3=Theme.Colors.Text; gear.Parent=bg
+  return gui,{Weapons=weapons,Gear=gear}
+end
+return LoadoutScreen
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="84">
+              <Properties>
+                <string name="Name">LobbyScreen</string>
+                <string name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local Theme = require(script.Parent.Parent.styles.Theme)
+local LeftMenu = require(script.Parent.Parent.components.LeftMenu)
+local TeamPanel = require(script.Parent.Parent.components.TeamPanel)
+local MapPreview = require(script.Parent.Parent.components.MapPreview)
+local function LobbyScreen()
+  local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+  local gui = Instance.new("ScreenGui"); gui.Name="RB7_Lobby"; gui.IgnoreGuiInset=true; gui.DisplayOrder=50; gui.ResetOnSpawn=false; gui.Parent=playerGui
+  local bg=Instance.new("Frame"); bg.Size=UDim2.new(1,0,1,0); bg.BackgroundColor3=Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent=gui
+  local left = LeftMenu.new(bg, {"NOT READY","CHANGE TEAM","LOADOUT","MATCH SETTINGS","PLAYERS","OPTIONS","STATISTICS"}).Frame
+  local preview = MapPreview(bg); preview.Position=UDim2.new(0,10,1,-180)
+  local right=Instance.new("Frame"); right.Name="RightColumn"; right.Size=UDim2.new(1,-280,1,-20); right.Position=UDim2.new(0,270,0,10); right.BackgroundTransparency=1; right.Parent=bg
+  local top=Instance.new("Frame"); top.Name="TeamsRow"; top.Size=UDim2.new(1,0,0,180); top.BackgroundTransparency=1; top.Parent=right
+  local h=Instance.new("UIListLayout"); h.FillDirection=Enum.FillDirection.Horizontal; h.Padding=UDim.new(0,12); h.Parent=top
+  local alpha = TeamPanel(top,"ALPHA TEAM",{{"World x Famous",38,12,false},{"[NwO]JeeNiNe",34,14,false},{"NwO x DoNTe",62,21,true},{"[X]TxkEoVeR",70,22,false}})
+  alpha.Size=UDim2.new(0.5,-6,1,0)
+  local bravo = TeamPanel(top,"BRAVO TEAM",{{"[GOD]Able In The Cut",36,5,true},{"Methodz",99,4,false},{"Fams Ringer Tag",44,6,false},{"CnC Killa Chris",47,6,false}})
+  bravo.Size=UDim2.new(0.5,-6,1,0)
+  local footer=Instance.new("TextLabel"); footer.Name="Footer"; footer.BackgroundTransparency=1; footer.Size=UDim2.new(1,-10,0,18); footer.Position=UDim2.new(0,270,1,-22)
+  footer.Font=Theme.Fonts.Mono; footer.TextXAlignment=Enum.TextXAlignment.Right; footer.TextSize=14; footer.TextColor3=Theme.Colors.SubText; footer.Text="XP MODIFIER: -20%"; footer.Parent=bg
+  return gui
+end
+return LobbyScreen
+]]></string>
+              </Properties>
+            </Item>
+          </Item>
+          <Item class="Folder" referent="85">
+            <Properties>
+              <string name="Name">styles</string>
+            </Properties>
+            <Item class="ModuleScript" referent="86">
+              <Properties>
+                <string name="Name">Theme</string>
+                <string name="Source"><![CDATA[--!strict
+local Theme = {
+  Colors = {
+    Bg=Color3.fromRGB(20,20,24), Panel=Color3.fromRGB(36,36,42),
+    Accent=Color3.fromRGB(160,20,20), AccentDim=Color3.fromRGB(120,16,16),
+    Text=Color3.fromRGB(235,235,235), SubText=Color3.fromRGB(190,190,190),
+    Line=Color3.fromRGB(80,80,86), Good=Color3.fromRGB(80,200,120),
+    Warn=Color3.fromRGB(220,200,90),
+  },
+  Fonts={ Header=Enum.Font.GothamBold, Body=Enum.Font.Gotham, Mono=Enum.Font.Code }
+}
+return Theme
+]]></string>
+              </Properties>
+            </Item>
+          </Item>
+          <Item class="Folder" referent="87">
+            <Properties>
+              <string name="Name">utils</string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="LocalScript" referent="88">
+          <Properties>
+            <string name="Name">RB7_UI</string>
+            <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local player  = Players.LocalPlayer
+
+if _G.RB7_UI_BOOTED then
+    warn("[RB7_UI] bereits geladen – überspringe.")
+    return
+end
+_G.RB7_UI_BOOTED = true
+
+print("[RB7_UI] Init starting…")
+
+-- Robust: Finde UI/screens, egal wo das Script hängt
+local ps = player:WaitForChild("PlayerScripts")
+local root = script.Parent
+if root.Name ~= "Client" then
+    root = ps:FindFirstChild("Client") or ps
+end
+
+local uiFolder = root:FindFirstChild("UI") or ps:FindFirstChild("UI") or script.Parent:FindFirstChild("UI")
+assert(uiFolder, "[RB7_UI] UI folder not found")
+local screensMod = uiFolder:FindFirstChild("screens")
+assert(screensMod, "[RB7_UI] 'screens' Module not found under UI")
+local Screens = require(screensMod)
+
+Screens.boot({
+    displayOrder = { Lobby = 50, Loadout = 55, HUD = 100 }
+})
+
+print("[RB7_UI] Init done.")
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="LocalScript" referent="89">
+          <Properties>
+            <string name="Name">RB7_WeaponInputClient</string>
+            <string name="Source"><![CDATA[--!strict
+local Players = game:GetService("Players")
+local ContextActionService = game:GetService("ContextActionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+local Events  = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Constants"):WaitForChild("Events"))
+local WConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RB7"):WaitForChild("Weapons"):WaitForChild("Config"))
+
+local function getEvent(name: string): any
+	return (ReplicatedStorage
+		:WaitForChild("Shared")
+		:WaitForChild(Events.ROOT)
+		:WaitForChild(Events.VERSION)
+		:WaitForChild(name))
+end
+
+local RE_Equip : RemoteEvent = getEvent(Events.EQUIP_WEAPON)
+local RE_Shoot : RemoteEvent = getEvent(Events.SHOOT)
+local RE_AmmoUp: RemoteEvent = getEvent(Events.AMMO_UPDATE)
+local RF_Loadout: RemoteFunction = getEvent(Events.GET_LOADOUT)
+
+local equipped = "FAMAS"
+
+-- HUD-Hook
+local pg = player:WaitForChild("PlayerGui")
+local hud = pg:FindFirstChild("RB7_HUD") or Instance.new("ScreenGui")
+hud.Name = "RB7_HUD"; hud.ResetOnSpawn=false; hud.IgnoreGuiInset=true; hud.Parent = pg
+
+local ammoLabel = hud:FindFirstChild("Ammo") :: TextLabel?
+if not ammoLabel then
+	ammoLabel = Instance.new("TextLabel")
+	ammoLabel.Name = "Ammo"
+	ammoLabel.Size = UDim2.new(0, 160, 0, 28)
+	ammoLabel.Position = UDim2.new(0, 12, 0, 76)
+	ammoLabel.BackgroundTransparency = 0.3
+	ammoLabel.Text = "🔫 --/--"
+	ammoLabel.Parent = hud
+end
+
+local function renderAmmo(name:string, mag:number?, reserve:number?)
+	if mag and reserve then
+		ammoLabel.Text = ("🔫 %s  %d/%d"):format(name, mag, reserve)
+	end
+end
+
+-- Initial: Loadout & Start-Anzeige
+local ok, loadout = pcall(function() return RF_Loadout:InvokeServer() end)
+if ok and typeof(loadout)=="table" then
+	equipped = loadout.Equipped or equipped
+end
+RE_Equip:FireServer({ name = equipped })
+
+-- Bindings: Equip 1/2/3, Shoot (LMB)
+local function bindEquip1(_,state) if state==Enum.UserInputState.Begin then equipped="FAMAS"; RE_Equip:FireServer({name=equipped}) end return Enum.ContextActionResult.Sink end
+local function bindEquip2(_,state) if state==Enum.UserInputState.Begin then equipped="MP5";   RE_Equip:FireServer({name=equipped}) end return Enum.ContextActionResult.Sink end
+local function bindEquip3(_,state) if state==Enum.UserInputState.Begin then equipped="PISTOL";RE_Equip:FireServer({name=equipped}) end return Enum.ContextActionResult.Sink end
+local function bindShoot(_,state)
+	if state==Enum.UserInputState.Begin then
+		RE_Shoot:FireServer({ name = equipped })
+	end
+	return Enum.ContextActionResult.Sink
+end
+
+ContextActionService:BindAction("RB7_EQUIP_1", bindEquip1, true, Enum.KeyCode.One)
+ContextActionService:BindAction("RB7_EQUIP_2", bindEquip2, true, Enum.KeyCode.Two)
+ContextActionService:BindAction("RB7_EQUIP_3", bindEquip3, true, Enum.KeyCode.Three)
+ContextActionService:BindAction("RB7_SHOOT",   bindShoot,  true, Enum.UserInputType.MouseButton1)
+
+-- Live-Ammo-Updates vom Server
+RE_AmmoUp.OnClientEvent:Connect(function(payload)
+	if typeof(payload)=="table" then
+		renderAmmo(payload.name, payload.mag, payload.reserve)
+	end
+end)
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="Folder" referent="90">
+          <Properties>
+            <string name="Name">UI</string>
+          </Properties>
+          <Item class="Folder" referent="91">
+            <Properties>
+              <string name="Name">assets</string>
+            </Properties>
+            <Item class="Folder" referent="92">
+              <Properties>
+                <string name="Name">icons</string>
+              </Properties>
+            </Item>
+          </Item>
+          <Item class="Folder" referent="93">
+            <Properties>
+              <string name="Name">components</string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="94">
+            <Properties>
+              <string name="Name">screens</string>
+              <string name="Source"><![CDATA[local M = {}
+local LobbyScreen   = require(script:WaitForChild("LobbyScreen"))
+local LoadoutScreen = require(script:WaitForChild("LoadoutScreen"))
+local Hud           = require(script:WaitForChild("Hud"))
+
+function M.boot(opts)
+    opts = opts or {}
+    local order = opts.displayOrder or {}
+    local CoreGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+    local lobbyGui = LobbyScreen.create()
+    lobbyGui.DisplayOrder = order.Lobby or 50
+    lobbyGui.Parent = CoreGui
+    print(("[RB7_UI] LobbyScreen created; DisplayOrder = %d"):format(lobbyGui.DisplayOrder))
+
+    local loadoutGui = LoadoutScreen.create()
+    loadoutGui.DisplayOrder = order.Loadout or 55
+    loadoutGui.Enabled = false
+    loadoutGui.Parent = CoreGui
+    print("[RB7_UI] LoadoutScreen created")
+
+    local hudGui = Hud.create()
+    hudGui.DisplayOrder = order.HUD or 100
+    hudGui.Parent = CoreGui
+    print("[RB7_UI] Hud created")
+
+    local RS = game:GetService("ReplicatedStorage")
+    local EventsRoot = RS:FindFirstChild("Shared") and RS.Shared:FindFirstChild("Events")
+    if EventsRoot and EventsRoot:FindFirstChild("OpenMenu") then
+        EventsRoot.OpenMenu.OnClientEvent:Connect(function(menu)
+            lobbyGui.Enabled   = (menu == "Lobby")
+            loadoutGui.Enabled = (menu == "Loadout")
+            hudGui.Enabled     = (menu == "HUD")
+        end)
+        print("[RB7_UI] Event bridge active (OpenMenu).")
+    end
+end
+
+return M
+]]></string>
+            </Properties>
+            <Item class="ModuleScript" referent="95">
+              <Properties>
+                <string name="Name">Hud</string>
+                <string name="Source"><![CDATA[local M = {}
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "HUD"
+    local ammo = Instance.new("TextLabel")
+    ammo.Name = "Ammo"
+    ammo.Size = UDim2.fromScale(0.18, 0.08)
+    ammo.Position = UDim2.fromScale(0.80, 0.90)
+    ammo.BackgroundTransparency = 1
+    ammo.TextScaled = true
+    ammo.Text = "Ammo: 30/90"
+    ammo.TextColor3 = Color3.new(1,1,1)
+    ammo.Parent = gui
+    local xp = Instance.new("TextLabel")
+    xp.Name = "XP"
+    xp.Size = UDim2.fromScale(0.18, 0.08)
+    xp.Position = UDim2.fromScale(0.02, 0.90)
+    xp.BackgroundTransparency = 1
+    xp.TextScaled = true
+    xp.Text = "XP: 0"
+    xp.TextColor3 = Color3.new(1,1,1)
+    xp.Parent = gui
+    return gui
+end
+return M
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="96">
+              <Properties>
+                <string name="Name">LoadoutScreen</string>
+                <string name="Source"><![CDATA[local M = {}
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LoadoutScreen"
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.fromScale(0.5, 0.6)
+    frame.Position = UDim2.fromScale(0.25, 0.2)
+    frame.BackgroundTransparency = 0.2
+    frame.Name = "LoadoutFrame"
+    frame.Parent = gui
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.fromScale(1, 0.12)
+    title.BackgroundTransparency = 1
+    title.Text = "Loadout"
+    title.TextScaled = true
+    title.TextColor3 = Color3.new(1,1,1)
+    title.Parent = frame
+    return gui
+end
+return M
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="97">
+              <Properties>
+                <string name="Name">LobbyScreen</string>
+                <string name="Source"><![CDATA[local M = {}
+function M.create()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LobbyScreen"
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.fromScale(0.3, 0.08)
+    label.Position = UDim2.fromScale(0.02, 0.03)
+    label.TextScaled = true
+    label.Text = "RB7 • Lobby"
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1,1,1)
+    label.Parent = gui
+    return gui
+end
+return M
+]]></string>
+              </Properties>
+            </Item>
+          </Item>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+</roblox>
