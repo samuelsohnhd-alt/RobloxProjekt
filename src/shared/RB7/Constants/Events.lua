@@ -5,12 +5,12 @@ local Events = {
 	VERSION     = "v1",
 
 	-- Core
-	PING        = "Ping",
+	PING            = "Ping",
 
 	-- Runden/Match
-	ROUND_START = "RoundStart",    -- RemoteEvent (S->C)
-	ROUND_ENDED = "RoundEnded",    -- RemoteEvent (S->C)
-	TIMER_TICK  = "TimerTick",     -- RemoteEvent (S->C) payload: { t = number }
+	ROUND_START     = "RoundStart",     -- RemoteEvent (S->C)
+	ROUND_ENDED     = "RoundEnded",     -- RemoteEvent (S->C)
+	TIMER_TICK      = "TimerTick",      -- RemoteEvent (S->C) payload: { t = number }
 
 	-- Profile
 	GET_PROFILE     = "GetProfile",     -- RemoteFunction (C->S) -> Profile
@@ -20,5 +20,9 @@ local Events = {
 	SET_ADS         = "SetADS",         -- RemoteEvent payload: { on:boolean }
 	SET_CROUCH      = "SetCrouchState", -- RemoteEvent payload: { on:boolean }
 	RELOAD          = "ReloadEvent",    -- RemoteEvent payload: { }
+
+	-- PlayerState
+	GET_STATE       = "GetState",       -- RemoteFunction (C->S) -> PlayerState
+	STATE_CHANGED   = "PlayerStateChanged", -- RemoteEvent (S->C) payload: { userId:number, state:table }
 }
 return Events
