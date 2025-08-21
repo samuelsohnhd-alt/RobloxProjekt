@@ -5,10 +5,7 @@
     "ServerScriptService": {
       "$className": "ServerScriptService",
       "Server": {
-        "$className": "Folder",
-        "src/server": {
-          "$path": "src/server"
-        }
+        "$path": "src/server"
       }
     },
     "ServerStorage": {
@@ -17,14 +14,14 @@
         "$className": "Folder",
         "Sec": {
           "$className": "Folder",
-          "src/sec": {
+          "sec": {
             "$path": "src/sec"
           }
         }
       },
       "Storage": {
         "$className": "Folder",
-        "src/storage": {
+        "storage": {
           "$path": "src/storage"
         }
       }
@@ -32,14 +29,11 @@
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Shared": {
-        "$className": "Folder",
-        "src/shared": {
-          "$path": "src/shared"
-        }
+        "$path": "src/shared"
       },
       "First": {
         "$className": "Folder",
-        "src/first": {
+        "first": {
           "$path": "src/first"
         }
       }
@@ -49,10 +43,7 @@
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
         "Client": {
-          "$className": "Folder",
-          "src/client": {
-            "$path": "src/client"
-          }
+          "$path": "src/client"
         }
       }
     },
@@ -60,10 +51,11 @@
       "$className": "StarterGui",
       "RB7_UI": {
         "$className": "Folder",
-        "src/ui": {
+        "ui": {
           "$path": "src/ui"
         }
       }
     }
-  }
+  },
+  "servePort": 34872
 }

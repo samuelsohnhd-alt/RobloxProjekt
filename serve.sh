@@ -1,17 +1,7 @@
-#!/bin/bash
-# Auto-Serve Script für Rojo
-
-cd ~/RobloxProjekt || exit 1
-
-# Start bei Standardport
-PORT=34872
-
-# Solange Port belegt ist, erhöhe um 1
-while lsof -i :$PORT >/dev/null 2>&1; do
-  echo "⚠️  Port $PORT belegt, versuche nächsten..."
-  PORT=$((PORT+1))
-done
-
-echo "✅ Starte Rojo auf Port $PORT"
-rojo serve --port $PORT
-
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+python3 scripts/fix_rojo_keys.py
+pkill -f "rojo serve --port 34872" >/dev/null 2>&1 || true
+nohup rojo serve --port 34872 >/tmp/rojo_serve.log 2>&1 & disown
+echo "Rojo läuft auf :34872 (mapping gefixt)."
