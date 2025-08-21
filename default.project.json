@@ -1,27 +1,29 @@
 {
-  "name": "RobloxProjekt",
+  "name": "RB7",
   "tree": {
     "$className": "DataModel",
+
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "src/server": {
-        "$path": "src/server"
+      "src/server": { "$path": "src/server" }
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "src/shared": { "$path": "src/shared" },
+      "sec": {
+        "$className": "Folder",
+        "src/sec": { "$path": "src/sec" }
       }
     },
+
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "src/client": {
-          "$path": "src/client"
-        }
-      }
-    },
-    "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "src/shared": {
-        "$path": "src/shared"
+        "src/client": { "$path": "src/client" }
       }
     }
   }
 }
+
