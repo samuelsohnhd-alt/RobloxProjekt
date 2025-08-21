@@ -8,7 +8,8 @@ local MapPreview = require(script.Parent.Parent.components.MapPreview)
 local function LobbyScreen()
     local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
     local gui = Instance.new("ScreenGui")
-    gui.Name = "RB7_Lobby"; gui.IgnoreGuiInset = true; gui.ResetOnSpawn = false; gui.Parent = playerGui
+    
+      q{gui.Name = "RB7_Lobby"; gui.IgnoreGuiInset = true; gui.DisplayOrder = 50; print("[RB7_UI] Building LobbyScreen…");} gui.ResetOnSpawn = false; gui.Parent = playerGui
 
     local bg = Instance.new("Frame"); bg.Size = UDim2.new(1,0,1,0); bg.BackgroundColor3 = Theme.Colors.Bg; bg.BorderSizePixel=0; bg.Parent = gui
 

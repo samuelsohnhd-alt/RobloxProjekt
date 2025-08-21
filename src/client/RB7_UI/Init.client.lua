@@ -1,15 +1,23 @@
 --!strict
+print("[RB7_UI] Init starting…")
 local LobbyScreen = require(script.Parent.screens.LobbyScreen)
 local Loadout = require(script.Parent.screens.LoadoutScreen)
 
 local lobby = LobbyScreen()
-local loadoutGui = (select(1, Loadout()))
+lobby.Enabled = true
+print("[RB7_UI] LobbyScreen created; DisplayOrder =", lobby.DisplayOrder)
 
-for _,desc in ipairs(lobby:GetDescendants()) do
-    if desc:IsA("TextButton") and desc.Text == "LOADOUT" then
-        desc.MouseButton1Click:Connect(function()
+local loadoutGui = (select(1, Loadout()))
+loadoutGui.Enabled = false
+print("[RB7_UI] LoadoutScreen created")
+
+for _,d in ipairs(lobby:GetDescendants()) do
+    if d:IsA("TextButton") and d.Text == "LOADOUT" then
+        d.MouseButton1Click:Connect(function()
+            print("[RB7_UI] LOADOUT clicked")
             lobby.Enabled = false
             loadoutGui.Enabled = true
         end)
     end
 end
+print("[RB7_UI] Init done.")
