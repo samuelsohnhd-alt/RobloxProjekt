@@ -4620,6 +4620,178 @@ return Logger
 					</Properties>
 				</Item>
 			</Item>
+			<Item class="Script" referent="RBXcd1c46b65b464251b21dfcf2896ef70f">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">R6V_TimerPublisher</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{a7d1e7de-1116-449a-8f09-abd7c842fa18}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+  RB7: R6V_TimerPublisher (server)
+  Fix: saubere Variablen, 1s Tick, RemoteEvent "RoundTimerTick" unter ReplicatedStorage/Events/v1.
+  Idempotent: Mehrfaches Starten erzeugt keine Duplikate.
+]]
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Konfiguration
+local RoundTimeSeconds  = 300
+local PublishEverySecs  = 1
+
+-- Helpers
+local function ensureFolder(parent, name)
+    local f = parent:FindFirstChild(name)
+    if not f then
+        f = Instance.new("Folder")
+        f.Name = name
+        f.Parent = parent
+    end
+    return f
+end
+
+local function ensureRemoteEvent(parent, name)
+    local ev = parent:FindFirstChild(name)
+    if not ev then
+        ev = Instance.new("RemoteEvent")
+        ev.Name = name
+        ev.Parent = parent
+    end
+    return ev
+end
+
+-- Events/v1
+local EventsRoot = ensureFolder(ReplicatedStorage, "Events")
+local V1         = ensureFolder(EventsRoot, "v1")
+local TickEvent  = ensureRemoteEvent(V1, "RoundTimerTick")
+
+-- Einmaliger Loop per Flag
+local Flag = ReplicatedStorage:FindFirstChild("_RB7_TimerPublisher_Running")
+if not Flag then
+    Flag = Instance.new("BoolValue")
+    Flag.Name = "_RB7_TimerPublisher_Running"
+    Flag.Value = false
+    Flag.Parent = ReplicatedStorage
+end
+
+if not Flag.Value then
+    Flag.Value = true
+    task.spawn(function()
+        local remaining = RoundTimeSeconds
+        while remaining >= 0 do
+            pcall(function() TickEvent:FireAllClients(remaining) end)
+            task.wait(PublishEverySecs)
+            remaining -= PublishEverySecs
+        end
+        pcall(function() TickEvent:FireAllClients(-1) end)
+        Flag.Value = false
+    end)
+else
+    warn("[R6V_TimerPublisher] Läuft bereits – kein zweiter Loop gestartet.")
+end
+
+print("[R6V_TimerPublisher] ✅ aktiv – RoundTimeSeconds =", RoundTimeSeconds)
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">4d82c8a0b9b0644408b8a0ef0000080c</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="Script" referent="RBXa152d538b3234d1985d18d1ed1dfc7cf">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">R6V_UnlocksManager</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{f5e7bc50-3521-4166-b36b-397389f91862}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+  RB7: R6V_UnlocksManager (server)
+  Fix: Verhindert "attempt to call a nil value" mit stabilem Tabellen-API
+       und __call-Guard. Stubs sind defensiv & idempotent.
+]]
+local Players           = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local UnlocksManager = {
+    _initialized = false,
+    _profiles = {},
+}
+
+function UnlocksManager.Init()
+    if UnlocksManager._initialized then return end
+    UnlocksManager._initialized = true
+
+    local Events = ReplicatedStorage:FindFirstChild("Events")
+    if Events then
+        local V1 = Events:FindFirstChild("v1")
+        if V1 then
+            local GrantXP = V1:FindFirstChild("GrantXP")
+            if GrantXP and GrantXP:IsA("RemoteEvent") then
+                GrantXP.OnServerEvent:Connect(function(plr, amount)
+                    if typeof(amount) ~= "number" then
+                        warn("[UnlocksManager] GrantXP: amount ungültig", amount)
+                        return
+                    end
+                    UnlocksManager:AddXP(plr, amount)
+                end)
+            end
+        end
+    end
+
+    Players.PlayerAdded:Connect(function(p)
+        UnlocksManager:_ensureProfile(p)
+    end)
+    Players.PlayerRemoving:Connect(function(p)
+        UnlocksManager._profiles[p] = nil
+    end)
+
+    print("[R6V_UnlocksManager] ✅ Init abgeschlossen")
+end
+
+function UnlocksManager:_ensureProfile(player)
+    self._profiles[player] = self._profiles[player] or { xp = 0, unlocks = {} }
+    return self._profiles[player]
+end
+
+function UnlocksManager:AddXP(player, amount)
+    local prof = self:_ensureProfile(player)
+    prof.xp = math.max(0, (prof.xp or 0) + amount)
+    return prof.xp
+end
+
+function UnlocksManager:HasUnlock(player, key)
+    local prof = self:_ensureProfile(player)
+    return prof.unlocks[key] == true
+end
+
+function UnlocksManager:GrantUnlock(player, key)
+    local prof = self:_ensureProfile(player)
+    prof.unlocks[key] = true
+    return true
+end
+
+setmetatable(UnlocksManager, {
+    __call = function(_, ...)
+        warn("[R6V_UnlocksManager] Hinweis: Script als Funktion aufgerufen – gebe Manager-Tabelle zurück.")
+        return UnlocksManager
+    end
+})
+
+UnlocksManager.Init()
+_G.RB7_UnlocksManager = UnlocksManager
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">4d82c8a0b9b0644408b8a0ef0000080f</UniqueId>
+				</Properties>
+			</Item>
 		</Item>
 	</Item>
 	<Item class="ServerStorage" referent="RBXdd9d3be0b26a44d0802d0833c1c4851f">
