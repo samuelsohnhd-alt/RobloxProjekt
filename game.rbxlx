@@ -3962,6 +3962,18 @@ return Store
 						<UniqueId name="UniqueId">09618a79faec3cc608b8863a00000853</UniqueId>
 					</Properties>
 				</Item>
+				<Item class="Folder" referent="RBX37e588eb6640444aa685deb06848fb3d">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+						<bool name="DefinesCapabilities">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">legacy</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">428391ff8d622ca408b89b05000007fd</UniqueId>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 	</Item>
