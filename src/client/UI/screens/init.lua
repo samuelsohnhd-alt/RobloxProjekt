@@ -1,16 +1,9 @@
-local M = {}
-local LobbyScreen   = require(script:WaitForChild("LobbyScreen"))
-local LoadoutScreen = require(script:WaitForChild("LoadoutScreen"))
-local Hud           = require(script:WaitForChild("Hud"))
+local UIState        = require(script.Parent.Parent.components.UIState)
+local LobbyScreen    = require(script:WaitForChild("LobbyScreen"))
+local LoadoutScreen  = require(script:WaitForChild("LoadoutScreen"))
+local Hud            = require(script:WaitForChild("Hud"))
 
-local function setVisible(gui, on)
-    if not gui then return end
-    if gui:IsA("ScreenGui") then
-        gui.Enabled = on
-    else
-        gui.Visible = on
-    end
-end
+local M = {}
 
 function M.boot(opts)
     opts = opts or {}
@@ -26,31 +19,15 @@ function M.boot(opts)
     local hud   = Hud.create(); hud.DisplayOrder = order.HUD or 100; hud.Parent = pg
     print("[RB7_UI] Hud created")
 
-    -- Startzustand: Lobby + HUD sichtbar, Loadout aus
-    setVisible(lobby, true)
-    setVisible(hud,   true)
-    setVisible(load,  false)
+    -- Screens registrieren
+    UIState.register("Lobby", lobby)
+    UIState.register("Loadout", load)
+    UIState.register("HUD", hud)
 
-    -- Event-Bridge: ReplicatedStorage.Shared.Events[.v1].OpenMenu
-    local RS = game:GetService("ReplicatedStorage")
-    local shared = RS:FindFirstChild("Shared")
-    local events = shared and shared:FindFirstChild("Events")
-    local v1     = events and (events:FindFirstChild("v1") or events)
-    local openMenu = v1 and v1:FindFirstChild("OpenMenu")
-
-    if openMenu and openMenu:IsA("RemoteEvent") then
-        openMenu.OnClientEvent:Connect(function(menu)
-            -- menu: "Lobby" | "Loadout" | "HUD"
-            local t = tostring(menu)
-            setVisible(lobby,   t == "Lobby")
-            setVisible(load,    t == "Loadout")
-            setVisible(hud,     t == "HUD" or t == "Lobby") -- HUD bleibt in Lobby sichtbar
-            print("[RB7_UI] OpenMenu ->", t)
-        end)
-        print("[RB7_UI] Event bridge active (OpenMenu).")
-    else
-        warn("[RB7_UI] OpenMenu RemoteEvent nicht gefunden (ReplicatedStorage.Shared.Events[.v1].OpenMenu)")
-    end
+    -- Startzustand: Lobby + HUD sichtbar
+    lobby.Enabled = true
+    hud.Enabled   = true
+    load.Enabled  = false
 end
 
 return M

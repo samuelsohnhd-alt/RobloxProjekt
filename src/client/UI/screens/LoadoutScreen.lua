@@ -1,54 +1,35 @@
-local EventBridge = require(script.Parent.Parent.components.EventBridge)
-local TextButtonPrimary = require(script.Parent.Parent.components.TextButtonPrimary)
-local TabBar = require(script.Parent.Parent.components.TabBar)
+local UIState = require(script.Parent.Parent.components.UIState)
+local Button = require(script.Parent.Parent.components.TextButtonPrimary)
 
 local M = {}
 
 local WEAPONS = {
-    -- DisplayName, Id/Preset
     {name="FAMAS", id="FAMAS"},
     {name="MP5",   id="MP5"},
     {name="Pistol",id="Pistol"},
 }
 
-local function makeHeader(parent, text)
-    local title = Instance.new("TextLabel")
-    title.Name = "Title"
-    title.Size = UDim2.fromScale(1, 0.1)
-    title.Position = UDim2.fromScale(0, 0)
-    title.BackgroundTransparency = 1
-    title.Text = text
-    title.TextScaled = true
-    title.TextColor3 = Color3.new(1,1,1)
-    title.Font = Enum.Font.GothamBold
-    title.Parent = parent
-    return title
+local function header(parent, text)
+    local t = Instance.new("TextLabel")
+    t.Size = UDim2.fromScale(1, 0.12)
+    t.Position = UDim2.fromScale(0,0)
+    t.BackgroundTransparency = 1
+    t.Text = text
+    t.TextScaled = true
+    t.Font = Enum.Font.GothamBold
+    t.TextColor3 = Color3.new(1,1,1)
+    t.Parent = parent
 end
 
-local function makeScroll(parent)
+local function scroll(parent)
     local sc = Instance.new("ScrollingFrame")
-    sc.Name = "List"
-    sc.Size = UDim2.fromScale(1, 0.7)
-    sc.Position = UDim2.fromScale(0, 0.12)
-    sc.CanvasSize = UDim2.new(0,0,0,0)
-    sc.ScrollBarThickness = 6
-    sc.BackgroundTransparency = 0.2
-
-    local padding = Instance.new("UIPadding")
-    padding.PaddingTop = UDim.new(0,8)
-    padding.PaddingLeft = UDim.new(0,8)
-    padding.PaddingRight = UDim.new(0,8)
-    padding.Parent = sc
-
-    local list = Instance.new("UIListLayout")
-    list.SortOrder = Enum.SortOrder.LayoutOrder
-    list.Padding = UDim.new(0,8)
-    list.Parent = sc
-
-    list:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        sc.CanvasSize = UDim2.new(0,0,0,list.AbsoluteContentSize.Y+16)
+    sc.Name = "List"; sc.Size = UDim2.fromScale(1, 0.70); sc.Position = UDim2.fromScale(0, 0.14)
+    sc.CanvasSize = UDim2.new(0,0,0,0); sc.ScrollBarThickness = 6; sc.BackgroundTransparency = 0.2
+    local padding = Instance.new("UIPadding"); padding.PaddingTop = UDim.new(0,8); padding.PaddingLeft = UDim.new(0,8); padding.PaddingRight = UDim.new(0,8); padding.Parent = sc
+    local ly = Instance.new("UIListLayout"); ly.SortOrder = Enum.SortOrder.LayoutOrder; ly.Padding = UDim.new(0,8); ly.Parent = sc
+    ly:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        sc.CanvasSize = UDim2.new(0,0,0,ly.AbsoluteContentSize.Y+16)
     end)
-
     sc.Parent = parent
     return sc
 end
@@ -63,114 +44,58 @@ function M.create()
     frame.Position = UDim2.fromScale(0.2, 0.15)
     frame.BackgroundTransparency = 0.05
     frame.Parent = gui
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0, 12); corner.Parent = frame
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = frame
+    header(frame, "Loadout")
 
-    makeHeader(frame, "Loadout")
+    -- Back-Button
+    local back = Button.create({ Text = "← Zurück", Size = UDim2.fromOffset(140, 36) })
+    back.Position = UDim2.fromScale(0.02, 0.02)
+    back.Parent = frame
+    back.MouseButton1Click:Connect(function() UIState.show("Lobby") end)
 
+    -- Weapon List
+    local list = scroll(frame)
     local selected = { weapon = nil }
 
-    -- Tabbar
-    local tabs = TabBar.create({"Weapons","Gear","Armor","Back"}, function(tab)
-        if tab == "Back" then
-            -- Zur Lobby zurück
-            local ev = EventBridge.getEventsRoot()
-            if ev and ev:FindFirstChild("OpenMenu") then
-                ev.OpenMenu:FireServer("Lobby")
-            end
-            gui.Enabled = false
-            return
-        end
-        -- (Platzhalter: weitere Tabs zukünftig)
-    end)
-    tabs.Position = UDim2.fromScale(0, 0.88)
-    tabs.Parent = frame
-
-    -- Waffenliste
-    local list = makeScroll(frame)
-
-    local function spawnWeaponRow(w)
+    local function addRow(w)
         local row = Instance.new("Frame")
-        row.Name = "Row_"..w.id
-        row.Size = UDim2.new(1, -16, 0, 48)
-        row.BackgroundTransparency = 0.3
-        row.Parent = list
-
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = row
+        row.Name = "Row_"..w.id; row.Size = UDim2.new(1, -16, 0, 48); row.BackgroundTransparency = 0.3; row.Parent = list
+        local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0,8); c.Parent = row
 
         local label = Instance.new("TextLabel")
-        label.Name = "Label"
-        label.Size = UDim2.fromScale(0.6, 1)
-        label.BackgroundTransparency = 1
-        label.Text = w.name
-        label.TextScaled = true
-        label.TextColor3 = Color3.new(1,1,1)
-        label.Parent = row
+        label.Name = "Label"; label.Size = UDim2.fromScale(0.6, 1); label.BackgroundTransparency = 1
+        label.Text = w.name; label.TextScaled = true; label.TextColor3 = Color3.new(1,1,1); label.Parent = row
 
-        local pick = TextButtonPrimary.create({ Size = UDim2.fromOffset(120, 36), Text = "Select" })
-        pick.Position = UDim2.fromScale(0.7, 0.1)
-        pick.Parent = row
+        local pick = Button.create({ Text = "Select", Size = UDim2.fromOffset(120, 36) })
+        pick.Position = UDim2.fromScale(0.7, 0.1); pick.Parent = row
 
         local status = Instance.new("TextLabel")
-        status.Name = "Status"
-        status.Size = UDim2.fromOffset(120, 36)
-        status.Position = UDim2.fromScale(0.85, 0.1)
-        status.BackgroundTransparency = 1
-        status.TextScaled = true
-        status.Text = ""
-        status.TextColor3 = Color3.new(0.7,1,0.7)
+        status.Name = "Status"; status.Size = UDim2.fromOffset(120, 36); status.Position = UDim2.fromScale(0.85, 0.1)
+        status.BackgroundTransparency = 1; status.TextScaled = true; status.Text = ""; status.TextColor3 = Color3.fromRGB(160,255,160)
         status.Parent = row
 
-        local function updateStatus(active)
-            status.Text = active and "Selected" or ""
-        end
+        local function mark(active) status.Text = active and "Selected" or "" end
 
         pick.MouseButton1Click:Connect(function()
             selected.weapon = w.id
-            -- Statusanzeigen aktualisieren
             for _,child in ipairs(list:GetChildren()) do
-                if child:IsA("Frame") and child:FindFirstChild("Status") then
-                    child.Status.Text = ""
-                end
+                if child:IsA("Frame") and child:FindFirstChild("Status") then child.Status.Text = "" end
             end
-            updateStatus(true)
+            mark(true)
         end)
     end
 
-    for _,w in ipairs(WEAPONS) do
-        spawnWeaponRow(w)
-    end
+    for _,w in ipairs(WEAPONS) do addRow(w) end
 
-    -- Apply-Button
-    local apply = TextButtonPrimary.create({ Size = UDim2.fromOffset(180, 44), Text = "Apply Loadout" })
-    apply.Position = UDim2.fromScale(0.35, 0.88)
-    apply.Parent = frame
-
+    -- Apply
+    local apply = Button.create({ Text = "Apply Loadout", Size = UDim2.fromOffset(180, 44) })
+    apply.Position = UDim2.fromScale(0.35, 0.88); apply.Parent = frame
     apply.MouseButton1Click:Connect(function()
-        local ev = EventBridge.getEventsRoot()
-        if not ev then
-            warn("[Loadout] EventsRoot nicht gefunden")
-            return
-        end
         local weapon = selected.weapon
         if weapon then
-            -- Robust: feuere, was es gibt
-            if ev:FindFirstChild("EquipWeapon") then
-                ev.EquipWeapon:FireServer(weapon)
-                print("[Loadout] EquipWeapon ->", weapon)
-            end
-            if ev:FindFirstChild("SaveWeaponChoice") then
-                ev.SaveWeaponChoice:FireServer(weapon)
-                print("[Loadout] SaveWeaponChoice ->", weapon)
-            end
-            if ev:FindFirstChild("OpenMenu") then
-                ev.OpenMenu:FireServer("HUD") -- zurück ins Spiel/HUD
-            end
-            gui.Enabled = false
+            print("[Loadout] Selected:", weapon)
+            UIState.show("HUD")
         else
             warn("[Loadout] Keine Waffe gewählt")
         end
