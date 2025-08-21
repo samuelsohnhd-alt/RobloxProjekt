@@ -1,5 +1,5 @@
 --!strict
--- RB7: zentrale Event-Konstanten
+-- RB7: zentrale Event-Konstanten (stabile Schnittstelle)
 local Events = {
 	ROOT            = "Events",
 	VERSION         = "v1",
@@ -8,27 +8,30 @@ local Events = {
 	PING            = "Ping",
 
 	-- Runden/Match
-	ROUND_START     = "RoundStart",       -- RemoteEvent (S->C)
-	ROUND_ENDED     = "RoundEnded",       -- RemoteEvent (S->C)
-	TIMER_TICK      = "TimerTick",        -- RemoteEvent (S->C) payload: { t:number }
+	ROUND_START     = "RoundStart",
+	ROUND_ENDED     = "RoundEnded",
+	TIMER_TICK      = "TimerTick",
 
 	-- Profile
-	GET_PROFILE     = "GetProfile",       -- RemoteFunction (C->S) -> Profile
-	PROFILE_UPDATED = "ProfileUpdated",   -- RemoteEvent (S->C)
+	GET_PROFILE     = "GetProfile",
+	PROFILE_UPDATED = "ProfileUpdated",
 
 	-- Inputs (Client -> Server)
-	SET_ADS         = "SetADS",           -- RemoteEvent payload: { on:boolean }
-	SET_CROUCH      = "SetCrouchState",   -- RemoteEvent payload: { on:boolean }
-	RELOAD          = "ReloadEvent",      -- RemoteEvent payload: { }
+	SET_ADS         = "SetADS",
+	SET_CROUCH      = "SetCrouchState",
+	RELOAD          = "ReloadEvent",
 
 	-- PlayerState
-	GET_STATE       = "GetState",         -- RemoteFunction (C->S) -> PlayerState
-	STATE_CHANGED   = "PlayerStateChanged", -- RemoteEvent (S->C) payload: { userId:number, state:table }
+	GET_STATE       = "GetState",
+	STATE_CHANGED   = "PlayerStateChanged",
 
-	-- Weapons (Client -> Server unless noted)
-	EQUIP_WEAPON    = "EquipWeapon",      -- RE payload: { name:string }   (C->S)
-	SHOOT           = "ShootEvent",       -- RE payload: { name:string }   (C->S)
-	AMMO_UPDATE     = "AmmoUpdated",      -- RE payload: { name, mag, reserve } (S->C)
-	GET_LOADOUT     = "GetLoadout",       -- RF returns { Primary=..., Secondary=... } (C->S)
+	-- Weapons
+	EQUIP_WEAPON    = "EquipWeapon",
+	SHOOT           = "ShootEvent",
+	AMMO_UPDATE     = "AmmoUpdated",
+	GET_LOADOUT     = "GetLoadout",
+
+	-- Admin / Diagnostics
+	GET_SERVER_STATS = "GetServerStats", -- RemoteFunction (C->S) -> { ok, data|error }
 }
 return Events
