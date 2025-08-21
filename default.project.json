@@ -5,23 +5,20 @@
 
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "src/server": { "$path": "src/server" }
+      "server": { "$path": "src/server" }
     },
 
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
-      "src/shared": { "$path": "src/shared" },
-      "sec": {
-        "$className": "Folder",
-        "src/sec": { "$path": "src/sec" }
-      }
+      "shared": { "$path": "src/shared" },
+      "sec":    { "$path": "src/sec" }
     },
 
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "src/client": { "$path": "src/client" }
+        "client": { "$path": "src/client" }
       }
     }
   }
