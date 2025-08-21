@@ -1,5 +1,4 @@
 --!strict
--- Robuste App: lädt Components/init.lua sicher und mountet HUD
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -7,16 +6,10 @@ local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
 local function getComponentsModule(): ModuleScript?
 	local uiFolder = script.Parent
 	local compFolder = uiFolder:FindFirstChild("Components") or uiFolder:WaitForChild("Components", 5)
-	if not compFolder then
-		warn("[UI/App] ❌ Components-Ordner nicht gefunden.")
-		return nil
-	end
+	if not compFolder then warn("[UI/App] ❌ Components-Ordner nicht gefunden."); return nil end
 	local mod = compFolder:FindFirstChild("init") or compFolder:FindFirstChildWhichIsA("ModuleScript")
-	if not mod then
-		warn("[UI/App] ❌ Components ModuleScript (init.lua) fehlt.")
-		return nil
-	end
-	return mod :: ModuleScript
+	if not mod then warn("[UI/App] ❌ Components ModuleScript (init.lua) fehlt."); return nil end
+	return mod
 end
 
 local ComponentsModule = getComponentsModule()
@@ -37,7 +30,6 @@ function App.mount()
 		warn("[UI/App] ⚠️ Components nicht geladen – HUD wird nicht gemountet.")
 		return nil
 	end
-
 	gui = Instance.new("ScreenGui")
 	gui.IgnoreGuiInset = true
 	gui.Name = "RB7_HUD"
@@ -46,10 +38,8 @@ function App.mount()
 
 	local panel = Components.MakePanel({Name="HUDPanel", Size=UDim2.fromScale(0.26,0.14), Position=UDim2.new(0,12,0,12)})
 	panel.Parent = gui
-
 	stateLabel = Components.MakeLabel({Name="State", Text="State: —", Size=UDim2.fromScale(1,0.45), Position=UDim2.new(0,0,0,0)})
 	stateLabel.Parent = panel
-
 	timeLabel = Components.MakeLabel({Name="Timer", Text="Time: —", Size=UDim2.fromScale(1,0.45), Position=UDim2.new(0,0,0.5,0)})
 	timeLabel.Parent = panel
 

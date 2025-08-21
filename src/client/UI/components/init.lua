@@ -1,7 +1,5 @@
 --!strict
--- Minimaler Komponenten-Baukasten
 local Components = {}
-
 function Components.MakeLabel(props: {Name: string?, Text: string?, Size: UDim2?, Position: UDim2?})
 	local l = Instance.new("TextLabel")
 	l.Name = props.Name or "Label"
@@ -16,7 +14,6 @@ function Components.MakeLabel(props: {Name: string?, Text: string?, Size: UDim2?
 	l.BorderSizePixel = 0
 	return l
 end
-
 function Components.MakePanel(props: {Name: string?, Size: UDim2?, Position: UDim2?})
 	local f = Instance.new("Frame")
 	f.Name = props.Name or "Panel"
@@ -29,5 +26,4 @@ function Components.MakePanel(props: {Name: string?, Size: UDim2?, Position: UDi
 	local pad = Instance.new("UIPadding"); pad.PaddingLeft = UDim.new(0,10); pad.PaddingTop = UDim.new(0,8); pad.Parent = f
 	return f
 end
-
 return Components
